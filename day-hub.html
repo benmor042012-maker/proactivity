@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day Hub | היום שלי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;900&family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14152B;--card:#1E2044;--card2:#252A52;--border:#33366A;
+  --text:#F5F3FF;--muted:#9B9BC4;--gold:#FFD166;
+  --study:#6C8EFF;--sport:#FF6B5B;--friends:#FFC857;--sleep:#9D7BEA;
+  --money:#4ECB71;--food:#FF9F5B;--hobby:#3ECFC0;--self:#FF7EB6;
+}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;}
+body{background:radial-gradient(1200px 600px at 80% -10%,#23265a 0%,var(--bg) 55%);color:var(--text);font-family:'Assistant',sans-serif;min-height:100vh;padding:18px 14px 90px;}
+h1,h2,h3,.display{font-family:'Rubik',sans-serif;}
+.wrap{max-width:1000px;margin:0 auto;}
+
+/* ONBOARDING */
+.onb-bg{position:fixed;inset:0;background:radial-gradient(1000px 500px at 50% -10%,#2a2d63,#14152B 60%);z-index:200;overflow-y:auto;padding:32px 16px;}
+.onb-card{max-width:520px;margin:0 auto;}
+.onb-logo{text-align:center;font-family:'Rubik';font-weight:900;font-size:30px;margin-bottom:4px;}.onb-logo span{color:var(--gold);}
+.onb-tagline{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px;}
+.onb-progress{height:6px;border-radius:4px;background:#3a3d76;margin-bottom:24px;overflow:hidden;}
+.onb-progress>div{height:100%;background:var(--gold);border-radius:4px;transition:width .35s;}
+.onb-step{display:none;animation:fade .3s;}.onb-step.active{display:block;}
+.onb-step h2{font-size:22px;margin:0 0 6px;}
+.q-sub{color:var(--muted);font-size:14px;margin:0 0 20px;line-height:1.6;}
+.field{margin-bottom:16px;}.field label{display:block;font-size:14px;font-weight:600;margin-bottom:8px;}
+.field input[type=text],.field input[type=number]{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:12px 14px;font-size:15px;font-family:'Assistant';}
+.opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;}
+.opt{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;font-size:14px;font-weight:600;transition:all .15s;user-select:none;}
+.opt .emo{font-size:24px;display:block;margin-bottom:6px;}.opt.sel{border-color:var(--gold);background:#2a2c5a;}
+.onb-nav{display:flex;gap:10px;margin-top:26px;}.onb-nav .btn{flex:1;}
+.theory-tag{display:inline-block;font-size:11px;color:var(--gold);background:#2a2c5a;border:1px solid var(--gold);border-radius:8px;padding:2px 8px;margin-top:6px;}
+
+/* HEADER */
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+header h1{font-size:24px;font-weight:900;margin:0 0 3px;}
+header .sub{color:var(--muted);font-size:14px;margin:0;}
+.level-pill{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:9px 14px;min-width:170px;}
+.level-pill .row{display:flex;align-items:center;gap:8px;justify-content:space-between;}
+.level-pill .stage{font-size:11px;color:var(--gold);font-weight:700;}
+.level-pill .num{font-family:'Rubik';font-weight:900;font-size:18px;color:var(--gold);}
+.level-pill .lbl{font-size:12px;color:var(--muted);}
+.xp-bar{height:6px;border-radius:4px;background:#3a3d76;margin-top:6px;overflow:hidden;}
+.xp-bar>div{height:100%;background:var(--gold);border-radius:4px;transition:width .4s;}
+
+/* TABS */
+.tabs{display:flex;gap:5px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:5px;margin-bottom:20px;overflow-x:auto;}
+.tab{flex:1;min-width:80px;border:none;background:transparent;color:var(--muted);font-family:'Rubik';font-weight:700;font-size:12px;padding:10px 6px;border-radius:11px;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.tab.active{background:var(--gold);color:#3a2a00;}
+
+.page{display:none;}.page.active{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* HERO */
+.hero{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:22px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:18px;}
+.ring-wrap{position:relative;width:180px;height:180px;flex:0 0 180px;}
+.ring-wrap svg{transform:rotate(-90deg);width:100%;height:100%;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.ring-center .pct{font-family:'Rubik';font-weight:900;font-size:28px;}
+.ring-center .lbl{font-size:12px;color:var(--muted);}
+.hero-right{flex:1;min-width:220px;}
+.hero-right h2{font-size:18px;margin:0 0 6px;}
+.hero-right p{color:var(--muted);font-size:14px;margin:0 0 14px;line-height:1.6;}
+.stat-row{display:flex;gap:8px;flex-wrap:wrap;}
+.stat-chip{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:7px 12px;font-size:13px;display:flex;align-items:center;gap:5px;}
+.stat-chip b{font-family:'Rubik';color:var(--gold);}
+
+/* INSIGHT */
+.insight{background:linear-gradient(135deg,#1e2258,#252a52);border:1px solid var(--border);border-radius:16px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px;}
+.insight .emoji{font-size:24px;flex:0 0 28px;}
+.insight .body{flex:1;}
+.insight .body .head{font-weight:700;font-size:14px;margin-bottom:2px;}
+.insight .body .desc{font-size:13px;color:var(--muted);line-height:1.6;}
+.insight .body .src{font-size:11px;color:var(--gold);margin-top:4px;}
+
+/* CHALLENGE */
+.challenge{background:linear-gradient(135deg,#2b2f66,#1E2044);border:1px solid var(--border);border-radius:18px;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
+.challenge .txt{flex:1;min-width:200px;}
+.eyebrow{font-size:11px;letter-spacing:.06em;color:var(--gold);font-weight:700;}
+.challenge .title{font-size:15px;font-weight:600;margin-top:2px;}
+
+.btn{border:none;border-radius:12px;padding:11px 18px;font-family:'Assistant';font-weight:700;font-size:14px;cursor:pointer;transition:transform .12s,opacity .12s;}
+.btn:active{transform:scale(.96);}
+.btn-gold{background:var(--gold);color:#3a2a00;}
+.btn-gold:disabled{opacity:.4;cursor:default;}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-sm{padding:6px 12px;font-size:13px;}
+
+/* CATEGORIES */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+.cat-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;border-top:4px solid var(--cat-color,var(--study));}
+.cat-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cat-head .name{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;}
+.cat-head .count{font-size:12px;color:var(--muted);}
+.task{display:flex;align-items:center;gap:9px;padding:9px 4px;border-bottom:1px solid #2b2d59;}
+.task:last-of-type{border-bottom:none;}
+.task .cb{appearance:none;width:22px;height:22px;border-radius:6px;border:2px solid var(--cat-color,var(--study));flex:0 0 22px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.task .cb:checked{background:var(--cat-color,var(--study));}
+.task .cb:checked::after{content:"✓";font-size:14px;color:#14152B;font-weight:900;}
+.task .body{flex:1;min-width:0;}
+.task .t-title{font-size:14px;}
+.task .t-title.done{text-decoration:line-through;color:var(--muted);}
+.task .t-meta{font-size:11px;color:var(--muted);display:flex;gap:8px;align-items:center;margin-top:2px;flex-wrap:wrap;}
+.task .cam-badge{color:var(--food);font-weight:700;}
+.task .thumb{width:34px;height:34px;border-radius:8px;object-fit:cover;border:1px solid var(--border);}
+.task .del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:2px 4px;}
+.task .del:hover{color:#ff6b5b;}
+.task .timer-btn{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:11px;padding:3px 8px;cursor:pointer;}
+.task .timer-btn.running{background:var(--gold);color:#3a2a00;border-color:var(--gold);}
+.empty-note{font-size:13px;color:var(--muted);padding:8px 4px 4px;}
+.add-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.add-row input[type=text]{flex:1;min-width:120px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:8px 10px;font-size:13px;font-family:'Assistant';}
+.add-row input[type=number]{width:64px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:8px 6px;font-size:13px;font-family:'Assistant';}
+.add-row label.cam-toggle{display:flex;align-items:center;gap:4px;font-size:14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:0 10px;cursor:pointer;}
+.add-row button.add-btn{background:var(--cat-color,var(--study));border:none;border-radius:10px;width:38px;color:#14152B;font-weight:900;font-size:16px;cursor:pointer;}
+input::placeholder{color:var(--muted);}
+
+.sec-title{font-size:19px;margin:4px 0 4px;}.sec-sub{color:var(--muted);font-size:14px;margin:0 0 18px;line-height:1.6;}
+
+/* WEEKLY GRID */
+.week-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 18px;margin-bottom:16px;}
+.week-bar .info{font-size:14px;}.week-bar .info b{color:var(--gold);font-family:'Rubik';}
+.grid-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:16px;background:var(--card);}
+table.week-grid{border-collapse:collapse;width:100%;min-width:640px;}
+table.week-grid th,table.week-grid td{padding:0;text-align:center;}
+table.week-grid thead th{background:var(--card2);font-size:12px;color:var(--muted);font-weight:700;padding:12px 6px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;}
+table.week-grid thead th.today{color:var(--gold);}
+table.week-grid th.mission-col,table.week-grid td.mission-col{text-align:right;padding:10px 14px;min-width:180px;position:sticky;right:0;background:var(--card);border-left:1px solid var(--border);}
+table.week-grid tbody tr{border-bottom:1px solid #2b2d59;}
+.mcell{display:flex;align-items:center;gap:8px;}
+.mcell .dot{width:10px;height:10px;border-radius:50%;flex:0 0 10px;background:var(--cat-color);}
+.mcell .mtxt{font-size:13.5px;font-weight:600;}
+.mcell .mcat{font-size:11px;color:var(--muted);}
+.mcell .mdel{margin-inline-start:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;}.mcell .mdel:hover{color:#ff6b5b;}
+.daycell{cursor:pointer;height:44px;transition:background .12s;}.daycell:hover{background:#2a2c58;}
+.daycell .mark{display:inline-flex;width:26px;height:26px;border-radius:8px;align-items:center;justify-content:center;font-size:15px;font-weight:900;border:2px solid #3a3d76;}
+.daycell.on .mark{background:var(--cat-color);border-color:var(--cat-color);color:#14152B;}
+.status-col{min-width:96px;font-size:13px;font-weight:700;}
+.status-col.win{color:var(--money);}.status-col.miss{color:var(--sport);}.status-col.mid{color:var(--gold);}
+.add-mission{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;}
+.add-mission input[type=text]{flex:1;min-width:140px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px 12px;font-size:14px;font-family:'Assistant';}
+.add-mission select{background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px 8px;font-size:14px;font-family:'Assistant';}
+.add-mission input[type=number]{width:74px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px 8px;font-size:14px;font-family:'Assistant';}
+
+.review-card{background:linear-gradient(135deg,#2b2f66,#1E2044);border:1px solid var(--border);border-radius:18px;padding:20px;margin-top:18px;text-align:center;}
+.review-card h3{font-size:18px;margin:0 0 8px;}.review-card p{color:var(--muted);font-size:14px;margin:0 0 16px;}
+.review-result{display:none;margin-top:16px;padding:16px;border-radius:14px;background:var(--card2);border:1px solid var(--border);}
+.review-result.show{display:block;}
+.review-result .big{font-family:'Rubik';font-weight:900;font-size:26px;color:var(--gold);}
+
+/* BODY */
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
+.plan-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;border-top:4px solid var(--accent,var(--sport));}
+.plan-card h3{font-size:16px;margin:0 0 12px;}
+.plan-item{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #2b2d59;font-size:14px;cursor:pointer;}
+.plan-item:last-child{border-bottom:none;}
+.plan-item .pcb{appearance:none;width:20px;height:20px;border-radius:6px;border:2px solid var(--accent,var(--sport));flex:0 0 20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.plan-item .pcb:checked{background:var(--accent,var(--sport));}
+.plan-item .pcb:checked::after{content:"✓";font-size:12px;color:#14152B;font-weight:900;}
+.plan-item .pt.done{text-decoration:line-through;color:var(--muted);}
+.plan-item .reps{margin-inline-start:auto;font-size:12px;color:var(--muted);}
+
+/* THEORY CARDS */
+.theo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.theo-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;cursor:pointer;transition:border-color .15s,transform .12s;position:relative;overflow:hidden;}
+.theo-card:hover{border-color:var(--gold);transform:translateY(-2px);}
+.theo-card .tnum{position:absolute;top:12px;left:14px;font-family:'Rubik';font-weight:900;font-size:28px;color:#2a2c5a;}
+.theo-card .ticon{font-size:30px;margin-bottom:8px;}
+.theo-card .tname{font-family:'Rubik';font-weight:700;font-size:15px;margin-bottom:3px;}
+.theo-card .tauthor{font-size:12px;color:var(--gold);margin-bottom:8px;}
+.theo-card .tprinciple{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.5;}
+.theo-card .thow{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:8px;}
+.theo-card .taction{font-size:13px;color:var(--sport);font-weight:700;display:flex;align-items:center;gap:6px;}
+.theo-card .taction::before{content:"⚡";}
+.theo-card .feat-label{display:inline-block;font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 8px;color:var(--muted);margin-top:8px;}
+
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:34px;}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:#3a2a00;padding:10px 20px;border-radius:12px;font-weight:700;font-size:14px;opacity:0;transition:all .35s;pointer-events:none;z-index:120;text-align:center;max-width:90%;}.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.modal-bg{position:fixed;inset:0;background:rgba(8,8,20,.75);display:none;align-items:center;justify-content:center;z-index:150;padding:16px;}.modal-bg.show{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;max-width:380px;width:100%;text-align:center;}
+.modal h3{font-size:18px;margin:0 0 6px;}.modal p{color:var(--muted);font-size:14px;margin:0 0 16px;}
+.cam-view{width:100%;border-radius:14px;background:#000;aspect-ratio:4/3;object-fit:cover;margin-bottom:14px;border:1px solid var(--border);}
+.cam-preview{width:100%;border-radius:14px;aspect-ratio:4/3;object-fit:cover;margin-bottom:14px;border:1px solid var(--border);display:none;}
+.modal-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}.hidden-file{display:none;}
+
+@media(max-width:560px){.hero{flex-direction:column;text-align:center;}.hero-right{text-align:right;}}
+</style>
+</head>
+<body>
+
+<!-- ONBOARDING -->
+<div class="onb-bg" id="onboarding">
+<div class="onb-card">
+  <div class="onb-logo">Day <span>Hub</span></div>
+  <div class="onb-tagline">מבוסס על 8 תיאוריות פסיכולוגיות מוכחות מחקרית</div>
+  <div class="onb-progress"><div id="onbProg" style="width:16%"></div></div>
+
+  <div class="onb-step active" data-step="1">
+    <h2>👋 נעים להכיר</h2>
+    <p class="q-sub">איך קוראים לך ובן כמה אתה? ככה נתאים לך את הרמה, האתגרים והתוכן.</p>
+    <div class="field"><label>השם שלי</label><input type="text" id="onbName" placeholder="לדוגמה: בן"></div>
+    <div class="field"><label>הגיל שלי</label><input type="number" id="onbAge" placeholder="13" min="8" max="25"></div>
+    <div class="theory-tag">🧠 תיאוריית ההכוונה העצמית (SDT) — אנחנו מתאימים הכל אליך כי אוטונומיה = מוטיבציה</div>
+    <div class="onb-nav"><button class="btn btn-gold" data-next>הבא ←</button></div>
+  </div>
+
+  <div class="onb-step" data-step="2">
+    <h2>🎯 מה חשוב לך?</h2>
+    <p class="q-sub">בחר את התחומים שאתה רוצה להתקדם בהם. רק אלה יופיעו באפליקציה — כי אתה בוחר את המסלול שלך.</p>
+    <div class="opt-grid" id="onbGoals"></div>
+    <div class="theory-tag">🧠 מיקוד שליטה (רוטר) — תתמקד רק במה שביכולתך לשלוט ולהשפיע</div>
+    <div class="onb-nav"><button class="btn btn-ghost" data-back>→ חזרה</button><button class="btn btn-gold" data-next>הבא ←</button></div>
+  </div>
+
+  <div class="onb-step" data-step="3">
+    <h2>⚡ רמת קושי</h2>
+    <p class="q-sub">כמה אתגר אתה רוצה? מטרות מאתגרות אבל ריאליסטיות משפרות ביצועים — זה מוכח מחקרית.</p>
+    <div class="opt-grid" id="onbDiff">
+      <div class="opt" data-diff="easy"><span class="emo">🌱</span>קליל<br><small style="color:var(--muted)">התחלה רגועה</small></div>
+      <div class="opt" data-diff="mid"><span class="emo">🔥</span>מאתגר<br><small style="color:var(--muted)">קצב טוב</small></div>
+      <div class="opt" data-diff="hard"><span class="emo">💎</span>אלוף<br><small style="color:var(--muted)">מקסימום</small></div>
+    </div>
+    <div class="theory-tag">🧠 הגדרת מטרות (לוק והאת׳אם) — מטרות ספציפיות ומאתגרות = ביצועים גבוהים יותר</div>
+    <div class="onb-nav"><button class="btn btn-ghost" data-back>→ חזרה</button><button class="btn btn-gold" data-next>הבא ←</button></div>
+  </div>
+
+  <div class="onb-step" data-step="4">
+    <h2>💪 מטרת האימונים</h2>
+    <p class="q-sub">מה המטרה שלך בגוף? נתאים את תוכנית האימונים. נסח את זה כרווח — לא כהימנעות.</p>
+    <div class="opt-grid" id="onbWorkout">
+      <div class="opt" data-wo="strength"><span class="emo">🏋️</span>כוח ושרירים</div>
+      <div class="opt" data-wo="cardio"><span class="emo">🏃</span>סיבולת וכושר</div>
+      <div class="opt" data-wo="flex"><span class="emo">🧘</span>גמישות ובריאות</div>
+      <div class="opt" data-wo="general"><span class="emo">✨</span>סתם להיות בתנועה</div>
+    </div>
+    <div class="theory-tag">🧠 מיקוד רגולטורי (היגינס) — מטרות של רווח וקידום יוצרות מוטיבציה חזקה יותר</div>
+    <div class="onb-nav"><button class="btn btn-ghost" data-back>→ חזרה</button><button class="btn btn-gold" data-next>הבא ←</button></div>
+  </div>
+
+  <div class="onb-step" data-step="5">
+    <h2>🌟 החזון שלך</h2>
+    <p class="q-sub">כתוב במשפט אחד לאן אתה רוצה להגיע. זה יופיע לך כתזכורת קבועה למעלה. תזכור — אתה עדיין לא שם, אבל אתה בדרך.</p>
+    <div class="field"><label>המטרה הגדולה שלי היא...</label><input type="text" id="onbDream" placeholder="לדוגמה: להיות ממוקד, בכושר וללמוד תכנות"></div>
+    <div class="theory-tag">🧠 דפוס חשיבה (דואק) — "אני עדיין לא שם" = חשיבת צמיחה שמפחיתה פחד מכישלון</div>
+    <div class="onb-nav"><button class="btn btn-ghost" data-back>→ חזרה</button><button class="btn btn-gold" id="onbFinish">בוא נתחיל! 🚀</button></div>
+  </div>
+
+  <div class="onb-step" data-step="6">
+    <h2>🧠 האפליקציה הזו בנויה על מדע</h2>
+    <p class="q-sub">כל פיצ׳ר שלנו מבוסס על תיאוריה פסיכולוגית מוכחת. הנה סקירה מהירה — תוכל ללמוד עוד בטאב "למה זה עובד".</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
+      <div style="background:var(--card2);border-radius:10px;padding:10px;font-size:12px;text-align:center;">✅ הצלחות קטנות<br><span style="color:var(--gold);">מסוגלות עצמית</span></div>
+      <div style="background:var(--card2);border-radius:10px;padding:10px;font-size:12px;text-align:center;">🎯 מטרות ספציפיות<br><span style="color:var(--gold);">לוק והאת׳אם</span></div>
+      <div style="background:var(--card2);border-radius:10px;padding:10px;font-size:12px;text-align:center;">🔥 חשיבת צמיחה<br><span style="color:var(--gold);">דואק</span></div>
+      <div style="background:var(--card2);border-radius:10px;padding:10px;font-size:12px;text-align:center;">🧭 מיקוד שליטה<br><span style="color:var(--gold);">רוטר</span></div>
+    </div>
+    <div class="onb-nav"><button class="btn btn-gold" id="onbGo" style="width:100%;">קדימה, הכל מוכן! 🚀</button></div>
+  </div>
+</div>
+</div>
+
+<!-- APP -->
+<div class="wrap" id="app" style="display:none;">
+
+  <header>
+    <div><h1 id="greetName">היי אלוף 👋</h1><p class="sub" id="dreamLine"></p></div>
+    <div class="level-pill">
+      <div class="row"><div class="lbl">רמה <span class="num" id="levelNum">1</span></div><div class="stage" id="stageName">מתחיל 🌱</div></div>
+      <div class="xp-bar"><div id="xpFill" style="width:0%"></div></div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-page="home">🏠 היום</button>
+    <button class="tab" data-page="week">📅 שבוע</button>
+    <button class="tab" data-page="body">💪 גוף</button>
+    <button class="tab" data-page="science">🧠 למה זה עובד</button>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div id="dailyInsight"></div>
+
+    <div class="hero">
+      <div class="ring-wrap"><svg viewBox="0 0 180 180" id="ringSvg"></svg><div class="ring-center"><div class="pct" id="ringPct">0%</div><div class="lbl">מהיום הושלם</div></div></div>
+      <div class="hero-right">
+        <h2>מעגל היום שלך</h2>
+        <p>כל פרוסה היא תחום בחיים שלך. משימה עם 📷 דורשת תמונה כהוכחה. כל וי קטן = הצלחה שמחזקת את המסוגלות שלך.</p>
+        <div class="stat-row">
+          <div class="stat-chip">🔥 רצף: <b id="streakVal">0</b></div>
+          <div class="stat-chip">⭐ נקודות: <b id="pointsVal">0</b></div>
+          <div class="stat-chip">✅ <b id="doneVal">0</b>/<span id="totalVal">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="challenge">
+      <div class="txt"><div class="eyebrow">אתגר היום</div><div class="title" id="challengeText">טוען...</div></div>
+      <button class="btn btn-gold" id="challengeBtn">בוצע (+25) ⭐</button>
+    </div>
+
+    <div class="grid" id="categoriesGrid"></div>
+  </div>
+
+  <!-- WEEK -->
+  <div class="page" id="page-week">
+    <h2 class="sec-title">📅 הטבלה השבועית שלי</h2>
+    <p class="sec-sub">ימי השבוע למעלה, המשימות לאורך. לחץ על יום כדי לסמן ✓. בעמודת הסטטוס: הצליח / כמעט / לא הצליח. בסוף שבוע — בדוק ותקבל נקודות!</p>
+    <div class="week-bar"><div class="info">הצליחו השבוע: <b id="weekMet">0</b>/<span id="weekTotal">0</span></div><button class="btn btn-ghost btn-sm" id="resetWeekBtn">שבוע חדש 🔄</button></div>
+    <div class="grid-scroll"><table class="week-grid"><thead><tr id="weekHead"></tr></thead><tbody id="weekBody"></tbody></table></div>
+    <div class="add-mission">
+      <input type="text" id="newMission" placeholder="משימה חדשה לשבוע...">
+      <select id="newMissionCat"></select>
+      <input type="number" id="newMissionTarget" placeholder="יעד" min="1" max="7" value="3">
+      <button class="btn btn-gold btn-sm" id="addMissionBtn">הוסף +</button>
+    </div>
+    <div class="review-card"><h3>🏁 סיכום סוף שבוע</h3><p>סיימת את השבוע? בוא נבדוק כמה יעדים כבשת.</p><button class="btn btn-gold" id="reviewBtn">בדוק את השבוע שלי</button><div class="review-result" id="reviewResult"></div></div>
+  </div>
+
+  <!-- BODY -->
+  <div class="page" id="page-body">
+    <h2 class="sec-title">💪 תוכנית אימונים</h2>
+    <p class="sec-sub" id="workoutSub">תוכנית שבועית מדורגת. סמן כל תרגיל שסיימת.</p>
+    <div class="plan-grid" id="workoutGrid"></div>
+    <h2 class="sec-title" style="margin-top:28px;">🧴 טיפוח וטיפול עצמי</h2>
+    <p class="sec-sub">שגרת בריאות, היגיינה ומנוחה. הגוף שלך זה הפרויקט הכי חשוב.</p>
+    <div class="plan-grid" id="selfcareGrid"></div>
+  </div>
+
+  <!-- SCIENCE -->
+  <div class="page" id="page-science">
+    <h2 class="sec-title">🧠 למה Day Hub עובד — המדע מאחורי האפליקציה</h2>
+    <p class="sec-sub">כל פיצ׳ר באפליקציה מבוסס על תיאוריה פסיכולוגית מוכחת. הנה 8 התיאוריות שמרכיבות את השיטה שלנו, ואיך כל אחת מהן פועלת בפועל בתוך האפליקציה.</p>
+    <div class="theo-grid" id="theoGrid"></div>
+  </div>
+
+  <footer>Day Hub · מבוסס מדע · מונע יוזמה · מותאם אישית 🚀</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="modal-bg" id="camModal"><div class="modal"><h3>📷 צלם הוכחה</h3><p id="camTaskName">כדי לסמן וי צריך תמונה</p><video class="cam-view" id="camVideo" autoplay playsinline></video><img class="cam-preview" id="camPreview" alt="תצוגה"><input type="file" accept="image/*" capture="environment" class="hidden-file" id="camFile"><div class="modal-btns" id="camButtons"></div></div></div>
+
+<script>
+/* ======== DATA ======== */
+const ALL_CATEGORIES=[
+  {id:'study',name:'לימודים',icon:'📚',color:'var(--study)'},
+  {id:'sport',name:'ספורט',icon:'🏃',color:'var(--sport)'},
+  {id:'friends',name:'חברים',icon:'👥',color:'var(--friends)'},
+  {id:'sleep',name:'שינה',icon:'😴',color:'var(--sleep)'},
+  {id:'money',name:'כסף',icon:'💰',color:'var(--money)'},
+  {id:'food',name:'אוכל',icon:'🍎',color:'var(--food)'},
+  {id:'hobby',name:'תחביבים',icon:'🎨',color:'var(--hobby)'},
+];
+const DAYS=['א','ב','ג','ד','ה','ו','ש'];
+const STAGES=[{min:0,name:'מתחיל 🌱'},{min:300,name:'יוזם ⚡'},{min:700,name:'ממוקד 🔷'},{min:1200,name:'אלוף 🏆'},{min:2000,name:'אגדה 👑'}];
+const DIFF_MULT={easy:1,mid:1.4,hard:2};
+
+const THEORIES=[
+  {icon:'💪',name:'המסוגלות העצמית',author:'בנדורה',principle:'אמונה פנימית ביכולת שלך להצליח במשימות.',how:'מגבירה מוטיבציה לפעול ויוצרת חוסן מול מכשולים. כל וי קטן שאתה מסמן מחזק את התחושה הזו.',action:'צבירת הצלחות קטנות ומדורגות',feat:'מערכת הנקודות + ההצלחות הקטנות בכל קטגוריה'},
+  {icon:'🧭',name:'ההכוונה העצמית (SDT)',author:'דיסי וריאן',principle:'לכל אדם צורך בסיסי באוטונומיה, מסוגלות ושייכות.',how:'מעבירה את הדחף לפעולה מלחץ חיצוני ליוזמה פנימית. אתה בוחר את התחומים, המטרות והקצב.',action:'זיהוי מרחב הבחירה החופשית בכל סיטואציה',feat:'השאלון הפותח + הבחירה האישית של קטגוריות'},
+  {icon:'☀️',name:'הרחבה ובנייה',author:'פרדריקסון',principle:'רגשות חיוביים מרחיבים את מרחב החשיבה והפעולה.',how:'מאפשרת לזהות הזדמנויות ולמנוע בעיות מראש. ההצלחות שלך יוצרות ספירלה חיובית של מוטיבציה.',action:'אימון המוח להתמקד בפתרונות וחוזקות',feat:'אתגר היום + טיפים חיוביים ופידבק מחזק'},
+  {icon:'🎛️',name:'ויסות עצמי',author:'בנדורה',principle:'ניטור וניהול המחשבות וההתנהגות למען מטרות ארוכות טווח.',how:'מעמידה ערכים ארוכי טווח מעל דחפים ותסכולים רגעיים.',action:'תוכניות גיבוי מראש במבנה של "אם-אז"',feat:'טיימר למשימות + טבלה שבועית עם מעקב'},
+  {icon:'🎯',name:'מיקוד שליטה',author:'רוטר',principle:'תפיסת מקור ההשפעה — פנימי לעומת חיצוני.',how:'יוצרת הבנה שהפעולות שלנו מעצבות את המציאות, לא הנסיבות.',action:'מיקוד אנרגיה רק במעגל ההשפעה והשליטה האישי',feat:'בחירת קטגוריות אישיות + מעגל היום'},
+  {icon:'🚀',name:'מיקוד רגולטורי',author:'היגינס',principle:'מוטיבציה של קידום (רווח) לעומת מניעה (הגנה).',how:'מניעה חיפוש אקטיבי אחר הזדמנויות וצמיחה, לא הימנעות מכישלון.',action:'ניסוח מטרות במונחים של רווח והישג',feat:'סטטוס "הצליח ✅" ומילים חיוביות בכל הפידבק'},
+  {icon:'🌱',name:'דפוס חשיבה (Mindset)',author:'דואק',principle:'אמונה שאינטליגנציה ויכולת הן דבר מתפתח — לא קבוע.',how:'מפחיתה פחד מכישלון ומעודדת למידה אקטיבית מטעויות.',action:'החלפת "אני לא יודע" ב-"אני עדיין לא יודע"',feat:'מערכת השלבים + החזון האישי למעלה'},
+  {icon:'📐',name:'הגדרת מטרות',author:'לוק והאת׳אם',principle:'מטרות ספציפיות ומאתגרות משפרות ביצועים.',how:'פועלת כמצפן שמנווט את העשייה במקום להגיב לנסיבות.',action:'פירוק יעדים גדולים למטרות יומיות ברורות ומדידות',feat:'טבלת יעדים שבועית + יעד מספרי לכל משימה'},
+];
+
+const INSIGHTS=[
+  {t:'כל וי קטן שאתה מסמן מחזק את האמונה שלך ביכולת שלך.',s:'מסוגלות עצמית — בנדורה',e:'💪'},
+  {t:'אתה בוחר את המטרות, את הקצב ואת התחומים — זו היוזמה שלך.',s:'הכוונה עצמית — דיסי וריאן',e:'🧭'},
+  {t:'התמקד במה שאתה יכול לשלוט בו. תן ללכת מה שלא.',s:'מיקוד שליטה — רוטר',e:'🎯'},
+  {t:'אתה לא צריך להיות מושלם. אתה צריך להיות "עדיין בדרך".',s:'דפוס חשיבה — דואק',e:'🌱'},
+  {t:'נסח את היעד שלך כהישג: "אני רוצה להגיע ל..." — לא "אני לא רוצה ש..."',s:'מיקוד רגולטורי — היגינס',e:'🚀'},
+  {t:'מטרה ספציפית ומאתגרת משפרת ביצועים יותר ממטרה עמומה.',s:'הגדרת מטרות — לוק והאת׳אם',e:'📐'},
+  {t:'ברגע שטוב לך — אתה פתוח יותר לרעיונות, לפתרונות ולאנשים.',s:'הרחבה ובנייה — פרדריקסון',e:'☀️'},
+  {t:'תוכנית גיבוי של "אם-אז" עוזרת לך לשמור על מטרות בזמנים קשים.',s:'ויסות עצמי — בנדורה',e:'🎛️'},
+  {t:'אתה לא "מתכנת" — אתה עדיין לא מתכנת. השינוי הזה במילים משנה הכל.',s:'דפוס חשיבה — דואק',e:'🌱'},
+  {t:'שלוש צרכים בסיסיים: לבחור (אוטונומיה), להצליח (מסוגלות), להשתייך (שייכות).',s:'SDT — דיסי וריאן',e:'🧭'},
+];
+
+const CHALLENGES=[
+  {t:'לפני שמתחילים - שתו כוס מים גדולה 💧',th:'ויסות עצמי'},
+  {t:'תכננו את 3 המשימות הכי חשובות של היום ⭐',th:'הגדרת מטרות'},
+  {t:'הליכה של 10 דקות בלי הטלפון 🚶',th:'ויסות עצמי'},
+  {t:'שלחו הודעה חמה לחבר או חברה 💬',th:'הרחבה ובנייה'},
+  {t:'רשמו הוצאה אחת מהשבוע 💸',th:'מיקוד שליטה'},
+  {t:'לפני השינה — הכינו תיק ובגדים למחר 🎒',th:'ויסות עצמי'},
+  {t:'קראו 10 עמודים מספר טוב 📖',th:'מסוגלות עצמית'},
+  {t:'5 דקות מתיחות אחרי הלימודים 🤸',th:'הכוונה עצמית'},
+  {t:'כתבו 3 דברים שהצלחתם בהם היום ✍️',th:'הרחבה ובנייה'},
+  {t:'נסחו מטרה אחת כ"אני רוצה להגיע ל..." ולא "אני לא רוצה..." 🚀',th:'מיקוד רגולטורי'},
+];
+
+const WORKOUT_PLANS={
+  strength:{sub:'מטרה: כוח ושרירים — משקל גוף והתנגדות.',blocks:[
+    {day:'יום א׳ · פלג עליון',color:'var(--sport)',items:[{t:'שכיבות סמיכה',reps:'4×10'},{t:'מתח / משיכות',reps:'4×6'},{t:'דיפים',reps:'3×12'},{t:'פלאנק',reps:'50 שנ׳'}]},
+    {day:'יום ג׳ · פלג תחתון',color:'var(--money)',items:[{t:'סקוואט',reps:'4×15'},{t:'לאנג׳ים',reps:'3×12'},{t:'עליות אצבעות',reps:'3×20'},{t:'עמידת קיר',reps:'60 שנ׳'}]},
+    {day:'יום ה׳ · ליבה',color:'var(--hobby)',items:[{t:'כפיפות בטן',reps:'4×15'},{t:'סופרמן',reps:'3×15'},{t:'הרמות רגליים',reps:'3×12'},{t:'פלאנק צד',reps:'2×30 שנ׳'}]}]},
+  cardio:{sub:'מטרה: סיבולת וכושר — הרבה תנועה ולב פועם.',blocks:[
+    {day:'יום א׳ · ריצה',color:'var(--sport)',items:[{t:'חימום הליכה',reps:'5 דק׳'},{t:'ריצה רציפה',reps:'20 דק׳'},{t:'ספרינטים',reps:'5×30 שנ׳'},{t:'שחרור',reps:'5 דק׳'}]},
+    {day:'יום ג׳ · HIIT',color:'var(--money)',items:[{t:'קפיצות כוכב',reps:'3×30'},{t:'ברפי',reps:'3×10'},{t:'ריצה במקום',reps:'3×1 דק׳'},{t:'קפיצה בחבל',reps:'3 דק׳'}]},
+    {day:'יום ה׳ · אופניים/הליכה',color:'var(--hobby)',items:[{t:'הליכה מהירה',reps:'30 דק׳'},{t:'מדרגות',reps:'10 סבבים'},{t:'מתיחות',reps:'5 דק׳'}]}]},
+  flex:{sub:'מטרה: גמישות ובריאות — יוגה, מתיחות ונשימה.',blocks:[
+    {day:'יום א׳ · יוגה',color:'var(--self)',items:[{t:'ברכת שמש',reps:'5 סבבים'},{t:'תנוחת ילד',reps:'1 דק׳'},{t:'כלב מביט מטה',reps:'1 דק׳'},{t:'נשימות עמוקות',reps:'10'}]},
+    {day:'יום ג׳ · מתיחות',color:'var(--sleep)',items:[{t:'מתיחת ירך אחורי',reps:'2×30 שנ׳'},{t:'מתיחת גב',reps:'2×30 שנ׳'},{t:'מתיחת כתפיים',reps:'2×30 שנ׳'},{t:'גלגול צוואר',reps:'10'}]},
+    {day:'יום ה׳ · שיווי משקל',color:'var(--hobby)',items:[{t:'עמידה על רגל',reps:'2×30 שנ׳'},{t:'תנוחת עץ',reps:'2×20 שנ׳'},{t:'פלאנק',reps:'40 שנ׳'}]}]},
+  general:{sub:'מטרה: פשוט להיות בתנועה — קליל ומהנה.',blocks:[
+    {day:'יום א׳ · תנועה',color:'var(--sport)',items:[{t:'הליכה בחוץ',reps:'20 דק׳'},{t:'מתיחות בוקר',reps:'5 דק׳'},{t:'ריקוד/קפיצות',reps:'10 דק׳'}]},
+    {day:'יום ג׳ · כוח קליל',color:'var(--money)',items:[{t:'שכיבות סמיכה',reps:'3×8'},{t:'סקוואט',reps:'3×12'},{t:'פלאנק',reps:'30 שנ׳'}]},
+    {day:'יום ה׳ · כיף',color:'var(--hobby)',items:[{t:'משחק כדור / אופניים',reps:'30 דק׳'},{t:'מתיחות',reps:'5 דק׳'}]}]},
+};
+const SELFCARE=[
+  {day:'שגרת בוקר',color:'var(--self)',items:[{t:'לשתות מים',reps:''},{t:'לצחצח שיניים 2 דק׳',reps:''},{t:'לשטוף פנים',reps:''},{t:'ארוחת בוקר מזינה',reps:'📷'}]},
+  {day:'שגרת ערב',color:'var(--sleep)',items:[{t:'מקלחת',reps:''},{t:'לצחצח שיניים + חוט',reps:''},{t:'קרם לחות לפנים',reps:''},{t:'להניח טלפון 30 דק׳ לפני שינה',reps:''}]},
+  {day:'תחזוקה שבועית',color:'var(--friends)',items:[{t:'לגזור ציפורניים',reps:''},{t:'סידור שיער',reps:''},{t:'לכבס ולסדר בגדים',reps:''},{t:'8 שעות שינה 3 לילות',reps:''}]},
+];
+
+/* ======== STATE ======== */
+let profile={name:'',age:'',goals:['study','sport','sleep','food'],diff:'mid',workout:'general',dream:''};
+let CATEGORIES=[];
+let state={points:0,streak:0,challengeDone:false,tasks:[],missions:[],plan:{}};
+let idc=1;
+function buildCategories(){CATEGORIES=ALL_CATEGORIES.filter(c=>profile.goals.includes(c.id));if(!CATEGORIES.length)CATEGORIES=ALL_CATEGORIES.slice();}
+function seedFromProfile(){
+  const m=DIFF_MULT[profile.diff]||1;state.tasks=[];
+  if(profile.goals.includes('study'))state.tasks.push({id:idc++,catId:'study',title:'זמן לימוד ממוקד',min:Math.round(30*m),cam:false,done:false,photo:null});
+  if(profile.goals.includes('sport'))state.tasks.push({id:idc++,catId:'sport',title:'אימון (עם הוכחה)',min:30,cam:true,done:false,photo:null});
+  if(profile.goals.includes('food'))state.tasks.push({id:idc++,catId:'food',title:'ארוחה בריאה',min:0,cam:true,done:false,photo:null});
+  if(profile.goals.includes('sleep'))state.tasks.push({id:idc++,catId:'sleep',title:'לישון בזמן',min:0,cam:false,done:false,photo:null});
+  state.missions=[];const base=Math.max(2,Math.round(3*m));
+  CATEGORIES.forEach(cat=>{const label={study:'ללמוד / שיעורים',sport:'אימון או ספורט',friends:'זמן עם חברים',sleep:'לישון מוקדם',money:'לעקוב הוצאות',food:'לאכול בריא',hobby:'לעסוק בתחביב'}[cat.id]||cat.name;
+    state.missions.push({id:idc++,catId:cat.id,title:label,target:Math.min(7,base),days:[false,false,false,false,false,false,false]});});
+}
+
+/* ======== HELPERS ======== */
+function hex(v){const n=v.replace('var(','').replace(')','').trim();return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function escapeHtml(s){const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
+let toastTimer;function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2400);}
+function addPoints(n){state.points=Math.max(0,state.points+n);}
+function stageInfo(){let cur=STAGES[0];for(const s of STAGES){if(state.points>=s.min)cur=s;}return{stage:cur.name,level:Math.floor(state.points/100)+1,progress:state.points%100};}
+function catById(id){return ALL_CATEGORIES.find(c=>c.id===id);}
+const TOASTS_THEORY=['💪 עוד הצלחה קטנה — המסוגלות שלך גדלה!','🧭 אתה יוזם, לא מגיב — ככה זה לפי SDT!','🌱 כל צעד הוא למידה — חשיבת צמיחה!','🎯 מטרה ספציפית הושגה — לוק והאת׳אם גאים!','☀️ רגש חיובי → חשיבה רחבה → עוד הצלחות!','🎛️ ויסות עצמי בפעולה — לא ויתרת!','🚀 ניסחת את זה כהישג — מיקוד קידום!','📐 עוד יעד ברור שהושג — אתה במסלול!'];
+function theoryToast(){return TOASTS_THEORY[Math.floor(Math.random()*TOASTS_THEORY.length)];}
+
+/* ======== ONBOARDING ======== */
+let onbStep=1;const ONB_TOTAL=6;
+function renderGoalOpts(){const box=document.getElementById('onbGoals');box.innerHTML='';ALL_CATEGORIES.forEach(c=>{const d=document.createElement('div');d.className='opt'+(profile.goals.includes(c.id)?' sel':'');d.dataset.goal=c.id;d.innerHTML=`<span class="emo">${c.icon}</span>${c.name}`;d.onclick=()=>{const i=profile.goals.indexOf(c.id);if(i>=0)profile.goals.splice(i,1);else profile.goals.push(c.id);d.classList.toggle('sel');};box.appendChild(d);});}
+function singleSelect(containerId,attr,field){document.querySelectorAll('#'+containerId+' .opt').forEach(o=>o.addEventListener('click',()=>{document.querySelectorAll('#'+containerId+' .opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');profile[field]=o.dataset[attr];}));}
+function showOnbStep(n){onbStep=n;document.querySelectorAll('.onb-step').forEach(s=>s.classList.remove('active'));document.querySelector(`.onb-step[data-step="${n}"]`).classList.add('active');document.getElementById('onbProg').style.width=Math.round(n/ONB_TOTAL*100)+'%';}
+document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{if(onbStep===1){profile.name=document.getElementById('onbName').value.trim();profile.age=document.getElementById('onbAge').value;}if(onbStep===2&&profile.goals.length===0){showToast('בחר לפחות תחום אחד 🙂');return;}showOnbStep(onbStep+1);}));
+document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>showOnbStep(onbStep-1)));
+document.getElementById('onbFinish').addEventListener('click',()=>{profile.dream=document.getElementById('onbDream').value.trim();showOnbStep(6);});
+document.getElementById('onbGo').addEventListener('click',()=>{buildCategories();seedFromProfile();document.getElementById('onboarding').style.display='none';document.getElementById('app').style.display='block';startApp();});
+
+/* ======== CAMERA ======== */
+let camStream=null;
+function openCamera(taskName,onCaptured){const modal=document.getElementById('camModal'),video=document.getElementById('camVideo'),preview=document.getElementById('camPreview'),fileInput=document.getElementById('camFile'),btns=document.getElementById('camButtons');document.getElementById('camTaskName').textContent=taskName;preview.style.display='none';video.style.display='block';modal.classList.add('show');let captured=null;function el(tag,cls,txt){const e=document.createElement(tag);e.className=cls;e.textContent=txt;return e;}function stop(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}}function close(){stop();modal.classList.remove('show');}function renderBtns(mode){btns.innerHTML='';if(mode==='live'){const snap=el('button','btn btn-gold','צלם 📸'),up=el('button','btn btn-ghost','מהגלריה'),cancel=el('button','btn btn-ghost','ביטול');snap.onclick=()=>{const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);captured=c.toDataURL('image/jpeg',0.7);preview.src=captured;preview.style.display='block';video.style.display='none';stop();renderBtns('confirm');};up.onclick=()=>fileInput.click();cancel.onclick=close;btns.append(snap,up,cancel);}else if(mode==='upload-only'){const up=el('button','btn btn-gold','בחר תמונה 🖼️'),cancel=el('button','btn btn-ghost','ביטול');up.onclick=()=>fileInput.click();cancel.onclick=close;btns.append(up,cancel);}else{const ok=el('button','btn btn-gold','אישור ✓'),retry=el('button','btn btn-ghost','צלם שוב');ok.onclick=()=>{close();onCaptured(captured);};retry.onclick=()=>{preview.style.display='none';start();};btns.append(ok,retry);}}fileInput.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{captured=ev.target.result;preview.src=captured;preview.style.display='block';video.style.display='none';stop();renderBtns('confirm');};r.readAsDataURL(f);fileInput.value='';};function start(){video.style.display='block';if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(s=>{camStream=s;video.srcObject=s;renderBtns('live');}).catch(()=>{video.style.display='none';renderBtns('upload-only');});}else{video.style.display='none';renderBtns('upload-only');}}start();}
+
+/* ======== HOME ======== */
+function addTask(catId,title,min,cam){if(!title.trim())return;state.tasks.push({id:idc++,catId,title:title.trim(),min:Number(min)||0,cam:!!cam,done:false,photo:null});renderHome();}
+function requestToggle(id){const t=state.tasks.find(t=>t.id===id);if(!t)return;if(t.done){t.done=false;t.photo=null;addPoints(-10);state.streak=Math.max(0,state.streak-1);renderHome();renderStats();return;}if(t.cam){openCamera(t.title,photo=>{t.photo=photo;completeTask(t);});}else{completeTask(t);}}
+function completeTask(t){t.done=true;addPoints(10);state.streak++;showToast(theoryToast());renderHome();renderStats();}
+function deleteTask(id){state.tasks=state.tasks.filter(t=>t.id!==id);renderHome();renderStats();}
+function fmtMin(m){if(!m)return'';if(m>=60){const h=Math.floor(m/60),r=m%60;return r?`${h}ש׳ ${r}ד׳`:`${h}ש׳`;}return`${m} דק׳`;}
+function renderRing(){const svg=document.getElementById('ringSvg');const r=74,cx=90,cy=90,sw=18,circ=2*Math.PI*r;svg.innerHTML='';const total=state.tasks.length;if(total===0){svg.innerHTML=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#33366A" stroke-width="${sw}" stroke-dasharray="4 8"/>`;document.getElementById('ringPct').textContent='0%';return;}let off=0;CATEGORIES.forEach(cat=>{const ct=state.tasks.filter(t=>t.catId===cat.id);if(!ct.length)return;const done=ct.filter(t=>t.done).length;const segLen=(ct.length/total)*circ;const doneLen=segLen*(done/ct.length);const col=hex(cat.color);svg.innerHTML+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-opacity="0.22" stroke-width="${sw}" stroke-dasharray="${segLen} ${circ-segLen}" stroke-dashoffset="${-off}"/>`;svg.innerHTML+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${doneLen} ${circ-doneLen}" stroke-dashoffset="${-off}" stroke-linecap="round"/>`;off+=segLen;});document.getElementById('ringPct').textContent=Math.round(state.tasks.filter(t=>t.done).length/total*100)+'%';}
+function renderCategories(){const grid=document.getElementById('categoriesGrid');grid.innerHTML='';CATEGORIES.forEach(cat=>{const ct=state.tasks.filter(t=>t.catId===cat.id);const done=ct.filter(t=>t.done).length;const card=document.createElement('div');card.className='cat-card';card.style.setProperty('--cat-color',cat.color);const tasksHtml=ct.length===0?`<div class="empty-note">אין עדיין משימות — הוסף אחת 👇</div>`:ct.map(t=>`<div class="task"><input type="checkbox" class="cb" ${t.done?'checked':''} data-id="${t.id}">${t.photo?`<img class="thumb" src="${t.photo}">`:''}
+<div class="body"><div class="t-title ${t.done?'done':''}">${escapeHtml(t.title)}</div><div class="t-meta">${t.min?`<span>⏱️ ${fmtMin(t.min)}</span>`:''}${t.cam?`<span class="cam-badge">📷 צילום</span>`:''}${t.min?`<button class="timer-btn" data-timer="${t.id}" data-min="${t.min}">טיימר</button>`:''}</div></div><button class="del" data-del="${t.id}">✕</button></div>`).join('');card.innerHTML=`<div class="cat-head"><div class="name"><span>${cat.icon}</span>${cat.name}</div><div class="count">${done}/${ct.length}</div></div>${tasksHtml}<div class="add-row"><input type="text" class="nt" placeholder="משימה חדשה..." data-cat="${cat.id}"><input type="number" class="nm" placeholder="דק׳" min="0" data-cat="${cat.id}"><label class="cam-toggle"><input type="checkbox" class="ncam" data-cat="${cat.id}">📷</label><button class="add-btn" data-add="${cat.id}">+</button></div>`;grid.appendChild(card);});grid.querySelectorAll('.cb').forEach(cb=>cb.addEventListener('change',e=>requestToggle(Number(e.target.dataset.id))));grid.querySelectorAll('.del').forEach(b=>b.addEventListener('click',e=>deleteTask(Number(e.target.dataset.del))));grid.querySelectorAll('.add-btn').forEach(b=>b.addEventListener('click',e=>{const c=e.target.dataset.add;addTask(c,grid.querySelector(`.nt[data-cat="${c}"]`).value,grid.querySelector(`.nm[data-cat="${c}"]`).value,grid.querySelector(`.ncam[data-cat="${c}"]`).checked);}));grid.querySelectorAll('.nt').forEach(inp=>inp.addEventListener('keydown',e=>{if(e.key==='Enter'){const c=e.target.dataset.cat;addTask(c,e.target.value,grid.querySelector(`.nm[data-cat="${c}"]`).value,grid.querySelector(`.ncam[data-cat="${c}"]`).checked);}}));grid.querySelectorAll('.timer-btn').forEach(b=>b.addEventListener('click',e=>startTimer(e.target,Number(e.target.dataset.min))));}
+const timers={};function startTimer(btn,min){const id=btn.dataset.timer;if(timers[id]){clearInterval(timers[id]);delete timers[id];btn.classList.remove('running');btn.textContent='טיימר';return;}let left=min*60;btn.classList.add('running');timers[id]=setInterval(()=>{left--;const m=Math.floor(left/60),s=left%60;btn.textContent=`${m}:${s.toString().padStart(2,'0')} ⏸`;if(left<=0){clearInterval(timers[id]);delete timers[id];btn.classList.remove('running');btn.textContent='נגמר ✓';showToast('⏱️ הזמן נגמר — ויסות עצמי בפעולה!');}},1000);}
+
+/* ======== DAILY INSIGHT ======== */
+function renderInsight(){const ins=INSIGHTS[Math.floor(Math.random()*INSIGHTS.length)];document.getElementById('dailyInsight').innerHTML=`<div class="insight"><div class="emoji">${ins.e}</div><div class="body"><div class="head">💡 תובנה יומית</div><div class="desc">${ins.t}</div><div class="src">${ins.s}</div></div></div>`;}
+
+/* ======== WEEK ======== */
+function missionStatus(mis){const c=mis.days.filter(Boolean).length;if(mis.target>0&&c>=mis.target)return{word:'הצליח ✅',cls:'win',met:true};if(c>=Math.ceil(mis.target/2)&&c>0)return{word:'כמעט 🟡',cls:'mid',met:false};if(c>0)return{word:'בתהליך ⏳',cls:'mid',met:false};return{word:'לא הצליח ❌',cls:'miss',met:false};}
+function renderWeek(){const todayIdx=new Date().getDay();const head=document.getElementById('weekHead');head.innerHTML=`<th class="mission-col">המשימה שלי</th>`+DAYS.map((d,i)=>`<th class="${i===todayIdx?'today':''}">${d}${i===todayIdx?'•':''}</th>`).join('')+`<th>סטטוס</th>`;const body=document.getElementById('weekBody');body.innerHTML='';let met=0;state.missions.forEach(mis=>{const cat=catById(mis.catId)||{icon:'•',name:'',color:'var(--study)'};const st=missionStatus(mis);if(st.met)met++;const tr=document.createElement('tr');const dc=mis.days.filter(Boolean).length;let cells=`<td class="mission-col"><div class="mcell" style="--cat-color:${cat.color}"><span class="dot"></span><div><div class="mtxt">${escapeHtml(mis.title)}</div><div class="mcat">${cat.icon} ${cat.name} · יעד ${mis.target} · בוצע ${dc}</div></div><button class="mdel" data-delmis="${mis.id}">✕</button></div></td>`;mis.days.forEach((on,di)=>{cells+=`<td class="daycell ${on?'on':''}" style="--cat-color:${cat.color}" data-mis="${mis.id}" data-day="${di}"><span class="mark">${on?'✓':''}</span></td>`;});cells+=`<td class="status-col ${st.cls}">${st.word}</td>`;tr.innerHTML=cells;body.appendChild(tr);});if(!state.missions.length){body.innerHTML=`<tr><td class="mission-col" colspan="${DAYS.length+2}" style="color:var(--muted);padding:18px;">אין עדיין משימות שבועיות — הוסף למטה 👇</td></tr>`;}document.getElementById('weekMet').textContent=met;document.getElementById('weekTotal').textContent=state.missions.length;body.querySelectorAll('.daycell').forEach(c=>c.addEventListener('click',e=>{const cell=e.currentTarget;const mis=state.missions.find(m=>m.id===Number(cell.dataset.mis));if(!mis)return;const di=Number(cell.dataset.day);mis.days[di]=!mis.days[di];if(mis.days[di]){addPoints(6);showToast(theoryToast());}else{addPoints(-6);}renderWeek();renderStats();}));body.querySelectorAll('.mdel').forEach(b=>b.addEventListener('click',e=>{state.missions=state.missions.filter(m=>m.id!==Number(e.target.dataset.delmis));renderWeek();}));}
+function fillMissionCatSelect(){document.getElementById('newMissionCat').innerHTML=CATEGORIES.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');}
+document.getElementById('addMissionBtn').addEventListener('click',()=>{const title=document.getElementById('newMission').value.trim();if(!title){showToast('כתוב שם למשימה 🙂');return;}const catId=document.getElementById('newMissionCat').value;const target=Math.min(7,Math.max(1,Number(document.getElementById('newMissionTarget').value)||3));state.missions.push({id:idc++,catId,title,target,days:[false,false,false,false,false,false,false]});document.getElementById('newMission').value='';renderWeek();showToast('משימה נוספה! 📐 הגדרת מטרות בפעולה');});
+document.getElementById('reviewBtn').addEventListener('click',()=>{let met=0;state.missions.forEach(m=>{if(missionStatus(m).met)met++;});const total=state.missions.length;const reward=met*50;addPoints(reward);renderStats();const res=document.getElementById('reviewResult');let msg,emoji;if(total===0){msg='עדיין אין משימות. הוסף כמה ותתחיל לכבוש!';emoji='📅';}else if(met===total){msg='שבוע מושלם! כבשת את כל היעדים — המסוגלות העצמית שלך בשמיים! 💪';emoji='🏆';}else if(met>=total/2){msg='שבוע חזק! רוב המשימות הצליחו. אתה עדיין לא שם — אבל בדרך. 🌱';emoji='💪';}else{msg='כל התחלה נחשבת — בדואק קוראים לזה חשיבת צמיחה. שבוע הבא נעלה הילוך!';emoji='🌱';}res.innerHTML=`<div style="font-size:34px;">${emoji}</div><div class="big">${met}/${total} הצליחו</div><div style="margin:8px 0;color:var(--muted);">${msg}</div><div style="font-family:'Rubik';font-weight:700;color:var(--gold);">+${reward} נקודות 🎁</div>`;res.classList.add('show');showToast(`סיכום שבוע: ${met} הצליחו · +${reward} ⭐`);});
+document.getElementById('resetWeekBtn').addEventListener('click',()=>{state.missions.forEach(m=>m.days=[false,false,false,false,false,false,false]);document.getElementById('reviewResult').classList.remove('show');renderWeek();showToast('שבוע חדש! 🔄');});
+
+/* ======== BODY ======== */
+function renderPlan(gridId,data,prefix){const grid=document.getElementById(gridId);grid.innerHTML='';data.forEach((block,bi)=>{const card=document.createElement('div');card.className='plan-card';card.style.setProperty('--accent',block.color);const items=block.items.map((it,ii)=>{const key=`${prefix}-${bi}-${ii}`;const checked=state.plan[key]?'checked':'';const camReq=it.reps==='📷';return `<label class="plan-item"><input type="checkbox" class="pcb" data-key="${key}" data-cam="${camReq?1:0}" data-name="${escapeHtml(it.t)}" ${checked}><span class="pt ${checked?'done':''}">${escapeHtml(it.t)}</span><span class="reps">${it.reps&&it.reps!=='📷'?it.reps:(camReq?'📷 הוכחה':'')}</span></label>`;}).join('');card.innerHTML=`<h3>${block.day}</h3>${items}`;grid.appendChild(card);});grid.querySelectorAll('.pcb').forEach(cb=>cb.addEventListener('change',e=>{const key=e.target.dataset.key;if(e.target.checked){if(e.target.dataset.cam==='1'){e.target.checked=false;openCamera(e.target.dataset.name,()=>{state.plan[key]=true;addPoints(8);showToast('📷 הוכחה התקבלה! +8 ⭐');renderPlan(gridId,data,prefix);renderStats();});}else{state.plan[key]=true;addPoints(8);showToast(theoryToast());renderStats();e.target.closest('.plan-item').querySelector('.pt').classList.add('done');}}else{delete state.plan[key];addPoints(-8);renderStats();e.target.closest('.plan-item').querySelector('.pt').classList.remove('done');}}));}
+
+/* ======== THEORY CARDS ======== */
+function renderTheories(){const grid=document.getElementById('theoGrid');grid.innerHTML='';THEORIES.forEach((th,i)=>{const card=document.createElement('div');card.className='theo-card';card.innerHTML=`<div class="tnum">0${i+1}</div><div class="ticon">${th.icon}</div><div class="tname">${th.name}</div><div class="tauthor">${th.author}</div><div class="tprinciple">${th.principle}</div><div class="thow">${th.how}</div><div class="taction">${th.action}</div><div class="feat-label">בתוך Day Hub: ${th.feat}</div>`;grid.appendChild(card);});}
+
+/* ======== STATS ======== */
+function renderStats(){const{stage,level,progress}=stageInfo();document.getElementById('levelNum').textContent=level;document.getElementById('stageName').textContent=stage;document.getElementById('xpFill').style.width=progress+'%';document.getElementById('streakVal').textContent=state.streak;document.getElementById('pointsVal').textContent=state.points;document.getElementById('doneVal').textContent=state.tasks.filter(t=>t.done).length;document.getElementById('totalVal').textContent=state.tasks.length;}
+
+/* ======== TABS ======== */
+document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));tab.classList.add('active');document.getElementById('page-'+tab.dataset.page).classList.add('active');}));
+document.getElementById('challengeBtn').addEventListener('click',()=>{if(state.challengeDone)return;state.challengeDone=true;addPoints(25);showToast('☀️ אתגר הושלם — הרחבה ובנייה בפעולה! +25 ⭐');const b=document.getElementById('challengeBtn');b.disabled=true;b.textContent='בוצע ✓';renderStats();});
+
+/* ======== START ======== */
+function renderHome(){renderRing();renderCategories();}
+function startApp(){
+  document.getElementById('greetName').textContent=`היי ${profile.name||'אלוף'} 👋`;
+  document.getElementById('dreamLine').textContent=profile.dream?('⭐ '+profile.dream):new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'});
+  const ch=CHALLENGES[Math.floor(Math.random()*CHALLENGES.length)];
+  document.getElementById('challengeText').innerHTML=`${ch.t} <span style="font-size:11px;color:var(--gold);">(${ch.th})</span>`;
+  const wp=WORKOUT_PLANS[profile.workout]||WORKOUT_PLANS.general;
+  document.getElementById('workoutSub').textContent=wp.sub;
+  fillMissionCatSelect();renderInsight();renderHome();renderWeek();renderPlan('workoutGrid',wp.blocks,'w');renderPlan('selfcareGrid',SELFCARE,'s');renderTheories();renderStats();
+}
+
+renderGoalOpts();singleSelect('onbDiff','diff','diff');singleSelect('onbWorkout','wo','workout');
+</script>
+</body>
+</html>
