@@ -467,20 +467,19 @@ function startApp(){
   document.getElementById('woSub').textContent=
     t('c.age')+' '+wp.ageBand+' · '+t(wp.levelKey)+' · '+t('wo.'+P.workout);
   document.getElementById('woInfo').innerHTML=ic('sliders')+'<span>'+esc(wp.note)+'</span>';
-  document.getElementById('skSub').textContent=
-    t('bd.sk.sub',{type:t('sk.type.'+P.skinType)});
 
   fillMissionCats(); renderInsight(); renderHome(); renderGoals(); renderWeek();
-  renderPlan('woGrid', wp.blocks, 'w');
-  renderPlan('skGrid', buildSkin(P.skinType), 'sk');
+  renderPlan('woGrid', wp.blocks, 'w');   // now the "my weekly plan" section of the sport mini-app
   renderPlan('hyGrid', buildHygiene(), 'hy');
   renderTheories(); renderStats(); renderTrial();
+  renderMini();                            // the skincare routine now lives in its mini-app
 }
 
 document.querySelectorAll('.langbtn').forEach(function(b){
   b.addEventListener('click',function(){ setLang(b.dataset.lang); });
 });
 
+bindMini();
 applyLang();
 renderGoalOpts();
 renderChips('easyC',P.easy);

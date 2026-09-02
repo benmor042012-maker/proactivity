@@ -24,3 +24,23 @@ duplicate key, a missing or empty language, or a `{placeholder}` that does not
 appear in all five languages.
 
 The app still ships as one self-contained `index.html` — nothing here is served.
+
+## Mini-apps
+
+The Body tab is a small router (`showMini`) over four views: a hub plus the
+sport, skincare and fridge mini-apps. All three are local-only — no API, no
+key, no backend. The fridge photo is read with `FileReader`, downscaled to
+900px and kept in `localStorage`; nothing is ever uploaded.
+
+| file | holds |
+|---|---|
+| `i18n_mini.py` | mini-app interface strings |
+| `i18n_food.py` | 31 ingredients and 17 recipes (name + steps) |
+| `js_mini.py` | the router and all three mini-apps |
+
+The sport app builds its five workouts from the `ex.*` and `cue.*` keys that
+already ship translated, so adding a workout usually needs no new translation.
+
+Stored state lives under `S.mini` and is versioned: `STORE_V` is 3, and
+`load()` chains `migrateV1` then `migrateV2` so an old save upgrades in one
+pass without losing anything.

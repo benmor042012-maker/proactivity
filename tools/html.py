@@ -302,14 +302,174 @@ def build_body(logo):
   </div>
  </div>
 
- <div class="page" id="page-body">
-  <h2 class="ptitle sechead" data-i18n="bd.wo.t"></h2><p class="psub" id="woSub"></p>
-  <div class="infoline" id="woInfo"></div>
-  <div class="plangrid" id="woGrid"></div>
-  <h2 class="ptitle sechead" data-i18n="bd.sk.t"></h2><p class="psub" id="skSub"></p>
-  <div class="plangrid" id="skGrid"></div>
-  <h2 class="ptitle sechead" data-i18n="bd.hy.t"></h2><p class="psub" data-i18n="bd.hy.s"></p>
-  <div class="plangrid" id="hyGrid"></div>
+ <div class="page wide" id="page-body">
+
+  <div class="mini-view on" data-mini="hub">
+   <h2 class="ptitle" data-i18n="m.hub.t"></h2><p class="psub" data-i18n="m.hub.s"></p>
+   <div class="mini-hub" id="hubGrid"></div>
+   <h2 class="ptitle sechead" data-i18n="bd.hy.t"></h2><p class="psub" data-i18n="bd.hy.s"></p>
+   <div class="plangrid" id="hyGrid"></div>
+  </div>
+
+  <div class="mini-view" data-mini="sport" id="miniSport">
+   <div class="mini-top">
+    <button class="btn btn-ghost btn-sm" data-mini-back>{i("chevron","flip")}<span data-i18n="m.back"></span></button>
+    <h2 data-i18n="sp.t"></h2>
+   </div>
+
+   <div class="sp-screen on" data-sp="home">
+    <div class="stat-row">
+     <div class="stat-box"><div class="v" id="spTotal">0</div><div class="k" data-i18n="sp.total"></div></div>
+     <div class="stat-box"><div class="v" id="spStreak">0</div><div class="k" data-i18n="sp.streak"></div></div>
+     <div class="stat-box"><div class="v numf" id="spWeek">0/7</div><div class="k" data-i18n="sp.week"></div></div>
+    </div>
+    <div class="gbar"><i id="spWeekBar" style="width:0%"></i></div>
+    <p class="hint" id="spFirst" data-i18n="sp.first"></p>
+    <button class="big-btn" id="spStart">{i("play")}<span data-i18n="sp.start"></span></button>
+    <div class="row-btns">
+     <button class="btn btn-ghost" id="spProgress">{i("trending")}<span data-i18n="sp.progress"></span></button>
+    </div>
+    <h3 class="sub-h" data-i18n="sp.myplan"></h3>
+    <p class="psub" id="woSub"></p>
+    <div class="infoline" id="woInfo"></div>
+    <div class="plangrid" id="woGrid"></div>
+   </div>
+
+   <div class="sp-screen" data-sp="pick">
+    <h3 class="sub-h" data-i18n="sp.pick.t"></h3>
+    <p class="psub" data-i18n="sp.pick.s"></p>
+    <div class="pick-grid" id="spPickGrid"></div>
+    <button class="btn btn-quiet" id="spPickBack">{i("chevron","flip")}<span data-i18n="m.back"></span></button>
+   </div>
+
+   <div class="sp-screen" data-sp="run">
+    <div class="dots" id="spDots"></div>
+    <div class="ex-card" id="spExBody">
+     <div class="ex-of" id="spOf"></div>
+     <div class="ex-n" id="spExName"></div>
+     <div class="ex-r" id="spExReps"></div>
+     <div class="ex-c" id="spExCue"></div>
+     <button class="big-btn" id="spDid">{i("check")}<span data-i18n="sp.did"></span></button>
+    </div>
+    <div class="rest" id="spRest">
+     <div class="rest-l" data-i18n="sp.rest"></div>
+     <div class="rest-n" id="spRestN">0</div>
+     <div class="rest-x" id="spRestNext"></div>
+     <button class="btn btn-ghost btn-sm" id="spSkipRest">{i("arrow")}<span data-i18n="sp.skip"></span></button>
+    </div>
+    <p class="hint safe">{i("shield")}<span data-i18n="sp.safe"></span></p>
+    <button class="btn btn-quiet" id="spQuit" data-i18n="sp.quit"></button>
+   </div>
+
+   <div class="sp-screen" data-sp="done">
+    <div class="done-card">
+     {i("check", "big-check")}
+     <h3 data-i18n="sp.done.t"></h3>
+     <div class="done-m"><span id="spDoneN"></span> · <span id="spDoneM"></span></div>
+     <p class="done-msg" id="spDoneMsg"></p>
+     <button class="big-btn" id="spDoneBack" data-i18n="sp.done.save"></button>
+    </div>
+   </div>
+
+   <div class="sp-screen" data-sp="progress">
+    <h3 class="sub-h" data-i18n="sp.pr.t"></h3>
+    <div class="stat-row">
+     <div class="stat-box"><div class="v" id="spPrWeek">0</div><div class="k" data-i18n="sp.week"></div></div>
+     <div class="stat-box"><div class="v" id="spPrMonth">0</div><div class="k" data-i18n="sp.month"></div></div>
+     <div class="stat-box"><div class="v" id="spPrStreak">0</div><div class="k" data-i18n="sp.streak"></div></div>
+    </div>
+    <h4 class="mini-h" data-i18n="sp.pr.board"></h4>
+    <div class="wk-board" id="spBoard"></div>
+    <h4 class="mini-h" data-i18n="sp.pr.hist"></h4>
+    <div class="hist" id="spHist"></div>
+    <button class="btn btn-quiet" id="spPrBack">{i("chevron","flip")}<span data-i18n="m.back"></span></button>
+   </div>
+  </div>
+
+  <div class="mini-view" data-mini="skin" id="miniSkin">
+   <div class="mini-top">
+    <button class="btn btn-ghost btn-sm" data-mini-back>{i("chevron","flip")}<span data-i18n="m.back"></span></button>
+    <h2 data-i18n="sn.t"></h2>
+   </div>
+
+   <div class="sn-screen on" data-sn="setup">
+    <h3 class="sub-h" data-i18n="sn.setup.t"></h3>
+    <p class="psub" data-i18n="sn.setup.s"></p>
+    <div id="snSetup"></div>
+    <button class="big-btn" id="snBuild">{i("sparkles")}<span data-i18n="sn.build"></span></button>
+    <p class="hint">{i("shield")}<span data-i18n="sn.note"></span></p>
+   </div>
+
+   <div class="sn-screen" data-sn="routine">
+    <div class="stat-row">
+     <div class="stat-box"><div class="v" id="snStreak">0</div><div class="k" data-i18n="sp.streak"></div></div>
+     <div class="stat-box"><div class="v numf" id="snWeek">0/7</div><div class="k" data-i18n="sn.week"></div></div>
+    </div>
+    <div class="do-row">
+     <button class="do-btn" id="snDoAm"></button>
+     <button class="do-btn" id="snDoPm"></button>
+    </div>
+    <h4 class="mini-h">{i("sun")}<span data-i18n="sn.am"></span></h4>
+    <div class="sn-list" id="snAm"></div>
+    <h4 class="mini-h">{i("moon")}<span data-i18n="sn.pm"></span></h4>
+    <div class="sn-list" id="snPm"></div>
+    <h4 class="mini-h" data-i18n="sp.pr.board"></h4>
+    <div class="wk-board" id="snBoard"></div>
+    <h4 class="mini-h" data-i18n="sn.hist"></h4>
+    <div class="hist" id="snHist"></div>
+    <p class="hint">{i("shield")}<span data-i18n="sn.gentle"></span></p>
+    <button class="btn btn-quiet" id="snRedo">{i("refresh")}<span data-i18n="sn.redo"></span></button>
+   </div>
+  </div>
+
+  <div class="mini-view" data-mini="fridge" id="miniFridge">
+   <div class="mini-top">
+    <button class="btn btn-ghost btn-sm" data-mini-back>{i("chevron","flip")}<span data-i18n="m.back"></span></button>
+    <h2 data-i18n="fr.t"></h2>
+   </div>
+
+   <div class="fr-screen on" data-fr="entry">
+    <p class="psub" data-i18n="fr.s"></p>
+    <div class="entry-row">
+     <button class="entry-btn" id="frPhotoBtn">{i("camera")}<span data-i18n="fr.photo"></span></button>
+     <button class="entry-btn" id="frManual">{i("plus")}<span data-i18n="fr.manual"></span></button>
+    </div>
+    <p class="hint">{i("shield")}<span data-i18n="fr.photo.note"></span></p>
+   </div>
+
+   <div class="fr-screen" data-fr="pantry">
+    <div id="frPhotoWrap" style="display:none">
+     <img class="fr-photo" id="frPhoto" alt="">
+     <button class="btn btn-quiet btn-sm" id="frPhotoRm">{i("x")}<span data-i18n="fr.photo.rm"></span></button>
+    </div>
+    <h4 class="mini-h" data-i18n="fr.pantry"></h4>
+    <div id="frGroups"></div>
+    <div class="chips" id="frCustom"></div>
+    <div class="addrow">
+     <input type="text" id="frAdd" data-i18n-ph="fr.custom.ph">
+     <button class="btn btn-ghost" id="frAddBtn">{i("plus")}</button>
+    </div>
+    <div class="fr-bar">
+     <span id="frCount"></span>
+     <button class="btn btn-quiet btn-sm" id="frClear" data-i18n="fr.clear"></button>
+    </div>
+    <button class="big-btn" id="frFind">{i("chef")}<span data-i18n="fr.find"></span></button>
+    <p class="hint">{i("shield")}<span data-i18n="fr.note"></span></p>
+   </div>
+
+   <div class="fr-screen" data-fr="ideas">
+    <div class="fr-tabs">
+     <button class="fr-tab on" data-fr-tab="ideas" data-i18n="fr.tab.ideas"></button>
+     <button class="fr-tab" data-fr-tab="favs" data-i18n="fr.tab.favs"></button>
+     <button class="fr-tab" data-fr-tab="hist" data-i18n="fr.tab.hist"></button>
+    </div>
+    <div id="frOut"></div>
+    <button class="btn btn-ghost btn-block" id="frAnother">{i("refresh")}<span data-i18n="fr.another"></span></button>
+    <button class="btn btn-quiet" id="frIdeasBack">{i("chevron","flip")}<span data-i18n="m.back"></span></button>
+   </div>
+
+   <input type="file" accept="image/*" class="hidden-file" id="frFile">
+  </div>
  </div>
 
  <div class="page" id="page-why">

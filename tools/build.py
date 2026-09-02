@@ -19,12 +19,15 @@ from i18n_ui import UI
 from i18n_app import APP
 from i18n_content import CONTENT
 from i18n_plan import PLAN
+from i18n_mini import MINI
+from i18n_food import FOOD
 from assets import sprite
 from css import CSS
 from html import build_body
 from js_core import JS_CORE
 from js_app import JS_APP
 from js_render import JS_RENDER
+from js_mini import JS_MINI
 
 LANGS = ['he', 'en', 'fr', 'ru', 'ar']
 OUT = os.path.join(ROOT, 'index.html')
@@ -34,7 +37,8 @@ LOGO_FILE = os.path.join(HERE, 'logo.b64')
 def merged_table():
     table = {}
     for src, name in ((UI, 'i18n_ui'), (APP, 'i18n_app'),
-                      (CONTENT, 'i18n_content'), (PLAN, 'i18n_plan')):
+                      (CONTENT, 'i18n_content'), (PLAN, 'i18n_plan'),
+                      (MINI, 'i18n_mini'), (FOOD, 'i18n_food')):
         for k, v in src.items():
             if k in table:
                 raise SystemExit(f'duplicate translation key {k!r} (in {name})')
@@ -86,7 +90,7 @@ def main():
              "var d=document.documentElement;d.lang=l;"
              "d.dir=(l==='he'||l==='ar')?'rtl':'ltr';}catch(e){}})();")
 
-    js = '\n'.join([i18n_js(table), JS_CORE, JS_APP, JS_RENDER])
+    js = '\n'.join([i18n_js(table), JS_CORE, JS_APP, JS_MINI, JS_RENDER])
 
     html = (
         '<!DOCTYPE html>\n'

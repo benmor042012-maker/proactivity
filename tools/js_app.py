@@ -8,7 +8,41 @@ var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCa
 var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[]};
 var CATS=[], uid=1;
 
-var STORE_V=2;
+/* Local calendar day, not UTC - with UTC the day would roll over at the wrong
+   hour and break every streak for anyone not on GMT. */
+function dayKey(d){
+  d = d || new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function daysBetween(a,b){
+  return Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00'))/86400000);
+}
+/* Shared by the sport and skincare mini-apps: same day is a no-op, yesterday
+   extends the run, any longer gap starts over. */
+function bumpStreak(o,day){
+  day = day || dayKey();
+  if(o.lastDay === day) return o.streak;
+  o.streak = (o.lastDay && daysBetween(o.lastDay, day) === 1) ? (o.streak||0)+1 : 1;
+  o.lastDay = day;
+  return o.streak;
+}
+/* A run that was broken before today should read as 0, not as its stale value. */
+function liveStreak(o){
+  if(!o || !o.lastDay) return 0;
+  var gap = daysBetween(o.lastDay, dayKey());
+  return (gap === 0 || gap === 1) ? (o.streak||0) : 0;
+}
+
+function emptyMini(){
+  return {
+    view:'hub',
+    sport: {sessions:[], streak:0, lastDay:null},
+    skin:  {setup:null, routine:null, log:{}, streak:0, lastDay:null},
+    fridge:{pantry:[], favs:[], history:[], photo:null}
+  };
+}
+
+var STORE_V=3;
 function save(){ try{
   localStorage.setItem('proactive_v',STORE_V);
   localStorage.setItem('proactive_p',JSON.stringify(P));
@@ -48,20 +82,28 @@ function migrateV1(){
   if(!P.trialStart) P.trialStart=Date.now();
 }
 
+/* v2 predates the mini-apps. Additive only: nothing stored by v2 is touched. */
+function migrateV2(){
+  if(!S.mini) S.mini=emptyMini();
+}
+
 function load(){ try{
   var p=localStorage.getItem('proactive_p'), s=localStorage.getItem('proactive_s');
   if(!p||!s) return false;
   P=Object.assign(P,JSON.parse(p)); S=Object.assign(S,JSON.parse(s));
   reseedUid();                          // before anything hands out a new id
-  if((Number(localStorage.getItem('proactive_v'))||1) < 2){
+  var v=Number(localStorage.getItem('proactive_v'))||1;
+  if(v<2){
     migrateV1();
     buildCats();
     seedTasks(); seedMissions();        // rebuilt in the new shape; goals kept
     S.goals.forEach(function(g){
       g.id=uid++; g.actions.forEach(function(a){ a.id=uid++; });
     });
-    save();
   }
+  if(v<3) migrateV2();                  // chains, so a v1 save lands on v3
+  if(!S.mini) S.mini=emptyMini();       // belt and braces for a hand-edited save
+  if(v<STORE_V) save();
   return true;
 }catch(e){ return false; } }
 
@@ -317,7 +359,10 @@ function seedGoals(){
   });
 }
 
-function seedState(){ seedTasks(); seedMissions(); seedGoals(); }
+function seedState(){
+  seedTasks(); seedMissions(); seedGoals();
+  if(!S.mini) S.mini=emptyMini();
+}
 /* task/mission/action labels may be a translation key or user text */
 function label(o){ return o.titleKey ? t(o.titleKey) : (o.title||''); }
 function actLabel(a){ return a.key ? t(a.key) : (a.text||''); }

@@ -45,6 +45,10 @@ ICONS = {
 'flag':     '<path d="M5 21V4"/><path d="M5 5h11l-2 3.5L16 12H5z"/>',
 'image':    '<rect x="3" y="4.5" width="18" height="15" rx="2"/><circle cx="8.5" cy="10" r="1.7"/><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5"/>',
 'globe':    '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3z"/>',
+'dumbbell': '<path d="M3 9.5v5M6 7.5v9M18 7.5v9M21 9.5v5M6 12h12"/>',
+'face':     '<circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01"/><path d="M8.8 14.5a4.2 4.2 0 0 0 6.4 0"/>',
+'fridge':   '<rect x="5.5" y="2.5" width="13" height="19" rx="2"/><path d="M5.5 10h13"/><path d="M8.5 6.5v1.5M8.5 12.5V15"/>',
+'chef':     '<path d="M7 21h10v-4H7z"/><path d="M7 17c-2.2 0-4-1.8-4-4a3.5 3.5 0 0 1 3-3.5A4 4 0 0 1 12 5a4 4 0 0 1 6 4.5A3.5 3.5 0 0 1 21 13c0 2.2-1.8 4-4 4"/>',
 }
 
 def sprite():
