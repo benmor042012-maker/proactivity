@@ -8,16 +8,61 @@ var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCa
 var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[]};
 var CATS=[], uid=1;
 
+var STORE_V=2;
 function save(){ try{
+  localStorage.setItem('proactive_v',STORE_V);
   localStorage.setItem('proactive_p',JSON.stringify(P));
   localStorage.setItem('proactive_s',JSON.stringify(S));
   localStorage.setItem('proactive_uid',uid);
 }catch(e){} }
+
+/* ids must never collide with ids already sitting in storage, whatever their
+   origin - a stale counter silently makes one checkbox toggle another row. */
+function reseedUid(){
+  var max=0;
+  function seen(n){ n=Number(n); if(n>max) max=n; }
+  (S.tasks||[]).forEach(function(x){ seen(x.id); });
+  (S.missions||[]).forEach(function(x){ seen(x.id); });
+  (S.goals||[]).forEach(function(g){ seen(g.id); (g.actions||[]).forEach(function(a){ seen(a.id); }); });
+  (P.customCats||[]).forEach(function(c){ var m=/^custom_(\d+)$/.exec(c.id||''); if(m) seen(m[1]); });
+  var stored=Number(localStorage.getItem('proactive_uid'))||1;
+  uid=Math.max(stored,max+1,1);
+}
+
+/* v1 stored every task, mission and category label as a hardcoded Hebrew
+   string and category icons as emoji, so carrying that straight into the new
+   build leaves Hebrew text in the other four languages and icon references
+   that resolve to nothing. Keep the progress, rebuild the labelled parts. */
+function migrateV1(){
+  P.customCats=(P.customCats||[]).map(function(c){
+    return {id:c.id, name:c.name, icon:'star', custom:true, sg:['sg.generic']};
+  });
+  P.easy=[]; P.hard=[];                 // v1 stored these as Hebrew literals
+  S.tasks=[]; S.missions=[]; S.plan={}; // re-seeded below from the new schema
+  S.goals=(S.goals||[]).map(function(g){
+    return {id:g.id, title:g.title,     // the user typed these, so they stay
+            actions:guessSteps(g.title).map(function(k){
+              return {id:0,key:k,text:'',done:false};
+            })};
+  });
+  if(!P.trialStart) P.trialStart=Date.now();
+}
+
 function load(){ try{
   var p=localStorage.getItem('proactive_p'), s=localStorage.getItem('proactive_s');
   if(!p||!s) return false;
   P=Object.assign(P,JSON.parse(p)); S=Object.assign(S,JSON.parse(s));
-  uid=Number(localStorage.getItem('proactive_uid'))||1; return true;
+  reseedUid();                          // before anything hands out a new id
+  if((Number(localStorage.getItem('proactive_v'))||1) < 2){
+    migrateV1();
+    buildCats();
+    seedTasks(); seedMissions();        // rebuilt in the new shape; goals kept
+    S.goals.forEach(function(g){
+      g.id=uid++; g.actions.forEach(function(a){ a.id=uid++; });
+    });
+    save();
+  }
+  return true;
 }catch(e){ return false; } }
 
 function buildCats(){
@@ -239,8 +284,10 @@ function finishOnboarding(){
   startApp();
 }
 
-function seedState(){
-  var mult=({easy:1,mid:1.4,hard:2})[P.diff]||1;
+function difficultyMult(){ return ({easy:1,mid:1.4,hard:2})[P.diff]||1; }
+
+function seedTasks(){
+  var mult=difficultyMult();
   S.tasks=[];
   CATS.forEach(function(cat){
     S.tasks.push({id:uid++, catId:cat.id, titleKey:cat.dk||null,
@@ -249,12 +296,19 @@ function seedState(){
          : cat.id==='sport' ? Math.round(Number(P.time)||30) : 0,
       done:false, photo:null});
   });
-  var target=Math.max(2,Math.round(3*mult));
+}
+
+function seedMissions(){
+  var target=Math.max(2,Math.round(3*difficultyMult()));
   S.missions=[];
   CATS.forEach(function(cat){
     S.missions.push({id:uid++, catId:cat.id, titleKey:cat.custom?null:cat.k,
-      title:cat.custom?cat.name:'', target:Math.min(7,target), days:[0,0,0,0,0,0,0].map(function(){return false;})});
+      title:cat.custom?cat.name:'', target:Math.min(7,target),
+      days:[0,0,0,0,0,0,0].map(function(){return false;})});
   });
+}
+
+function seedGoals(){
   S.goals=[];
   P.userGoals.forEach(function(g){
     S.goals.push({id:uid++, title:g, actions:guessSteps(g).map(function(k){
@@ -262,6 +316,8 @@ function seedState(){
     })});
   });
 }
+
+function seedState(){ seedTasks(); seedMissions(); seedGoals(); }
 /* task/mission/action labels may be a translation key or user text */
 function label(o){ return o.titleKey ? t(o.titleKey) : (o.title||''); }
 function actLabel(a){ return a.key ? t(a.key) : (a.text||''); }
