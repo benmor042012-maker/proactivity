@@ -210,6 +210,24 @@ MINI = {
                  'Идеи здесь общие и сбалансированные. Слушай свой голод — тело знает, сколько ему нужно.',
                  'هذه أفكار عامة ومتوازنة. أنصت لجوعك — جسدك يعرف كم يحتاج.'),
 
+# ---------- suggested recipes ----------
+'fs.t':         ('מתכונים מוצעים', 'Suggested recipes', 'Recettes suggérées',
+                 'Предлагаемые рецепты', 'وصفات مقترحة'),
+'fs.s':         ('רעיונות מאוזנים לגלוש בהם, גם בלי לסמן כלום.',
+                 'Balanced ideas to browse, even without marking anything.',
+                 'Des idées équilibrées à parcourir, même sans rien cocher.',
+                 'Сбалансированные идеи, которые можно листать, ничего не отмечая.',
+                 'أفكار متوازنة لتتصفحها، حتى دون تحديد أي شيء.'),
+'fs.all':       ('הכל', 'All', 'Tout', 'Все', 'الكل'),
+'fs.breakfast': ('בוקר', 'Breakfast', 'Petit-déj', 'Завтрак', 'فطور'),
+'fs.meal':      ('ארוחה', 'Main meal', 'Repas', 'Основное', 'وجبة'),
+'fs.snack':     ('נשנוש', 'Snack', 'En-cas', 'Перекус', 'وجبة خفيفة'),
+'fs.quick':     ('מהיר', 'Quick', 'Rapide', 'Быстро', 'سريع'),
+'fs.more':      ('עוד מתכונים', 'More recipes', 'Plus de recettes', 'Ещё рецепты', 'وصفات أخرى'),
+'fs.empty':     ('אין מתכונים בקטגוריה הזו.', 'No recipes in this category.',
+                 'Aucune recette dans cette catégorie.', 'В этой категории нет рецептов.',
+                 'لا وصفات في هذه الفئة.'),
+
 # ---------- ingredient groups ----------
 'fg.protein':   ('חלבון', 'Protein', 'Protéines', 'Белок', 'بروتين'),
 'fg.veg':       ('ירקות', 'Vegetables', 'Légumes', 'Овощи', 'خضار'),

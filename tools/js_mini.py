@@ -378,33 +378,59 @@ function markSkin(which){
 
 /* ================= fridge ================= */
 var ING=[
-  {g:'fg.protein', items:['ing.egg','ing.chicken','ing.tuna','ing.beans','ing.chickpea','ing.tofu']},
-  {g:'fg.veg',     items:['ing.tomato','ing.cucumber','ing.onion','ing.pepper','ing.carrot','ing.potato','ing.spinach','ing.mushroom','ing.zucchini','ing.garlic']},
+  {g:'fg.protein', items:['ing.egg','ing.chicken','ing.tuna','ing.beans','ing.chickpea','ing.lentils','ing.tofu']},
+  {g:'fg.veg',     items:['ing.tomato','ing.cucumber','ing.onion','ing.pepper','ing.carrot','ing.potato','ing.spinach','ing.mushroom','ing.zucchini','ing.avocado','ing.garlic']},
   {g:'fg.fruit',   items:['ing.banana','ing.apple','ing.berries','ing.lemon']},
-  {g:'fg.grain',   items:['ing.bread','ing.rice','ing.pasta','ing.oats','ing.tortilla']},
-  {g:'fg.dairy',   items:['ing.cheese','ing.yogurt','ing.milk']},
-  {g:'fg.pantry',  items:['ing.oil','ing.honey','ing.nuts']}
+  {g:'fg.grain',   items:['ing.bread','ing.rice','ing.pasta','ing.oats','ing.tortilla','ing.crackers']},
+  {g:'fg.dairy',   items:['ing.cheese','ing.yogurt','ing.cottage','ing.milk']},
+  {g:'fg.pantry',  items:['ing.oil','ing.honey','ing.nuts','ing.hummus']}
 ];
 
 var RECIPES=[
-  {id:'eggtoast',      mins:8,  ing:['ing.egg','ing.bread','ing.tomato','ing.oil'], steps:3},
-  {id:'shakshuka',     mins:20, ing:['ing.egg','ing.tomato','ing.onion','ing.pepper','ing.bread','ing.oil'], steps:4},
-  {id:'tunasalad',     mins:10, ing:['ing.tuna','ing.chickpea','ing.tomato','ing.cucumber','ing.onion','ing.oil','ing.lemon'], steps:3},
-  {id:'pastagarlic',   mins:15, ing:['ing.pasta','ing.garlic','ing.oil','ing.cheese'], steps:4},
-  {id:'ricebowl',      mins:25, ing:['ing.rice','ing.carrot','ing.pepper','ing.onion','ing.oil','ing.lemon'], steps:3},
-  {id:'omelette',      mins:10, ing:['ing.egg','ing.mushroom','ing.spinach','ing.oil'], steps:3},
-  {id:'oatmeal',       mins:8,  ing:['ing.oats','ing.milk','ing.banana','ing.nuts','ing.honey'], steps:3},
-  {id:'yogurtbowl',    mins:5,  ing:['ing.yogurt','ing.berries','ing.banana','ing.nuts','ing.honey'], steps:3},
-  {id:'wrap',          mins:12, ing:['ing.tortilla','ing.chicken','ing.spinach','ing.tomato','ing.cucumber','ing.yogurt'], steps:3},
-  {id:'bakedpotato',   mins:45, ing:['ing.potato','ing.cheese','ing.beans','ing.tuna'], steps:3},
-  {id:'chickpeasalad', mins:10, ing:['ing.chickpea','ing.tomato','ing.cucumber','ing.onion','ing.oil','ing.lemon'], steps:3},
-  {id:'pastaveg',      mins:22, ing:['ing.pasta','ing.tomato','ing.onion','ing.garlic','ing.zucchini','ing.pepper','ing.oil'], steps:4},
-  {id:'grilledcheese', mins:8,  ing:['ing.bread','ing.cheese','ing.tomato'], steps:3},
-  {id:'tofustir',      mins:18, ing:['ing.tofu','ing.pepper','ing.carrot','ing.garlic','ing.rice','ing.oil'], steps:4},
-  {id:'beansrice',     mins:20, ing:['ing.beans','ing.rice','ing.onion','ing.garlic','ing.oil'], steps:3},
-  {id:'fruitsmooth',   mins:5,  ing:['ing.banana','ing.berries','ing.milk','ing.yogurt'], steps:3},
-  {id:'roastveg',      mins:35, ing:['ing.potato','ing.carrot','ing.zucchini','ing.pepper','ing.oil','ing.garlic'], steps:3}
+  /* breakfast */
+  {id:'shakshuka',     meal:'breakfast', mins:20, ing:['ing.egg','ing.tomato','ing.onion','ing.pepper','ing.bread','ing.oil'], steps:4},
+  {id:'omelette',      meal:'breakfast', mins:10, ing:['ing.egg','ing.mushroom','ing.spinach','ing.oil'], steps:3},
+  {id:'oatmeal',       meal:'breakfast', mins:8,  ing:['ing.oats','ing.milk','ing.banana','ing.nuts','ing.honey'], steps:3},
+  {id:'yogurtbowl',    meal:'breakfast', mins:5,  ing:['ing.yogurt','ing.berries','ing.banana','ing.nuts','ing.honey'], steps:3},
+  {id:'fruitsmooth',   meal:'breakfast', mins:5,  ing:['ing.banana','ing.berries','ing.milk','ing.yogurt'], steps:3},
+  {id:'avocadotoast',  meal:'breakfast', mins:7,  ing:['ing.avocado','ing.bread','ing.tomato','ing.lemon'], steps:3},
+  {id:'scrambleveg',   meal:'breakfast', mins:10, ing:['ing.egg','ing.pepper','ing.onion','ing.oil'], steps:3},
+  {id:'cottagebowl',   meal:'breakfast', mins:5,  ing:['ing.cottage','ing.berries','ing.banana','ing.nuts','ing.honey'], steps:3},
+  {id:'bananapancake', meal:'breakfast', mins:12, ing:['ing.banana','ing.egg','ing.oats'], steps:3},
+
+  /* main meals */
+  {id:'eggtoast',      meal:'meal', mins:8,  ing:['ing.egg','ing.bread','ing.tomato','ing.oil'], steps:3},
+  {id:'tunasalad',     meal:'meal', mins:10, ing:['ing.tuna','ing.chickpea','ing.tomato','ing.cucumber','ing.onion','ing.oil','ing.lemon'], steps:3},
+  {id:'pastagarlic',   meal:'meal', mins:15, ing:['ing.pasta','ing.garlic','ing.oil','ing.cheese'], steps:4},
+  {id:'ricebowl',      meal:'meal', mins:25, ing:['ing.rice','ing.carrot','ing.pepper','ing.onion','ing.oil','ing.lemon'], steps:3},
+  {id:'wrap',          meal:'meal', mins:12, ing:['ing.tortilla','ing.chicken','ing.spinach','ing.tomato','ing.cucumber','ing.yogurt'], steps:3},
+  {id:'bakedpotato',   meal:'meal', mins:45, ing:['ing.potato','ing.cheese','ing.beans','ing.tuna'], steps:3},
+  {id:'chickpeasalad', meal:'meal', mins:10, ing:['ing.chickpea','ing.tomato','ing.cucumber','ing.onion','ing.oil','ing.lemon'], steps:3},
+  {id:'pastaveg',      meal:'meal', mins:22, ing:['ing.pasta','ing.tomato','ing.onion','ing.garlic','ing.zucchini','ing.pepper','ing.oil'], steps:4},
+  {id:'grilledcheese', meal:'meal', mins:8,  ing:['ing.bread','ing.cheese','ing.tomato'], steps:3},
+  {id:'tofustir',      meal:'meal', mins:18, ing:['ing.tofu','ing.pepper','ing.carrot','ing.garlic','ing.rice','ing.oil'], steps:4},
+  {id:'beansrice',     meal:'meal', mins:20, ing:['ing.beans','ing.rice','ing.onion','ing.garlic','ing.oil'], steps:3},
+  {id:'roastveg',      meal:'meal', mins:35, ing:['ing.potato','ing.carrot','ing.zucchini','ing.pepper','ing.oil','ing.garlic'], steps:3},
+  {id:'lentilsoup',    meal:'meal', mins:30, ing:['ing.lentils','ing.onion','ing.carrot','ing.garlic','ing.oil','ing.lemon'], steps:4},
+  {id:'chickenrice',   meal:'meal', mins:25, ing:['ing.chicken','ing.rice','ing.pepper','ing.carrot','ing.garlic','ing.lemon'], steps:4},
+  {id:'tunapasta',     meal:'meal', mins:18, ing:['ing.tuna','ing.pasta','ing.tomato','ing.garlic','ing.oil','ing.lemon'], steps:4},
+  {id:'pitastuff',     meal:'meal', mins:8,  ing:['ing.tortilla','ing.hummus','ing.egg','ing.tomato','ing.cucumber'], steps:3},
+  {id:'veggiesoup',    meal:'meal', mins:28, ing:['ing.onion','ing.carrot','ing.potato','ing.zucchini','ing.oil'], steps:3},
+
+  /* snacks */
+  {id:'hummusplate',   meal:'snack', mins:5,  ing:['ing.hummus','ing.carrot','ing.cucumber','ing.pepper','ing.oil'], steps:3},
+  {id:'applenut',      meal:'snack', mins:4,  ing:['ing.apple','ing.nuts'], steps:3},
+  {id:'yogurthoney',   meal:'snack', mins:3,  ing:['ing.yogurt','ing.honey','ing.nuts'], steps:3},
+  {id:'cheesecrackers',meal:'snack', mins:5,  ing:['ing.crackers','ing.cheese','ing.tomato','ing.oil'], steps:3}
 ];
+
+/* "quick" is derived, not stored, so it can never drift from mins */
+var MEAL_FILTERS=['all','breakfast','meal','snack','quick'];
+function matchesFilter(r,f){
+  if(f==='all')   return true;
+  if(f==='quick') return r.mins<=10;
+  return r.meal===f;
+}
 
 function fridgeScreen(name){
   document.querySelectorAll('#miniFridge .fr-screen').forEach(function(s){
@@ -415,7 +441,7 @@ function fridgeScreen(name){
 function renderFridge(){
   var fr=miniState().fridge;
   if(fr.pantry.length || fr.photo) renderPantry();
-  else fridgeScreen('entry');
+  else { fridgeScreen('entry'); renderSuggest(); }
 }
 
 function renderPantry(){
@@ -440,6 +466,7 @@ function renderPantry(){
 
   document.getElementById('frCount').textContent=t('fr.count',{n:fr.pantry.length});
   fridgeScreen('pantry');
+  renderSuggest();
 }
 
 function toggleIng(key){
@@ -470,8 +497,8 @@ function recipeCard(x){
     '<div class="rec-m">'+ic('clock')+esc(t('fr.mins',{n:r.mins}))+' · '+
     (x.miss.length? esc(t('fr.almost',{n:x.miss.length})) : '<b>'+esc(t('fr.ready'))+'</b>')+'</div></div>'+
     '<button class="icon-btn fav'+(fav?' on':'')+'" data-fav="'+r.id+'" aria-label="'+esc(t('fr.save'))+'">'+ic('star')+'</button></div>'+
-    '<div class="rec-i"><span class="ri-h">'+esc(t('fr.have'))+'</span>'+
-    x.hit.map(function(k){ return '<span class="ri ok">'+ic('check')+esc(t(k))+'</span>'; }).join('')+'</div>'+
+    (x.hit.length?'<div class="rec-i"><span class="ri-h">'+esc(t('fr.have'))+'</span>'+
+      x.hit.map(function(k){ return '<span class="ri ok">'+ic('check')+esc(t(k))+'</span>'; }).join('')+'</div>':'')+
     (x.miss.length?'<div class="rec-i"><span class="ri-h">'+esc(t('fr.missing'))+'</span>'+
       x.miss.map(function(k){ return '<span class="ri no">'+esc(t(k))+'</span>'; }).join('')+'</div>':'')+
     '<div class="rec-s"><div class="rs-h">'+esc(t('fr.steps'))+'</div><ol>'+
@@ -517,6 +544,23 @@ function renderIdeas(){
   }
   fridgeScreen('ideas');
 }
+var sugFilter='all', sugShown=6;
+
+/* Always-on browsable library. Reuses recipeCard()/withMatch(), so a card here
+   marks what you have and saves to favourites exactly like a matched result. */
+function renderSuggest(){
+  var box=document.getElementById('frSugOut');
+  if(!box) return;
+  document.querySelectorAll('#frSugFilters .sug-f').forEach(function(b){
+    b.classList.toggle('on', b.dataset.sugF===sugFilter);
+  });
+  var list=RECIPES.filter(function(r){ return matchesFilter(r,sugFilter); });
+  if(!list.length){ box.innerHTML='<div class="empty">'+esc(t('fs.empty'))+'</div>'; }
+  else box.innerHTML=list.slice(0,sugShown).map(withMatch).map(recipeCard).join('');
+  var more=document.getElementById('frSugMore');
+  more.style.display = list.length>sugShown ? '' : 'none';
+}
+
 function byId(id){ for(var i=0;i<RECIPES.length;i++) if(RECIPES[i].id===id) return RECIPES[i]; return null; }
 function withMatch(r){
   var have=miniState().fridge.pantry;
@@ -598,6 +642,19 @@ function bindMini(){
   });
   document.querySelectorAll('#miniFridge .fr-tab').forEach(function(b){
     b.addEventListener('click', function(){ frTab=b.dataset.frTab; renderIdeas(); });
+  });
+  document.getElementById('frSugFilters').addEventListener('click', function(e){
+    var b=e.target.closest('[data-sug-f]'); if(!b) return;
+    sugFilter=b.dataset.sugF; sugShown=6; renderSuggest();
+  });
+  document.getElementById('frSugMore').addEventListener('click', function(){
+    sugShown+=6; renderSuggest();
+  });
+  document.getElementById('frSugOut').addEventListener('click', function(e){
+    var b=e.target.closest('[data-fav]'); if(!b) return;
+    var fr=miniState().fridge, id=b.dataset.fav, i=fr.favs.indexOf(id);
+    if(i>=0) fr.favs.splice(i,1); else { fr.favs.unshift(id); toast(t('fr.saved')); }
+    save(); renderSuggest(); if(frTab!=='ideas') renderIdeas();
   });
   document.getElementById('frOut').addEventListener('click', function(e){
     var b=e.target.closest('[data-fav]'); if(!b) return;

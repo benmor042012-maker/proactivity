@@ -565,6 +565,15 @@ td.scell.none{color:var(--fg-3);}
 .rec-s ol{padding-inline-start:1.2em;display:grid;gap:var(--s2);}
 .rec-s li{font-size:var(--t-sm);color:var(--fg-2);}
 
+/* suggested-recipe library, always present at the bottom of the fridge app */
+.sug{border-top:1px solid var(--ink-2);margin-top:var(--s6);padding-top:var(--s2);}
+.sug-filters{display:flex;gap:var(--s2);flex-wrap:wrap;margin-bottom:var(--s4);}
+.sug-f{background:var(--ink-1);border:1px solid var(--ink-3);border-radius:var(--r-pill);
+  color:var(--fg-2);font-family:var(--f-ui);font-weight:600;font-size:var(--t-sm);
+  padding:9px 16px;cursor:pointer;min-height:38px;transition:border-color .14s,background .14s,color .14s;}
+.sug-f:hover{border-color:var(--ink-4);color:var(--fg);}
+.sug-f.on{background:var(--flame);border-color:var(--flame);color:var(--on-flame);}
+
 @media(max-width:720px){
   .mini-top h2{font-size:var(--t-h2);}
   .entry-row{grid-template-columns:1fr;}

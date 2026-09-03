@@ -468,6 +468,20 @@ def build_body(logo):
     <button class="btn btn-quiet" id="frIdeasBack">{i("chevron","flip")}<span data-i18n="m.back"></span></button>
    </div>
 
+   <div class="sug">
+    <h4 class="mini-h">{i("chef")}<span data-i18n="fs.t"></span></h4>
+    <p class="psub" data-i18n="fs.s"></p>
+    <div class="sug-filters" id="frSugFilters">
+     <button class="sug-f on" data-sug-f="all" data-i18n="fs.all"></button>
+     <button class="sug-f" data-sug-f="breakfast" data-i18n="fs.breakfast"></button>
+     <button class="sug-f" data-sug-f="meal" data-i18n="fs.meal"></button>
+     <button class="sug-f" data-sug-f="snack" data-i18n="fs.snack"></button>
+     <button class="sug-f" data-sug-f="quick" data-i18n="fs.quick"></button>
+    </div>
+    <div id="frSugOut"></div>
+    <button class="btn btn-ghost btn-block" id="frSugMore">{i("plus")}<span data-i18n="fs.more"></span></button>
+   </div>
+
    <input type="file" accept="image/*" class="hidden-file" id="frFile">
   </div>
  </div>
