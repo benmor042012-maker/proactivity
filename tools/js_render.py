@@ -91,9 +91,10 @@ function delTask(id){
 function renderRing(){
   var svg=document.getElementById('rSvg');
   var r=54, cx=66, cy=66, sw=10, circ=2*Math.PI*r;
+  var track=cssVar('--ink-3')||'#333947', fill=cssVar('--acc')||'#3DDCA8';
   var total=S.tasks.length;
   if(!total){
-    svg.innerHTML='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#2A2A30" stroke-width="'+sw+'" stroke-dasharray="3 7"/>';
+    svg.innerHTML='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+track+'" stroke-width="'+sw+'" stroke-dasharray="3 7"/>';
     document.getElementById('rPct').textContent='0%'; return;
   }
   var out='', off=0;
@@ -102,9 +103,9 @@ function renderRing(){
     if(!ct.length) return;
     var done=ct.filter(function(x){ return x.done; }).length;
     var seg=(ct.length/total)*circ, filled=seg*(done/ct.length);
-    out+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#2A2A30" stroke-width="'+sw+'" stroke-dasharray="'+(seg-2)+' '+(circ-seg+2)+'" stroke-dashoffset="'+(-off)+'"/>';
+    out+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+track+'" stroke-width="'+sw+'" stroke-dasharray="'+(seg-2)+' '+(circ-seg+2)+'" stroke-dashoffset="'+(-off)+'"/>';
     if(filled>0)
-      out+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#FF5A1F" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+Math.max(0,filled-2)+' '+(circ-filled+2)+'" stroke-dashoffset="'+(-off)+'"/>';
+      out+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+fill+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+Math.max(0,filled-2)+' '+(circ-filled+2)+'" stroke-dashoffset="'+(-off)+'"/>';
     off+=seg;
   });
   svg.innerHTML=out;
@@ -480,6 +481,9 @@ document.querySelectorAll('.langbtn').forEach(function(b){
 });
 
 bindMini();
+bindGender();
+loadLook();
+applyTheme();
 applyLang();
 renderGoalOpts();
 renderChips('easyC',P.easy);
@@ -492,6 +496,7 @@ renderChips('hardC',P.hard);
 markSelected();
 
 if(load()){
+  loadLook(); applyTheme();     // the profile may carry an older look; the keys win
   buildCats();
   document.getElementById('landing').style.display='none';
   document.body.classList.remove('has-sticky');

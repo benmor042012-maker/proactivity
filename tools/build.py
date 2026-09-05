@@ -83,12 +83,19 @@ def main():
              '&family=Noto+Sans+Arabic:wght@400;600;700'
              '&display=swap')
 
-    # Sets dir/lang before first paint so there is no RTL/LTR flash.
+    # Sets dir/lang and the theme before first paint: no RTL/LTR flash and no
+    # flash of the wrong palette.
     early = ("(function(){try{var l=localStorage.getItem('proactive_lang');"
              "if(!l){var n=(navigator.language||'he').slice(0,2);"
              "l=['he','en','fr','ru','ar'].indexOf(n)>=0?n:'he';}"
              "var d=document.documentElement;d.lang=l;"
-             "d.dir=(l==='he'||l==='ar')?'rtl':'ltr';}catch(e){}})();")
+             "d.dir=(l==='he'||l==='ar')?'rtl':'ltr';"
+             "var st=localStorage.getItem('proactive_theme');"
+             "var th=st||((window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark');"
+             "d.setAttribute('data-theme',th);"
+             "var sa=localStorage.getItem('proactive_accent');"
+             "d.setAttribute('data-accent',['flame','bloom','mint'].indexOf(sa)>=0?sa:'mint');"
+             "}catch(e){}})();")
 
     js = '\n'.join([i18n_js(table), JS_CORE, JS_APP, JS_MINI, JS_RENDER])
 
@@ -97,7 +104,7 @@ def main():
         '<html lang="he" dir="rtl">\n<head>\n'
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
-        '<meta name="theme-color" content="#09090A">\n'
+        '<meta name="theme-color" content="#14161C">\n'
         '<meta name="description" content="Proactive - turn big goals into small daily steps, with photo proof.">\n'
         '<title>Proactive</title>\n'
         f'<script>{early}</script>\n'

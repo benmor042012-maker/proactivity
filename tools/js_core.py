@@ -26,6 +26,11 @@ function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(function(el){ el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-html]').forEach(function(el){ el.innerHTML = t(el.dataset.i18nHtml); });
   document.querySelectorAll('[data-i18n-ph]').forEach(function(el){ el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-title]').forEach(function(el){
+    var s=t(el.dataset.i18nTitle); el.title=s; el.setAttribute('aria-label',s);
+  });
+  var mb=document.getElementById('modeBtn');
+  if(mb) mb.setAttribute('data-i18n-title', activeTheme()==='light' ? 'th.dark' : 'th.light');
   renderPrices();
 }
 function setLang(l){

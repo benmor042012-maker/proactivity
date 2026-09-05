@@ -44,3 +44,21 @@ already ship translated, so adding a workout usually needs no new translation.
 Stored state lives under `S.mini` and is versioned: `STORE_V` is 3, and
 `load()` chains `migrateV1` then `migrateV2` so an old save upgrades in one
 pass without losing anything.
+
+## Themes
+
+Colour is layered: base tokens, then surfaces (`data-theme` = dark|light),
+then accent (`data-accent` = flame|bloom|mint). Both attributes are written to
+`<html>` by the head script before first paint, so there is no flash.
+
+`tools/themegen.py` (in the scratchpad during development, inlined into
+`css.py`) generated the six surface x accent blocks. Each accent carries a
+different tone per mode — a colour bright enough on a dark background fails
+contrast on a light one.
+
+Appearance is stored under its own keys, `proactive_accent` and
+`proactive_theme`, not inside the profile: the profile is only written once
+onboarding finishes, and a colour picked earlier must still survive a refresh.
+
+The onboarding question only picks a *default* accent. The three dots and the
+sun/moon button in the top bar override it at any time.

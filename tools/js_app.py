@@ -4,9 +4,73 @@ JS_APP = r"""
 var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCats:[],
        diff:'mid',workout:'general',fitLevel:'beginner',time:'30',actPref:'mix',
        easy:[],hard:[],dream:'',skinType:'normal',userGoals:[],
-       plan:null, trialStart:null};
+       plan:null, trialStart:null,
+       gender:'', accent:'mint', theme:''};   // theme '' = follow the device
 var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[]};
 var CATS=[], uid=1;
+
+/* ================= theme ================= */
+/* The gender answer only picks a DEFAULT accent - the top bar can change it
+   at any time, so nobody is locked into a colour. */
+var ACCENTS=['flame','bloom','mint'];
+var GENDER_ACCENT={boy:'flame', girl:'bloom', na:'mint'};
+
+function prefersLight(){
+  try{ return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches; }
+  catch(e){ return false; }
+}
+function activeTheme(){ return P.theme || (prefersLight() ? 'light' : 'dark'); }
+
+function applyTheme(){
+  var d=document.documentElement;
+  d.setAttribute('data-theme', activeTheme());
+  d.setAttribute('data-accent', ACCENTS.indexOf(P.accent)>=0 ? P.accent : 'mint');
+  document.querySelectorAll('[data-set-accent]').forEach(function(b){
+    b.classList.toggle('on', b.dataset.setAccent===P.accent);
+  });
+  var mb=document.getElementById('modeBtn');
+  if(mb) mb.classList.toggle('is-light', activeTheme()==='light');
+  var meta=document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', activeTheme()==='light' ? '#FBF9F5' : '#14161C');
+}
+/* Appearance is stored under its own keys, not inside the profile: the profile
+   is only written once onboarding completes, and a colour picked on the landing
+   page must still survive a refresh. */
+function saveLook(){
+  try{
+    localStorage.setItem('proactive_accent', P.accent||'mint');
+    localStorage.setItem('proactive_theme', P.theme||'');
+  }catch(e){}
+}
+function loadLook(){
+  try{
+    var a=localStorage.getItem('proactive_accent');
+    if(ACCENTS.indexOf(a)>=0) P.accent=a;
+    var th=localStorage.getItem('proactive_theme');
+    if(th==='light'||th==='dark'||th==='') P.theme=th||'';
+  }catch(e){}
+}
+function setAccent(a){
+  if(ACCENTS.indexOf(a)<0) return;
+  P.accent=a; saveLook(); applyTheme(); redrawColoured();
+}
+function setTheme(mode){ P.theme=mode; saveLook(); applyTheme(); redrawColoured(); }
+
+/* the progress ring paints with real colour values, so it has to be redrawn
+   whenever the palette changes */
+function redrawColoured(){
+  if(document.getElementById('app').style.display==='block'){ renderRing(); renderMini(); }
+}
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+document.addEventListener('click',function(e){
+  var a=e.target.closest('[data-set-accent]');
+  if(a){ setAccent(a.dataset.setAccent); return; }
+  var m=e.target.closest('#modeBtn');
+  if(m){ setTheme(activeTheme()==='light' ? 'dark' : 'light'); }
+});
 
 /* Local calendar day, not UTC - with UTC the day would roll over at the wrong
    hour and break every streak for anyone not on GMT. */
@@ -44,6 +108,7 @@ function emptyMini(){
 
 var STORE_V=3;
 function save(){ try{
+  saveLook();
   localStorage.setItem('proactive_v',STORE_V);
   localStorage.setItem('proactive_p',JSON.stringify(P));
   localStorage.setItem('proactive_s',JSON.stringify(S));
@@ -265,7 +330,23 @@ function singleSelect(boxId,attr,field){
     });
   });
 }
+/* choosing here sets the default accent straight away, so the rest of the
+   questionnaire is already in the user's colour */
+function bindGender(){
+  document.querySelectorAll('#oGender .opt').forEach(function(o){
+    o.addEventListener('click',function(){
+      document.querySelectorAll('#oGender .opt').forEach(function(x){ x.classList.remove('on'); });
+      o.classList.add('on');
+      P.gender=o.dataset.g;
+      setAccent(GENDER_ACCENT[P.gender]||'mint');
+    });
+  });
+}
+
 function markSelected(){
+  document.querySelectorAll('#oGender .opt').forEach(function(o){
+    o.classList.toggle('on', o.dataset.g===P.gender);
+  });
   [['oTime','time','time'],['oAP','ap','actPref'],['oWO','wo','workout'],
    ['oFL','fl','fitLevel'],['oSkin','skin','skinType'],['oDiff','diff','diff']]
   .forEach(function(x){

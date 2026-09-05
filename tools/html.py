@@ -54,6 +54,12 @@ LANGS = [('he', 'עברית'), ('en', 'English'), ('fr', 'Français'), ('ru', '�
 
 def build_body(logo):
     L = ''.join(f'<button class="langbtn" data-lang="{c}">{n}</button>' for c, n in LANGS)
+    L += ('<span class="bar-sep"></span>'
+          + ''.join(f'<button class="accdot" data-set-accent="{a}" '
+                    f'data-i18n-title="th.acc.{a}" aria-label="{a}"></button>'
+                    for a in ('flame', 'bloom', 'mint'))
+          + f'<button class="modebtn" id="modeBtn" data-i18n-title="th.dark">'
+            f'{i("sun","ic-sun")}{i("moon","ic-moon")}</button>')
 
     # ---------- landing ----------
     landing = f'''
@@ -138,6 +144,11 @@ def build_body(logo):
   <div class="field"><label data-i18n="o.age"></label>
    <select id="oAge"><option value="" data-i18n="o.age.ph"></option>{ages}</select></div>
   <div class="field"><label data-i18n="o.email"></label><input type="email" id="oEmail" placeholder="you@email.com"></div>
+  <div class="qlabel" data-i18n="o.iam"></div>
+  <div class="opts" id="oGender">
+   {opt("g","g","boy","user","o.iam.boy")}{opt("g","g","girl","user","o.iam.girl")}{opt("g","g","na","compass","o.iam.na")}
+  </div>
+  <p class="hint" style="margin-top:var(--s2)">{i("palette")}<span data-i18n="o.iam.note"></span></p>
   <div class="note">{i("flame")}<span data-i18n="o.trial"></span></div>
   {nav(last=True)}
  </div>
