@@ -24,6 +24,7 @@ from i18n_food import FOOD
 from i18n_quiz import QUIZ
 from i18n_home import HOME
 from i18n_qbands import QBANDS
+from i18n_chain import CHAIN
 from assets import sprite
 from css import CSS
 from html import build_body
@@ -44,7 +45,7 @@ def merged_table():
                       (CONTENT, 'i18n_content'), (PLAN, 'i18n_plan'),
                       (MINI, 'i18n_mini'), (FOOD, 'i18n_food'),
                       (QUIZ, 'i18n_quiz'), (HOME, 'i18n_home'),
-                      (QBANDS, 'i18n_qbands')):
+                      (QBANDS, 'i18n_qbands'), (CHAIN, 'i18n_chain')):
         for k, v in src.items():
             if k in table:
                 raise SystemExit(f'duplicate translation key {k!r} (in {name})')

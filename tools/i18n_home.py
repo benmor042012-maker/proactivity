@@ -9,7 +9,7 @@ HOME = {
 # ================= LANDING: hero =================
 'n.hero.a':      ('יותר יוזמה.', 'More doing.', 'Plus d\'initiative.', 'Больше инициативы.', 'مبادرة أكثر.'),
 'n.hero.b':      ('פחות לחכות.', 'Less waiting.', 'Moins d\'attente.', 'Меньше ожидания.', 'انتظار أقل.'),
-'n.hero.sub':    ('Proactivity עוזר לך להפוך דברים שאתה רוצה לעשות לפעולות אמיתיות — צעד אחד בכל פעם.',
+'n.hero.sub':    ('Proactivity עוזר לך להפוך דברים שבא לך לעשות לפעולות אמיתיות — צעד אחד בכל פעם.',
                   'Proactivity helps you turn the things you want to do into things you actually do — one step at a time.',
                   'Proactivity t\'aide à transformer ce que tu veux faire en actions réelles — une étape à la fois.',
                   'Proactivity помогает превратить то, что ты хочешь сделать, в реальные действия — по шагу за раз.',
@@ -29,7 +29,7 @@ HOME = {
 
 # ================= LANDING: the one-line definition =================
 'n.def.t':       ('אז מה זה בעצם?', 'So what is it, actually?', 'Alors, c\'est quoi ?', 'Так что это, если по-простому?', 'إذاً، ما هذا فعلاً؟'),
-'n.def.b':       ('פרואקטיביות זה לא לחכות שמישהו יזכיר לך, ילחיץ אותך או יחליט בשבילך. זה לשים לב מה אתה יכול לעשות — ולעשות את זה.',
+'n.def.b':       ('פרואקטיביות זה לא לחכות שמישהו יזכיר לך, ילחיץ אותך או יחליט בשבילך. זה לשים לב מה אפשר לעשות — ולעשות את זה.',
                   'Being proactive is not waiting for someone to remind you, pressure you, or decide for you. It is noticing what you can do — and doing it.',
                   'Être proactif, ce n\'est pas attendre qu\'on te rappelle, qu\'on te mette la pression ou qu\'on décide pour toi. C\'est voir ce que tu peux faire — et le faire.',
                   'Проактивность — это не ждать, пока напомнят, надавят или решат за тебя. Это заметить, что ты можешь сделать, — и сделать.',
@@ -45,7 +45,7 @@ HOME = {
 # ---- eight real teen scenarios ----
 'n.sc.1.t':      ('מבחן בעוד שבוע', 'A test in a week', 'Un contrôle dans une semaine', 'Контрольная через неделю', 'امتحان بعد أسبوع'),
 'n.sc.1.r':      ('"יש עוד המון זמן."', '"There is loads of time."', '« J\'ai plein de temps. »', '«Времени ещё полно.»', '«ما زال هناك وقت طويل.»'),
-'n.sc.1.p':      ('"20 דקות היום, ואני לא נכנס ללחץ בסוף."',
+'n.sc.1.p':      ('"20 דקות היום, ואין לחץ בסוף."',
                   '"20 minutes today, and I am not panicking at the end."',
                   '« 20 minutes aujourd\'hui, et pas de panique à la fin. »',
                   '«20 минут сегодня — и не паникую в конце.»',
@@ -65,7 +65,7 @@ HOME = {
                   '« J\'attends de voir ce que font les autres. »',
                   '«Подожду, посмотрю, что делают остальные.»',
                   '«سأنتظر لأرى ما يفعله الآخرون.»'),
-'n.sc.3.p':      ('"אני כותב את הנושא ומחלק את החלקים היום."',
+'n.sc.3.p':      ('"הנושא וחלוקת החלקים — היום."',
                   '"I am writing the topic and splitting the parts today."',
                   '« J\'écris le sujet et je répartis les parties aujourd\'hui. »',
                   '«Сегодня записываю тему и делю части.»',
@@ -97,7 +97,7 @@ HOME = {
 
 'n.sc.7.t':      ('לדבר עם מישהו', 'Talking to someone', 'Parler à quelqu\'un', 'Поговорить с кем-то', 'التحدّث مع أحد'),
 'n.sc.7.r':      ('"אולי הוא יכתוב לי ראשון."', '"Maybe they will message me first."', '« Peut-être qu\'il m\'écrira en premier. »', '«Может, он напишет первым.»', '«ربما يراسلني هو أولاً.»'),
-'n.sc.7.p':      ('"אני כותב את ההודעה עכשיו ושולח."',
+'n.sc.7.p':      ('"כותבים ושולחים עכשיו."',
                   '"I am writing the message now and sending it."',
                   '« J\'écris le message maintenant et je l\'envoie. »',
                   '«Пишу сообщение сейчас и отправляю.»',
@@ -119,18 +119,18 @@ HOME = {
 
 # ================= LANDING: how it works =================
 'n.how.t':       ('איך זה עובד', 'How it works', 'Comment ça marche', 'Как это работает', 'كيف يعمل'),
-'n.how.1.t':     ('בודקים איפה אתה עומד', 'We see where you are', 'On voit où tu en es', 'Смотрим, где ты сейчас', 'نرى أين أنت'),
-'n.how.1.d':     ('עשר שאלות קצרות על איך אתה מתנהל היום. בערך דקה.',
+'n.how.1.t':     ('בודקים מה המצב היום', 'We see where you are', 'On voit où tu en es', 'Смотрим, где ты сейчас', 'نرى ما الوضع اليوم'),
+'n.how.1.d':     ('עשר שאלות קצרות על איך הדברים מתנהלים אצלך היום. בערך דקה.',
                   'Ten short questions about how you handle things today. About a minute.',
                   'Dix questions courtes sur ta façon de gérer aujourd\'hui. Environ une minute.',
                   'Десять коротких вопросов о том, как ты справляешься сейчас. Около минуты.',
                   'عشرة أسئلة قصيرة عن طريقتك اليوم. حوالي دقيقة.'),
 'n.how.2.t':     ('מקבלים תמונת מצב', 'You get a snapshot', 'Tu reçois un instantané', 'Получаешь картину', 'تحصل على صورة'),
-'n.how.2.d':     ('חמישה תחומים, בלי ציונים ובלי שיפוט. רק איפה אתה חזק ואיפה יש מקום.',
+'n.how.2.d':     ('חמישה תחומים, בלי ציונים ובלי שיפוט. רק מה חזק ואיפה יש מקום.',
                   'Five areas, no grades and no judgement. Just where you are strong and where there is room.',
                   'Cinq domaines, sans note ni jugement. Juste tes forces et tes marges.',
                   'Пять областей, без оценок и осуждения. Только где ты силён и где есть место.',
-                  'خمسة مجالات، بلا درجات ولا أحكام. فقط أين أنت قوي وأين توجد مساحة.'),
+                  'خمسة مجالات، بلا درجات ولا أحكام. فقط ما هو قوي وأين توجد مساحة.'),
 'n.how.3.t':     ('עושים צעד אחד', 'You take one step', 'Tu fais un pas', 'Делаешь один шаг', 'تخطو خطوة واحدة'),
 'n.how.3.d':     ('כל יום משימה קטנה אחת שמתאימה לך. לא רשימה של עשרים דברים.',
                   'One small task a day that fits you. Not a list of twenty things.',
@@ -147,11 +147,11 @@ HOME = {
                   'Alors, c\'est quoi ton premier pas ?',
                   'Так какой твой первый шаг?',
                   'إذاً ما خطوتك الأولى؟'),
-'n.fin.sub':     ('דקה אחת, ואתה יודע איפה אתה עומד.',
+'n.fin.sub':     ('דקה אחת, וברור איפה הדברים עומדים.',
                   'One minute, and you know where you stand.',
                   'Une minute, et tu sais où tu en es.',
                   'Одна минута — и ты знаешь, где ты.',
-                  'دقيقة واحدة، وستعرف أين أنت.'),
+                  'دقيقة واحدة، ويتّضح أين تقف الأمور.'),
 
 # ================= ONBOARDING =================
 'n.o.1.t':       ('היי. טוב שבאת.', 'Hey. Good to have you.', 'Salut. Content de te voir.', 'Привет. Хорошо, что зашёл.', 'أهلاً. سعيد بوجودك.'),
@@ -160,7 +160,7 @@ HOME = {
                   'Trente secondes d\'explication, puis on démarre.',
                   'Тридцать секунд объяснений — и начинаем.',
                   'ثلاثون ثانية من الشرح، ثم نبدأ.'),
-'n.o.1.p1':      ('נבדוק איך אתה מתנהל היום — עשר שאלות קצרות.',
+'n.o.1.p1':      ('נבדוק איך הדברים מתנהלים אצלך היום — עשר שאלות קצרות.',
                   'We check how you handle things today — ten short questions.',
                   'On regarde comment tu gères aujourd\'hui — dix questions courtes.',
                   'Посмотрим, как ты справляешься сейчас — десять коротких вопросов.',
@@ -185,7 +185,7 @@ HOME = {
                   'فقط ما يساعد فعلاً على التخصيص. بلا تسجيل ولا بريد.'),
 'n.o.2.name':    ('איך לקרוא לך?', 'What should we call you?', 'On t\'appelle comment ?', 'Как к тебе обращаться?', 'بماذا نناديك؟'),
 'n.o.2.nameph':  ('שם או כינוי (לא חובה)', 'Name or nickname (optional)', 'Prénom ou surnom (facultatif)', 'Имя или ник (необязательно)', 'اسم أو لقب (اختياري)'),
-'n.o.2.age':     ('בן כמה אתה?', 'How old are you?', 'Tu as quel âge ?', 'Сколько тебе лет?', 'كم عمرك؟'),
+'n.o.2.age':     ('{בן|בת} כמה {אתה|את}?', 'How old are you?', 'Tu as quel âge ?', 'Сколько тебе лет?', 'كم عمرك؟'),
 'n.o.2.color':   ('איזה צבע מתאים לך?', 'Which colour suits you?', 'Quelle couleur te va ?', 'Какой цвет тебе подходит?', 'أي لون يناسبك؟'),
 'n.o.2.colorn':  ('אפשר להחליף בכל רגע למעלה.', 'You can switch it any time up top.', 'Tu peux en changer en haut à tout moment.', 'Можно поменять в любой момент наверху.', 'يمكنك تغييره في أي وقت من الأعلى.'),
 'n.o.2.privacy': ('לא מבקשים מייל, טלפון או כתובת. הכל נשמר בדפדפן שלך בלבד.',
@@ -195,11 +195,11 @@ HOME = {
                   'لا نطلب بريداً ولا هاتفاً ولا عنواناً. كل شيء يبقى في متصفحك فقط.'),
 
 'n.o.3.t':       ('מה בא לך לשפר?', 'What do you want to improve?', 'Tu veux améliorer quoi ?', 'Что хочешь улучшить?', 'ما الذي تريد تحسينه؟'),
-'n.o.3.s':       ('בחר כמה שבא לך. אפשר לשנות אחר כך.',
+'n.o.3.s':       ('{בחר|בחרי} כמה שבא לך. אפשר לשנות אחר כך.',
                   'Pick as many as you like. You can change this later.',
                   'Choisis-en autant que tu veux. Modifiable plus tard.',
                   'Выбери сколько хочешь. Потом можно изменить.',
-                  'اختر ما تشاء. يمكنك التغيير لاحقاً.'),
+                  '{اختر|اختاري} ما {تشاء|تشائين}. يمكنك التغيير لاحقاً.'),
 'n.o.3.time':    ('כמה זמן ריאלי יש לך ביום?',
                   'How much time do you realistically have a day?',
                   'Combien de temps as-tu vraiment par jour ?',
@@ -207,11 +207,11 @@ HOME = {
                   'كم من الوقت لديك فعلياً كل يوم؟'),
 
 'n.o.5.t':       ('המטרה הראשונה שלך', 'Your first goal', 'Ton premier objectif', 'Твоя первая цель', 'هدفك الأول'),
-'n.o.5.s':       ('כתוב דבר אחד שאתה רוצה שיקרה. אנחנו נפרק אותו לצעדים.',
+'n.o.5.s':       ('{כתוב|כתבי} דבר אחד {שאתה רוצה|שאת רוצה} שיקרה. אנחנו נפרק אותו לצעדים.',
                   'Write one thing you want to happen. We will break it into steps.',
                   'Écris une chose que tu veux voir arriver. On la découpe en étapes.',
                   'Напиши одну вещь, которую хочешь осуществить. Мы разобьём её на шаги.',
-                  'اكتب شيئاً واحداً تريد حدوثه. سنقسّمه إلى خطوات.'),
+                  '{اكتب|اكتبي} شيئاً واحداً {تريد|تريدين} حدوثه. سنقسّمه إلى خطوات.'),
 'n.o.5.ph':      ('למשל: להשתפר בכדורסל', 'e.g. get better at basketball', 'ex. progresser au basket', 'например: подтянуть баскетбол', 'مثلاً: أتحسّن في كرة السلة'),
 'n.o.5.skip':    ('אין לי כרגע — נמשיך', 'Nothing right now — carry on', 'Rien pour l\'instant — on continue', 'Пока ничего — дальше', 'لا شيء الآن — لنكمل'),
 
@@ -222,7 +222,7 @@ HOME = {
                   'Необязательно. Можно пропустить и настроить позже во вкладке «Тело».',
                   'اختياري. يمكنك التخطي وضبطه لاحقاً في تبويب الجسم.'),
 'n.o.6.skip':    ('דלג', 'Skip', 'Passer', 'Пропустить', 'تخطّي'),
-'n.o.6.finish':  ('סיימנו — קח אותי פנימה', 'Done — take me in', 'Terminé — on y va', 'Готово — веди внутрь', 'انتهينا — خذني للداخل'),
+'n.o.6.finish':  ('סיימנו — {קח|קחי} אותי פנימה', 'Done — take me in', 'Terminé — on y va', 'Готово — веди внутрь', 'انتهينا — {خذني|خذيني} للداخل'),
 
 # ================= NAV =================
 'n.tab.home':    ('בית', 'Home', 'Accueil', 'Главная', 'الرئيسية'),
@@ -240,7 +240,7 @@ HOME = {
 'd.index':       ('מדד פרואקטיביות', 'Proactivity score', 'Indice de proactivité', 'Индекс проактивности', 'مؤشر المبادرة'),
 'd.next':        ('הצעד הבא שלך', 'Your next step', 'Ton prochain pas', 'Твой следующий шаг', 'خطوتك التالية'),
 'd.next.s':      ('דבר אחד. לא רשימה.', 'One thing. Not a list.', 'Une chose. Pas une liste.', 'Одно дело. Не список.', 'شيء واحد. لا قائمة.'),
-'d.start5':      ('אני מתחיל 5 דקות עכשיו', 'I am starting 5 minutes now', 'Je commence 5 minutes maintenant', 'Начинаю 5 минут прямо сейчас', 'سأبدأ 5 دقائق الآن'),
+'d.start5':      ('אני {מתחיל|מתחילה} 5 דקות עכשיו', 'I am starting 5 minutes now', 'Je commence 5 minutes maintenant', 'Начинаю 5 минут прямо сейчас', 'سأبدأ 5 دقائق الآن'),
 'd.mark':        ('עשיתי את זה', 'Did it', 'C\'est fait', 'Сделал', 'فعلتها'),
 'd.running':     ('רץ · {t}', 'Running · {t}', 'En cours · {t}', 'Идёт · {t}', 'جارٍ · {t}'),
 'd.timeup':      ('חמש דקות עברו. עשית את זה.',
@@ -269,11 +269,11 @@ HOME = {
 
 # ================= TASKS PAGE =================
 'n.tk.t':        ('המשימות שלי', 'My tasks', 'Mes tâches', 'Мои задачи', 'مهامي'),
-'n.tk.s':        ('הכל אופציונלי. תסמן מה שבאמת עשית.',
+'n.tk.s':        ('הכל אופציונלי. {תסמן|תסמני} מה שבאמת עשית.',
                   'All optional. Tick what you actually did.',
                   'Tout est facultatif. Coche ce que tu as vraiment fait.',
-                  'Всё по желанию. Отмечай то, что реально сделал.',
-                  'كل شيء اختياري. علّم ما فعلته فعلاً.'),
+                  'Всё по желанию. Отмечай то, что реально сделал{|а}.',
+                  'كل شيء اختياري. {علّم|علّمي} ما فعلته فعلاً.'),
 
 # ================= GOAL LADDER =================
 'gl.goal':       ('מטרה', 'Goal', 'Objectif', 'Цель', 'الهدف'),
@@ -281,7 +281,7 @@ HOME = {
 'gl.today':      ('היום', 'Today', 'Aujourd\'hui', 'Сегодня', 'اليوم'),
 'gl.now':        ('עכשיו', 'Right now', 'Maintenant', 'Прямо сейчас', 'الآن'),
 'gl.now.btn':    ('להתחיל עכשיו', 'Start now', 'Commencer maintenant', 'Начать сейчас', 'ابدأ الآن'),
-'gl.wk.ph':      ('מה תעשה השבוע?', 'What will you do this week?', 'Tu fais quoi cette semaine ?', 'Что сделаешь на этой неделе?', 'ماذا ستفعل هذا الأسبوع؟'),
+'gl.wk.ph':      ('מה {תעשה|תעשי} השבוע?', 'What will you do this week?', 'Tu fais quoi cette semaine ?', 'Что сделаешь на этой неделе?', 'ماذا {ستفعل|ستفعلين} هذا الأسبوع؟'),
 'gl.td.ph':      ('ומה היום?', 'And today?', 'Et aujourd\'hui ?', 'А сегодня?', 'وماذا اليوم؟'),
 'gl.steps':      ('צעדים מוצעים', 'Suggested steps', 'Étapes suggérées', 'Предложенные шаги', 'خطوات مقترحة'),
 'gl.saved':      ('נשמר', 'Saved', 'Enregistré', 'Сохранено', 'تم الحفظ'),
@@ -296,11 +296,11 @@ HOME = {
 'n.pg.week':     ('הטבלה השבועית', 'Weekly grid', 'Tableau hebdo', 'Недельная таблица', 'الجدول الأسبوعي'),
 
 # ================= misc =================
-'n.empty.goals': ('עוד אין מטרה. כתוב אחת ונפרק אותה ביחד.',
+'n.empty.goals': ('עוד אין מטרה. {כתוב|כתבי} אחת ונפרק אותה ביחד.',
                   'No goal yet. Write one and we will break it down together.',
                   'Pas encore d\'objectif. Écris-en un, on le découpe ensemble.',
                   'Пока нет цели. Напиши одну — разберём вместе.',
-                  'لا هدف بعد. اكتب واحداً ولنقسّمه معاً.'),
+                  'لا هدف بعد. {اكتب|اكتبي} واحداً ولنقسّمه معاً.'),
 
 # ================= SEO (title + meta description per language) =================
 'seo.title':     ('Proactivity — להפסיק לדחות ולהתחיל לעשות | לבני נוער',
@@ -308,7 +308,7 @@ HOME = {
                   'Proactivity — arrête de repousser, commence à faire | pour ados',
                   'Proactivity — хватит откладывать, начни делать | для подростков',
                   'Proactivity — توقّف عن التأجيل وابدأ بالفعل | للمراهقين'),
-'seo.desc':      ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמראה לך איפה אתה עומד ביוזמה, במטרות, בניהול זמן ובתכנון — ואז משימות קטנות, מטרות מפורקות לצעדים והרגלים שנבנים. לבני נוער 13–18, בלי הרשמה.',
+'seo.desc':      ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמראה איפה הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז משימות קטנות, מטרות מפורקות לצעדים והרגלים שנבנים. מגיל 13 ומעלה, בלי הרשמה.',
                   'What does proactive mean and how do you become it? A short check-in shows where you stand on initiative, goals, time management and planning — then small tasks, goals broken into steps and habits that stick. For teens 13-18, no sign-up.',
                   'Être proactif, ça veut dire quoi et comment le devenir ? Un point rapide montre où tu en es sur l\'initiative, les objectifs, la gestion du temps et l\'anticipation — puis des petites tâches, des objectifs découpés en étapes et des habitudes qui tiennent. Pour les 13-18 ans, sans inscription.',
                   'Что такое проактивность и как ею стать? Короткий чек-ин покажет, где ты по инициативе, целям, времени и планированию — затем небольшие задачи, цели по шагам и привычки, которые держатся. Для подростков 13-18, без регистрации.',

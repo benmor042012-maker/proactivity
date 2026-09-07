@@ -9,9 +9,9 @@ PLAN = {
 'wo.cardio':   ('סיבולת', 'Endurance', 'Endurance', 'Выносливость', 'التحمّل'),
 'wo.flex':     ('גמישות', 'Mobility', 'Souplesse', 'Гибкость', 'المرونة'),
 'wo.general':  ('תנועה כללית', 'General movement', 'Mouvement général', 'Общая активность', 'حركة عامة'),
-'fl.beginner': ('מתחיל', 'Beginner', 'Débutant', 'Начинающий', 'مبتدئ'),
+'fl.beginner': ('{מתחיל|מתחילה}', 'Beginner', '{Débutant|Débutante}', '{Новичок|Новенькая}', '{مبتدئ|مبتدئة}'),
 'fl.basic':    ('בסיסי', 'Basic', 'Intermédiaire', 'Базовый', 'أساسي'),
-'fl.inter':    ('מתקדם', 'Advanced', 'Avancé', 'Продвинутый', 'متقدم'),
+'fl.inter':    ('{מתקדם|מתקדמת}', 'Advanced', '{Avancé|Avancée}', '{Продвинутый|Продвинутая}', '{متقدم|متقدمة}'),
 
 # ---------- workout: age notes ----------
 # Six fitness bands, a different split from the check-in's four (a 14-year-old
@@ -187,7 +187,7 @@ PLAN = {
 'sk.type.oily':   ('שמנוני', 'oily', 'grasse', 'жирная', 'دهنية'),
 'sk.type.dry':    ('יבש', 'dry', 'sèche', 'сухая', 'جافة'),
 'sk.type.combo':  ('משולב', 'combination', 'mixte', 'комбинированная', 'مختلطة'),
-'sk.type.dunno':  ('לא בטוח', 'not sure', 'incertaine', 'не уверен', 'غير متأكد'),
+'sk.type.dunno':  ('לא {בטוח|בטוחה}', 'not sure', 'Pas sûr{|e}', 'не уверен{|а}', 'غير {متأكد|متأكدة}'),
 'sk.cl.normal':   ('סבון פנים עדין', 'A gentle face wash', 'Un nettoyant doux', 'Мягкое средство для умывания', 'غسول وجه لطيف'),
 'sk.cl.oily':     ('ג׳ל ניקוי לעור שמנוני', 'A gel cleanser for oily skin', 'Un gel nettoyant peau grasse', 'Гель для жирной кожи', 'جل تنظيف للبشرة الدهنية'),
 'sk.cl.dry':      ('חלב ניקוי', 'A cleansing milk', 'Un lait démaquillant', 'Очищающее молочко', 'حليب منظّف'),
