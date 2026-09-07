@@ -7,6 +7,24 @@ Order of tuple values: he, en, fr, ru, ar
 HOME = {
 
 # ================= LANDING: hero =================
+# The one word, then Ben's sentence verbatim. The sentence carries two nested
+# quoted phrases, and a straight " is direction-neutral in RTL, so it is split
+# around <q> elements and the browser supplies typographic quotes per language.
+'n.hero.word':   ('פרואקטיבי', 'Proactive', 'Proactif', 'Проактивный', 'مبادر'),
+'n.hero.q1':     ('ההבדל בין הצלחה לכישלון הוא המרחק בין ',
+                  'The difference between success and failure is the distance between ',
+                  'La différence entre réussir et échouer, c\'est la distance entre ',
+                  'Разница между успехом и провалом — это расстояние между ',
+                  'الفرق بين النجاح والفشل هو المسافة بين '),
+'n.hero.q2':     ('מישהו צריך לעשות את זה', 'somebody should do this', 'quelqu\'un devrait le faire', 'кто-то должен это сделать', 'يجب على أحدهم أن يفعل هذا'),
+'n.hero.q3':     (' לבין ', ' and ', ' et ', ' и ', ' و'),
+'n.hero.q4':     ('אני עושה את זה', 'I am doing this', 'je le fais', 'я это делаю', 'أنا أفعل هذا'),
+'n.hero.q5':     ('.', '.', '.', '.', '.'),
+'n.hero.def':    ('פרואקטיבי = לזהות מה אפשר לעשות, לקחת אחריות, ולהתחיל לפעול במקום רק לחכות.',
+                  'Proactive = noticing what can be done, taking responsibility, and starting to act instead of just waiting.',
+                  'Proactif = voir ce qui peut être fait, prendre ses responsabilités, et se mettre à agir au lieu d\'attendre.',
+                  'Проактивный = заметить, что можно сделать, взять ответственность и начать действовать, а не просто ждать.',
+                  'مبادر = أن ترى ما يمكن فعله، وتتحمّل المسؤولية، وتبدأ بالفعل بدل مجرد الانتظار.'),
 'n.hero.a':      ('יותר יוזמה.', 'More doing.', 'Plus d\'initiative.', 'Больше инициативы.', 'مبادرة أكثر.'),
 'n.hero.b':      ('פחות לחכות.', 'Less waiting.', 'Moins d\'attente.', 'Меньше ожидания.', 'انتظار أقل.'),
 'n.hero.sub':    ('Proactivity עוזר לך להפוך דברים שבא לך לעשות לפעולות אמיתיות — צעד אחד בכל פעם.',
@@ -25,7 +43,7 @@ HOME = {
                   'Sans inscription · Sans e-mail · Tout reste sur ton appareil',
                   'Без регистрации · Без почты · Всё остаётся на твоём устройстве',
                   'بلا تسجيل · بلا بريد · كل شيء يبقى على جهازك'),
-'n.hero.kicker': ('לגילאי 13–18', 'For ages 13–18', 'Pour les 13–18 ans', 'Для 13–18 лет', 'لأعمار 13–18'),
+'n.hero.kicker': ('מגיל 13 ומעלה', 'Ages 13 and up', 'À partir de 13 ans', 'От 13 лет', 'من 13 عاماً فما فوق'),
 
 # ================= LANDING: the one-line definition =================
 'n.def.t':       ('אז מה זה בעצם?', 'So what is it, actually?', 'Alors, c\'est quoi ?', 'Так что это, если по-простому?', 'إذاً، ما هذا فعلاً؟'),
@@ -303,16 +321,16 @@ HOME = {
                   'لا هدف بعد. {اكتب|اكتبي} واحداً ولنقسّمه معاً.'),
 
 # ================= SEO (title + meta description per language) =================
-'seo.title':     ('Proactivity — להפסיק לדחות ולהתחיל לעשות | לבני נוער',
-                  'Proactivity — stop putting things off and start doing | for teens',
-                  'Proactivity — arrête de repousser, commence à faire | pour ados',
-                  'Proactivity — хватит откладывать, начни делать | для подростков',
-                  'Proactivity — توقّف عن التأجيل وابدأ بالفعل | للمراهقين'),
-'seo.desc':      ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמראה איפה הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז משימות קטנות, מטרות מפורקות לצעדים והרגלים שנבנים. מגיל 13 ומעלה, בלי הרשמה.',
-                  'What does proactive mean and how do you become it? A short check-in shows where you stand on initiative, goals, time management and planning — then small tasks, goals broken into steps and habits that stick. For teens 13-18, no sign-up.',
-                  'Être proactif, ça veut dire quoi et comment le devenir ? Un point rapide montre où tu en es sur l\'initiative, les objectifs, la gestion du temps et l\'anticipation — puis des petites tâches, des objectifs découpés en étapes et des habitudes qui tiennent. Pour les 13-18 ans, sans inscription.',
-                  'Что такое проактивность и как ею стать? Короткий чек-ин покажет, где ты по инициативе, целям, времени и планированию — затем небольшие задачи, цели по шагам и привычки, которые держатся. Для подростков 13-18, без регистрации.',
-                  'ما معنى المبادرة وكيف تصبح مبادراً؟ استبيان قصير يريك أين أنت في المبادرة والأهداف وإدارة الوقت والتخطيط — ثم مهام صغيرة وأهداف مقسّمة إلى خطوات وعادات تدوم. للمراهقين 13-18، بلا تسجيل.'),
+'seo.title':     ('Proactivity — להפסיק לדחות ולהתחיל לעשות',
+                  'Proactivity — stop putting things off and start doing',
+                  'Proactivity — arrête de repousser, commence à faire',
+                  'Proactivity — хватит откладывать, начни делать',
+                  'Proactivity — توقّف عن التأجيل وابدأ بالفعل'),
+'seo.desc':      ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמותאם לגיל ומראה איפה הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, צעדים קטנים והרגלים שנבנים. מגיל 13 ומעלה, בלי הרשמה.',
+                  'What does proactive mean and how do you become it? A short, age-adapted check-in shows where things stand on initiative, goals, time and planning — then a target built from what you said, small steps, and habits that stick. Ages 13 and up, no sign-up.',
+                  'Être proactif, ça veut dire quoi et comment le devenir ? Un point rapide, adapté à l\'âge, montre où en sont l\'initiative, les objectifs, le temps et l\'anticipation — puis un objectif construit à partir de tes réponses, des petits pas et des habitudes qui tiennent. À partir de 13 ans, sans inscription.',
+                  'Что такое проактивность и как ею стать? Короткий чек-ин с учётом возраста покажет, как обстоят дела с инициативой, целями, временем и планированием — затем цель, собранная из твоих ответов, небольшие шаги и привычки, которые держатся. От 13 лет, без регистрации.',
+                  'ما معنى المبادرة وكيف تصبح مبادراً؟ استبيان قصير مناسب للعمر يريك أين تقف الأمور في المبادرة والأهداف والوقت والتخطيط — ثم هدف مبني ممّا قلته، وخطوات صغيرة، وعادات تدوم. من 13 عاماً فما فوق، بلا تسجيل.'),
 
 # ================= age + gender =================
 # The four check-in bands. Shown under the age field so the user can see the
@@ -322,6 +340,12 @@ HOME = {
 'ab.a30': ('שאלות שמתאימות לגיל 30–49', 'Questions for ages 30–49', 'Questions pour 30–49 ans', 'Вопросы для 30–49 лет', 'أسئلة لأعمار 30–49'),
 'ab.a50': ('שאלות שמתאימות לגיל 50+', 'Questions for ages 50+', 'Questions pour 50 ans et plus', 'Вопросы для 50+', 'أسئلة لأعمار 50+'),
 
+'pf.t':          ('הפרטים שלי', 'My details', 'Mes infos', 'Мои данные', 'بياناتي'),
+'pf.s':          ('הגיל קובע אילו שאלות ואילו תוכניות {תקבל|תקבלי}; הפנייה קובעת איך האתר מדבר אליך.',
+                  'Your age decides which questions and plans you get; the form of address decides how the site talks to you.',
+                  'Ton âge décide des questions et des plans que tu reçois ; la forme d\'adresse, de la façon dont le site te parle.',
+                  'Возраст определяет, какие вопросы и планы ты получаешь; обращение — как сайт с тобой говорит.',
+                  'عمرك يحدّد الأسئلة والخطط التي {تحصل|تحصلين} عليها؛ وصيغة المخاطبة تحدّد كيف يكلّمك الموقع.'),
 'n.o.2.gender':  ('איך לפנות אליך?', 'How should we address you?', 'Comment s\'adresser à toi ?', 'Как к тебе обращаться?', 'كيف نخاطبك؟'),
 'n.o.2.gendern': ('זה רק קובע איך האתר מדבר אליך. אפשר לשנות מתי שבא לך.',
                   'This only sets how the site talks to you. Change it whenever you like.',

@@ -152,6 +152,16 @@ select option{background:var(--ink-2);color:var(--fg);}
 .kicker{display:inline-flex;align-items:center;gap:var(--s2);font-size:var(--t-xs);font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:var(--s4);}
 .hero h1{font-size:var(--t-display);margin-bottom:var(--s4);max-width:14ch;}
+/* the one word the page is about, and the one sentence under it */
+.hero-word{font-size:clamp(56px,14vw,124px);line-height:.95;letter-spacing:-.03em;margin-bottom:var(--s4);
+  color:var(--acc);max-width:none;}
+.hero-quote{margin:0 0 var(--s5);padding-inline-start:var(--s4);border-inline-start:3px solid var(--acc);max-width:60ch;}
+.hero-quote p{font-family:var(--f-display);font-size:clamp(19px,3.4vw,28px);line-height:1.3;color:var(--fg);}
+.hero-quote q{quotes:"\201C" "\201D";color:var(--acc);}
+.hero-quote q::before{content:open-quote;} .hero-quote q::after{content:close-quote;}
+[dir=rtl] .hero-quote q{quotes:"\201D" "\201C";}
+.hero-def{color:var(--fg);font-weight:600;}
+@media(max-width:520px){.hero-word{font-size:clamp(48px,17vw,72px);}.hero-quote p{font-size:19px;}}
 .hero h1 .dim{color:var(--fg-3);}
 .hero p.lead{font-size:clamp(15px,2.2vw,19px);color:var(--fg-2);max-width:48ch;margin-bottom:var(--s5);}
 .hero .cta-row{display:flex;gap:var(--s3);flex-wrap:wrap;align-items:center;}
@@ -620,6 +630,8 @@ td.scell.none{color:var(--fg-3);}
 .ch-free summary svg{transition:transform .18s;transform:rotate(90deg);color:var(--fg-3);}
 .ch-free[open] summary svg{transform:rotate(-90deg);}
 #newGoalBtn{margin-bottom:var(--s3);}
+.pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);}
+@media(max-width:520px){.pf-grid{grid-template-columns:1fr;}}
 .gstate{display:inline-flex;align-items:center;gap:6px;font-size:var(--t-xs);font-weight:700;
   color:var(--fg-3);margin-bottom:var(--s3);}
 .gstate svg{width:13px;height:13px;}

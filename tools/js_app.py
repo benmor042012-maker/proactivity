@@ -278,12 +278,18 @@ function praise(){ return t(pick(PRAISE)); }
 
 /* ================= pricing ================= */
 var PRICES={
-  he:{sym:'₪', m:29,  y:17,  ytot:199},
-  en:{sym:'$', m:7.99,y:4.99,ytot:59},
-  fr:{sym:'€', m:7.99,y:4.99,ytot:59},
-  ru:{sym:'₽', m:599, y:349, ytot:4190},
-  ar:{sym:'$', m:7.99,y:4.99,ytot:59}
+  he:{sym:'₪', m:19,  y:13,  ytot:149},
+  en:{sym:'$', m:4.99,y:3.49,ytot:39},
+  fr:{sym:'€', m:4.99,y:3.49,ytot:39},
+  ru:{sym:'₽', m:399, y:249, ytot:2990},
+  ar:{sym:'$', m:4.99,y:3.49,ytot:39}
 };
+/* Real checkout. Paste the Payment Link for each plan (Stripe, Paddle, Lemon
+   Squeezy - anything that is a URL) and the buy buttons open it. While either
+   is empty the buttons are not shown at all, rather than opening a modal that
+   says payment is not ready. Nothing in the app is gated on this and nothing
+   can be, on a static site with no server: it is a way to pay, not a wall. */
+var CHECKOUT={monthly:'', annual:''};
 function money(n){
   var p=PRICES[cur]||PRICES.en;
   var s=(n%1===0)? String(n) : n.toFixed(2);
@@ -300,31 +306,25 @@ function renderPrices(){
       : t('l.pr.billedm');
   });
 }
-/* Checkout is a STUB. No payment provider is wired up in this project, so this
-   opens an explanatory modal and grants the full trial instead of charging. */
 function startCheckout(planId){
-  var p=PRICES[cur]||PRICES.en;
-  var label = planId==='annual'
-    ? t('l.pr.annual')+' · '+money(p.ytot)
-    : t('l.pr.monthly')+' · '+money(p.m);
-  document.getElementById('paySoonBody').textContent = t('pay.soon.b',{plan:label});
-  document.getElementById('payModal').classList.add('on');
+  var url=CHECKOUT[planId];
+  if(!url) return;
   P.plan=planId; if(!P.trialStart) P.trialStart=Date.now(); save();
+  window.open(url,'_blank','noopener');
 }
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-buy]'); if(!b) return;
   startCheckout(b.dataset.buy);
 });
-document.getElementById('paySoonOk').addEventListener('click',function(){
-  document.getElementById('payModal').classList.remove('on');
-  if(document.getElementById('onboarding').style.display==='block'){
-    closePlans();                             // finishes setup, or returns to the app
-  } else if(document.getElementById('app').style.display==='block'){
-    renderTrial();                            // upgraded from inside the app
-  } else {
-    goOnboarding();                           // paid straight off the landing page
-  }
-});
+/* Buy buttons exist only when there is somewhere for them to go. */
+function renderCheckout(){
+  document.querySelectorAll('[data-buy]').forEach(function(b){
+    b.hidden = !CHECKOUT[b.dataset.buy];
+  });
+  var any = !!(CHECKOUT.monthly||CHECKOUT.annual);
+  document.querySelectorAll('[data-i18n="l.pr.trust"]').forEach(function(el){ el.hidden=!any; });
+  document.querySelectorAll('.plans-soon').forEach(function(el){ el.hidden=any; });
+}
 
 /* ================= trial strip ================= */
 var TRIAL_DAYS=14;
@@ -566,7 +566,6 @@ document.getElementById('skipPay').addEventListener('click',function(){
 /* Leaving the plans screen. During setup that means finishing setup; from
    inside the app it means going back to the app untouched. */
 function closePlans(){
-  document.getElementById('payModal').classList.remove('on');
   if(onbActive){ finishOnboarding(); return; }
   document.getElementById('onboarding').style.display='none';
   document.getElementById('app').style.display='block';
@@ -576,7 +575,6 @@ function closePlans(){
 }
 
 function finishOnboarding(){
-  document.getElementById('payModal').classList.remove('on');
   if(!P.trialStart) P.trialStart=Date.now();
   onbActive=false;
   buildCats(); seedState();

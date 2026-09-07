@@ -70,13 +70,6 @@ APP = {
                   'أنت في التجربة. يمكنك الترقية متى شئت.'),
 
 # ---------- checkout stub ----------
-'pay.soon.t':    ('התשלום עוד לא פתוח', 'Checkout is not live yet', 'Le paiement n\'est pas encore actif', 'Оплата пока не подключена', 'الدفع غير مفعّل بعد'),
-'pay.soon.b':    ('בחרת: {plan}. חיבור לספק תשלומים עוד לא בוצע, אז בינתיים נפתח לך ניסיון מלא של 14 יום בלי תשלום.',
-                  'You picked: {plan}. A payment provider is not connected yet, so meanwhile we are opening a full 14-day trial at no charge.',
-                  'Tu as choisi : {plan}. Aucun prestataire de paiement n\'est encore branché, on t\'ouvre donc un essai complet de 14 jours gratuitement.',
-                  'Ты выбрал: {plan}. Платёжный провайдер ещё не подключён, поэтому пока открываем полный 14-дневный пробный период бесплатно.',
-                  'اخترت: {plan}. لم يتم ربط مزوّد دفع بعد، لذا نفتح لك تجربة كاملة 14 يوماً مجاناً.'),
-'pay.soon.ok':   ('הבנתי, קדימה', 'Got it, let\'s go', 'Compris, allons-y', 'Понятно, поехали', 'فهمت، هيا بنا'),
 
 # ---------- trial strip ----------
 'trial.left':    ('נשארו {n} ימי ניסיון', '{n} trial days left', 'Il reste {n} jours d\'essai', 'Осталось {n} дней пробного периода', 'بقي {n} يوماً من التجربة'),

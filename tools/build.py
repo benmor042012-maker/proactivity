@@ -169,10 +169,10 @@ SITE = 'https://benmor042012-maker.github.io/proactivity/'
 # Static <head> metadata. The page is a single document with a JS language
 # switcher, so the markup carries the Hebrew default and applyLang() rewrites
 # the title and description once a language is chosen.
-SEO_TITLE = 'Proactivity — להפסיק לדחות ולהתחיל לעשות | לבני נוער'
-SEO_DESC = ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמראה לך איפה אתה עומד '
-            'ביוזמה, במטרות, בניהול זמן ובתכנון — ואז משימות קטנות, מטרות מפורקות לצעדים '
-            'והרגלים שנבנים. לבני נוער בגילאי 13–18, בלי הרשמה.')
+SEO_TITLE = 'Proactivity — להפסיק לדחות ולהתחיל לעשות'
+SEO_DESC = ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמותאם לגיל ומראה איפה '
+            'הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, '
+            'צעדים קטנים והרגלים שנבנים. מגיל 13 ומעלה, בלי הרשמה.')
 
 
 def structured_data(table):
@@ -188,7 +188,7 @@ def structured_data(table):
          'applicationCategory': 'LifestyleApplication',
          'operatingSystem': 'Any', 'inLanguage': ['he', 'en', 'fr', 'ru', 'ar'],
          'description': SEO_DESC,
-         'audience': {'@type': 'PeopleAudience', 'suggestedMinAge': 13, 'suggestedMaxAge': 18},
+         'audience': {'@type': 'PeopleAudience', 'suggestedMinAge': 13},
          'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'ILS'}},
         {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq},
     ]

@@ -631,6 +631,31 @@ function renderDashFocus(){
     b.addEventListener('click',function(){ startGoal(goalById(Number(b.dataset.gstart))); });
   });
 }
+/* The same three facts onboarding asked for, editable later. Age feeds the
+   check-in band and the training plan; gender re-renders every string. */
+function renderSettings(){
+  var n=document.getElementById('pfName'), a=document.getElementById('pfAge');
+  if(n && document.activeElement!==n) n.value=P.name||'';
+  if(a && document.activeElement!==a) a.value=P.age||'';
+  var hint=document.getElementById('pfAgeBand');
+  if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
+  document.querySelectorAll('#pfGender [data-pfg]').forEach(function(o){
+    var on=o.dataset.pfg===P.gender;
+    o.classList.toggle('on',on); o.setAttribute('aria-pressed',on?'true':'false');
+  });
+}
+function bindSettings(){
+  var n=document.getElementById('pfName'), a=document.getElementById('pfAge');
+  if(n) n.addEventListener('change',function(){ P.name=n.value.trim(); save(); startApp(); });
+  if(a) a.addEventListener('change',function(){
+    var v=parseInt(a.value,10);
+    if(!(v>=13 && v<=120)){ toast(t('t.agerange')); a.value=P.age||''; return; }
+    P.age=String(v); save(); startApp(); toast(t('gl.saved'));
+  });
+  document.querySelectorAll('#pfGender [data-pfg]').forEach(function(o){
+    o.addEventListener('click',function(){ setGender(o.dataset.pfg); });
+  });
+}
 function renderDash(){
   renderDashStats(); renderNextCard(); renderDashFocus();
   renderProfile('dashProfile', true);
@@ -650,7 +675,7 @@ function goPage(name){
   });
   try{ localStorage.setItem('proactive_tab', name); }catch(e){}
   if(name==='home') renderDash();
-  if(name==='progress'){ renderProfile('profBody'); renderAchievements(); }
+  if(name==='progress'){ renderProfile('profBody'); renderAchievements(); renderSettings(); }
   window.scrollTo(0,0);
 }
 document.querySelectorAll('.tab').forEach(function(tab){
@@ -685,7 +710,7 @@ function startApp(){
   fillMissionCats(); renderInsight(); renderTasks(); renderGoals(); renderWeek();
   renderPlan('woGrid', wp.blocks, 'w');   // the "my weekly plan" section of the sport mini-app
   renderPlan('hyGrid', buildHygiene(), 'hy');
-  renderTheories(); renderLessons(); renderAchievements();
+  renderTheories(); renderLessons(); renderAchievements(); renderSettings();
   renderStats(); renderTrial();
   renderMini();                            // the skincare routine lives in its mini-app
   renderDash();
@@ -701,6 +726,7 @@ bindMini();
 bindAccentPick();
 bindGenderPick();
 bindAgeInput();
+bindSettings();
 loadGender();
 loadChain();
 loadLook();

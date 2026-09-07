@@ -91,7 +91,11 @@ def build_body(logo):
 
   <section class="hero">
    <p class="kicker">{i("sparkles")}<span data-i18n="n.hero.kicker"></span></p>
-   <h1><span data-i18n="n.hero.a"></span><br><span class="dim" data-i18n="n.hero.b"></span></h1>
+   <h1 class="hero-word" data-i18n="n.hero.word"></h1>
+   <blockquote class="hero-quote">
+    <p><span data-i18n="n.hero.q1"></span><q dir="auto" data-i18n="n.hero.q2"></q><span data-i18n="n.hero.q3"></span><q dir="auto" data-i18n="n.hero.q4"></q><span data-i18n="n.hero.q5"></span></p>
+   </blockquote>
+   <p class="lead hero-def" data-i18n="n.hero.def"></p>
    <p class="lead" data-i18n="n.hero.sub"></p>
    <div class="cta-row">
     <button class="btn btn-primary btn-lg" id="ctaTop"><span data-i18n="n.hero.cta"></span>{i("arrow")}</button>
@@ -132,6 +136,7 @@ def build_body(logo):
    <h2 data-i18n="l.pr.t"></h2>
    <p class="lede" style="margin-bottom:var(--s5)" data-i18n="l.pr.sub"></p>
    <div class="plans">{plan_card("monthly")}{plan_card("annual", True)}</div>
+   <p class="trust plans-soon" data-i18n="l.pr.soon"></p>
    <p class="trust" data-i18n="l.pr.trust"></p>
   </section>
 
@@ -268,6 +273,7 @@ def build_body(logo):
   <h2 data-i18n="o.9.t"></h2><p class="sub" data-i18n="o.9.s"></p>
   <div class="built" id="builtList"></div>
   <div class="plans">{plan_card("monthly")}{plan_card("annual", True)}</div>
+  <p class="trust plans-soon" data-i18n="l.pr.soon"></p>
   <p class="trust" data-i18n="l.pr.trust"></p>
   <div class="nav" style="flex-direction:column;gap:var(--s2)">
    <button class="btn btn-ghost btn-block" id="skipPay" data-i18n="o.9.later"></button>
@@ -354,6 +360,22 @@ def build_body(logo):
   <section class="dash-box">
    <h3 class="boxh">{i("gauge")}<span data-i18n="rs.t"></span></h3>
    <div class="profile" id="profBody"></div>
+  </section>
+
+  <section class="dash-box" id="settingsBox">
+   <h3 class="boxh">{i("user")}<span data-i18n="pf.t"></span></h3>
+   <p class="psub" data-i18n="pf.s"></p>
+   <div class="pf-grid">
+    <div class="field"><label for="pfName" data-i18n="n.o.2.name"></label>
+     <input type="text" id="pfName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
+    <div class="field"><label for="pfAge" data-i18n="n.o.2.age"></label>
+     <input type="number" id="pfAge" min="13" max="120" step="1" inputmode="numeric" data-i18n-ph="o.age.ph">
+     <p class="hint agehint" id="pfAgeBand"></p></div>
+   </div>
+   <div class="qlabel" data-i18n="n.o.2.gender"></div>
+   <div class="opts" id="pfGender">
+    {opt("pfg","m","user","o.iam.boy")}{opt("pfg","f","user","o.iam.girl")}{opt("pfg","n","compass","o.iam.na")}
+   </div>
   </section>
 
   <section class="dash-box">
@@ -591,9 +613,6 @@ def build_body(logo):
  <div class="modal-btns" id="camBtns"></div>
 </div></div>
 
-<div class="modal-bg" id="payModal"><div class="modal" role="dialog" aria-modal="true">
- <h3 data-i18n="pay.soon.t"></h3><p id="paySoonBody"></p>
- <div class="modal-btns"><button class="btn btn-primary" id="paySoonOk" data-i18n="pay.soon.ok"></button></div>
-</div></div>'''
+'''
 
     return f'<div class="langbar">{L}</div>{landing}{onb}{app}'

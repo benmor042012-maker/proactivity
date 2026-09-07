@@ -78,6 +78,7 @@ function applyLang(){
   var md=document.querySelector('meta[name="description"]');
   if(md) md.setAttribute('content', t('seo.desc'));
   renderPrices();
+  renderCheckout();
 }
 /* Everything drawn by JS must be redrawn, not just the [data-i18n] nodes.
    Language and gender both change every string on screen, so they share one
