@@ -11,9 +11,19 @@ def benefit(n, key):
     return f'<div class="ben">{i(n)}<span data-i18n="{key}"></span></div>'
 
 
-def step_block(num, tkey, dkey):
-    return (f'<div class="stp"><div class="num">{num}</div><div>'
-            f'<h3 data-i18n="l.how.{num}.t"></h3><p data-i18n="l.how.{num}.d"></p></div></div>')
+def step_block(num):
+    return (f'<li class="stp"><div class="num" aria-hidden="true">{num}</div><div>'
+            f'<h3 data-i18n="n.how.{num}.t"></h3><p data-i18n="n.how.{num}.d"></p></div></li>')
+
+
+def scenario(n):
+    """One everyday situation shown twice: waiting for it, and acting on it."""
+    return (f'<li class="sc">'
+            f'<div class="sc-h">{i("compass")}<span data-i18n="n.sc.{n}.t"></span></div>'
+            f'<div class="sc-r"><span class="sc-tag">{i("x")}<span data-i18n="n.def.re"></span></span>'
+            f'<p data-i18n="n.sc.{n}.r"></p></div>'
+            f'<div class="sc-p"><span class="sc-tag">{i("check")}<span data-i18n="n.def.pro"></span></span>'
+            f'<p data-i18n="n.sc.{n}.p"></p></div></li>')
 
 
 def faq_item(n):
@@ -35,26 +45,39 @@ def plan_card(pid, feature=False):
             f'<button class="btn {btn} btn-block" data-buy="{pid}" data-i18n="l.pr.cta"></button></div>')
 
 
-def opt(group, attr, val, icon, key):
-    return (f'<div class="opt" data-{attr}="{val}">{i(icon)}'
-            f'<span data-i18n="{key}"></span></div>')
+def opt(attr, val, icon, key):
+    return (f'<button type="button" class="opt" data-{attr}="{val}" aria-pressed="false">{i(icon)}'
+            f'<span data-i18n="{key}"></span></button>')
 
 
-def nav(last=False, finish_id=None):
-    back = f'<button class="btn btn-ghost" data-back>{i("chevron","flip")}<span data-i18n="c.back"></span></button>'
-    if finish_id:
-        fwd = f'<button class="btn btn-primary" id="{finish_id}"><span data-i18n="o.8.finish"></span>{i("arrow")}</button>'
-    else:
-        fwd = f'<button class="btn btn-primary" data-next><span data-i18n="c.next"></span>{i("arrow")}</button>'
-    return f'<div class="nav">{"" if last else back}{fwd}</div>'
+def nav(back=True, next_id=None, next_key='c.next', skip=None):
+    out = ''
+    if back:
+        out += (f'<button class="btn btn-ghost" data-back>{i("chevron","flip")}'
+                f'<span data-i18n="c.back"></span></button>')
+    if skip:
+        out += f'<button class="btn btn-quiet" id="{skip[0]}" data-i18n="{skip[1]}"></button>'
+    nid = f' id="{next_id}"' if next_id else ' data-next'
+    out += (f'<button class="btn btn-primary"{nid}><span data-i18n="{next_key}"></span>'
+            f'{i("arrow")}</button>')
+    return f'<div class="nav">{out}</div>'
 
 
-LANGS = [('he', 'עברית'), ('en', 'English'), ('fr', 'Français'), ('ru', 'Русский'), ('ar', 'العربية')]
+TABS = [('home', 'home', 'n.tab.home'),
+        ('tasks', 'check', 'n.tab.tasks'),
+        ('goals', 'target', 'a.tab.goals'),
+        ('progress', 'trending', 'n.tab.prog'),
+        ('learn', 'brain', 'n.tab.learn'),
+        ('body', 'activity', 'a.tab.body')]
+
+LANGS = [('he', 'עברית', 'עב'), ('en', 'English', 'EN'), ('fr', 'Français', 'FR'),
+         ('ru', 'Русский', 'RU'), ('ar', 'العربية', 'ع')]
 
 
 def build_body(logo):
-    L = ''.join(f'<button class="langbtn" data-lang="{c}">{n}</button>' for c, n in LANGS)
-    L += ('<span class="bar-sep"></span>'
+    L = ''.join(f'<button class="langbtn" data-lang="{c}" data-short="{sh}" lang="{c}">{n}</button>'
+                for c, n, sh in LANGS)
+    L += ('<span class="bar-sep" aria-hidden="true"></span>'
           + ''.join(f'<button class="accdot" data-set-accent="{a}" '
                     f'data-i18n-title="th.acc.{a}" aria-label="{a}"></button>'
                     for a in ('flame', 'bloom', 'mint'))
@@ -63,29 +86,37 @@ def build_body(logo):
 
     # ---------- landing ----------
     landing = f'''
-<div class="landing" id="landing">
+<main class="landing" id="landing">
  <div class="wrap">
 
   <section class="hero">
-   <div class="kicker">{i("sparkles")}<span data-i18n="l.kicker"></span></div>
-   <h1><span data-i18n="l.hero.a"></span><br><span class="dim" data-i18n="l.hero.b"></span></h1>
-   <p class="lead" data-i18n="l.hero.sub"></p>
+   <p class="kicker">{i("sparkles")}<span data-i18n="n.hero.kicker"></span></p>
+   <h1><span data-i18n="n.hero.a"></span><br><span class="dim" data-i18n="n.hero.b"></span></h1>
+   <p class="lead" data-i18n="n.hero.sub"></p>
    <div class="cta-row">
-    <button class="btn btn-primary" id="ctaTop"><span data-i18n="l.hero.cta"></span>{i("arrow")}</button>
-    <a class="btn btn-ghost" href="#how"><span data-i18n="l.hero.cta2"></span></a>
+    <button class="btn btn-primary btn-lg" id="ctaTop"><span data-i18n="n.hero.cta"></span>{i("arrow")}</button>
+    <a class="btn btn-ghost" href="#what"><span data-i18n="n.hero.cta2"></span></a>
    </div>
-   <p class="fineprint" data-i18n="l.hero.note"></p>
+   <p class="fineprint">{i("shield")}<span data-i18n="n.hero.note"></span></p>
+  </section>
+
+  <section class="blk" id="what">
+   <h2 data-i18n="n.def.t"></h2>
+   <p class="lede" data-i18n="n.def.b"></p>
+   <p class="sc-hint" data-i18n="n.def.hint"></p>
+   <ul class="scgrid">{''.join(scenario(n) for n in range(1, 9))}</ul>
+   <p class="sc-close">{i("seedling")}<span data-i18n="n.def.close"></span></p>
   </section>
 
   <div class="proof">
-   <div><div class="n" data-i18n="l.pf1.n"></div><div class="l" data-i18n="l.pf1.t"></div></div>
-   <div><div class="n" data-i18n="l.pf2.n"></div><div class="l" data-i18n="l.pf2.t"></div></div>
-   <div><div class="n" data-i18n="l.pf3.n"></div><div class="l" data-i18n="l.pf3.t"></div></div>
+   <div><div class="n">10</div><div class="l" data-i18n="n.pf1.t"></div></div>
+   <div><div class="n">5</div><div class="l" data-i18n="n.pf2.t"></div></div>
+   <div><div class="n">5</div><div class="l" data-i18n="n.pf3.t"></div></div>
   </div>
 
-  <section class="blk">
-   <h2 data-i18n="l.what.t"></h2>
-   <p class="lede" data-i18n="l.what.b"></p>
+  <section class="blk" id="how">
+   <h2 data-i18n="n.how.t"></h2>
+   <ol class="steps">{step_block(1)}{step_block(2)}{step_block(3)}</ol>
   </section>
 
   <section class="blk">
@@ -95,11 +126,6 @@ def build_body(logo):
     {benefit("users","l.why.4")}{benefit("book","l.why.5")}{benefit("activity","l.why.6")}
     {benefit("clock","l.why.7")}{benefit("compass","l.why.8")}
    </div>
-  </section>
-
-  <section class="blk" id="how">
-   <h2 data-i18n="l.how.t"></h2>
-   <div class="steps">{step_block(1,0,0)}{step_block(2,0,0)}{step_block(3,0,0)}</div>
   </section>
 
   <section class="blk" id="pricing">
@@ -115,116 +141,119 @@ def build_body(logo):
   </section>
 
   <section class="finale">
-   <h2 data-i18n="l.fin.t"></h2>
-   <p data-i18n="l.fin.sub"></p>
-   <button class="btn btn-primary" id="ctaBottom"><span data-i18n="l.hero.cta"></span>{i("arrow")}</button>
+   <h2 data-i18n="n.fin.t"></h2>
+   <p data-i18n="n.fin.sub"></p>
+   <button class="btn btn-primary btn-lg" id="ctaBottom"><span data-i18n="n.hero.cta"></span>{i("arrow")}</button>
   </section>
 
   <footer data-i18n="l.footer"></footer>
  </div>
-</div>
+</main>
 <div class="sticky-cta" id="stickyCta">
- <button class="btn btn-primary btn-block" id="ctaSticky"><span data-i18n="l.hero.cta"></span>{i("arrow")}</button>
+ <button class="btn btn-primary btn-block" id="ctaSticky"><span data-i18n="n.hero.cta"></span>{i("arrow")}</button>
 </div>'''
 
     # ---------- onboarding ----------
     ages = ''.join(f'<option value="{a}">{a}</option>' for a in range(12, 19)) + '<option value="19">19+</option>'
+    colours = ''.join(
+        f'<button type="button" class="opt swatch" data-acc="{a}" aria-pressed="false">'
+        f'<span class="sw sw-{a}" aria-hidden="true"></span>'
+        f'<span data-i18n="th.acc.{a}"></span></button>'
+        for a in ('mint', 'flame', 'bloom'))
 
     onb = f'''
-<div class="onb" id="onboarding"><div class="onb-inner">
+<div class="onb" id="onboarding" role="dialog" aria-modal="true" aria-labelledby="onbHead"><div class="onb-inner">
  <div class="onb-top">
-  <div class="mark"><img src="{logo}" alt=""><span data-i18n="b.name"></span></div>
+  <div class="mark"><img src="{logo}" alt="" width="28" height="28"><span data-i18n="b.name"></span></div>
   <div class="count" id="stepCount"></div>
  </div>
- <div class="bar"><i id="onbBar" style="width:11%"></i></div>
+ <div class="bar"><i id="onbBar" style="width:14%"></i></div>
 
- <div class="step on" data-step="1">
-  <h2 data-i18n="o.1.t"></h2><p class="sub" data-i18n="o.1.s"></p>
-  <div class="field"><label data-i18n="o.name"></label><input type="text" id="oName" data-i18n-ph="o.name.ph"></div>
-  <div class="field"><label data-i18n="o.age"></label>
+ <section class="step on" data-step="1">
+  <h2 id="onbHead" data-i18n="n.o.1.t"></h2><p class="sub" data-i18n="n.o.1.s"></p>
+  <ul class="welc">
+   <li>{i("compass")}<span data-i18n="n.o.1.p1"></span></li>
+   <li>{i("gauge")}<span data-i18n="n.o.1.p2"></span></li>
+   <li>{i("rocket")}<span data-i18n="n.o.1.p3"></span></li>
+  </ul>
+  <div class="note">{i("shield")}<span data-i18n="n.hero.note"></span></div>
+  {nav(back=False, next_key="n.o.1.go")}
+ </section>
+
+ <section class="step" data-step="2">
+  <h2 data-i18n="n.o.2.t"></h2><p class="sub" data-i18n="n.o.2.s"></p>
+  <div class="field"><label for="oName" data-i18n="n.o.2.name"></label>
+   <input type="text" id="oName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
+  <div class="field"><label for="oAge" data-i18n="n.o.2.age"></label>
    <select id="oAge"><option value="" data-i18n="o.age.ph"></option>{ages}</select></div>
-  <div class="field"><label data-i18n="o.email"></label><input type="email" id="oEmail" placeholder="you@email.com"></div>
-  <div class="qlabel" data-i18n="o.iam"></div>
-  <div class="opts" id="oGender">
-   {opt("g","g","boy","user","o.iam.boy")}{opt("g","g","girl","user","o.iam.girl")}{opt("g","g","na","compass","o.iam.na")}
-  </div>
-  <p class="hint" style="margin-top:var(--s2)">{i("palette")}<span data-i18n="o.iam.note"></span></p>
-  <div class="note">{i("flame")}<span data-i18n="o.trial"></span></div>
-  {nav(last=True)}
- </div>
+  <div class="qlabel" data-i18n="n.o.2.color"></div>
+  <div class="opts" id="oAcc">{colours}</div>
+  <p class="hint">{i("palette")}<span data-i18n="n.o.2.colorn"></span></p>
+  <div class="note">{i("lock")}<span data-i18n="n.o.2.privacy"></span></div>
+  {nav()}
+ </section>
 
- <div class="step" data-step="2">
-  <h2 data-i18n="o.2.t"></h2><p class="sub" data-i18n="o.2.s"></p>
+ <section class="step" data-step="3">
+  <h2 data-i18n="n.o.3.t"></h2><p class="sub" data-i18n="n.o.3.s"></p>
   <div class="opts" id="oGoals"></div>
-  <div class="field" style="margin-top:var(--s5)"><label data-i18n="o.2.custom"></label>
+  <div class="field" style="margin-top:var(--s4)"><label for="oCustom" data-i18n="o.2.custom"></label>
    <div class="addrow"><input type="text" id="oCustom" data-i18n-ph="o.2.custom.ph">
-   <button class="btn btn-ghost" id="addCustom">{i("plus")}</button></div></div>
-  {nav()}
- </div>
-
- <div class="step" data-step="3">
-  <h2 data-i18n="o.3.t"></h2>
-  <div class="qlabel" data-i18n="o.3.easy"></div><div class="chips" id="easyC"></div>
-  <div class="qlabel" data-i18n="o.3.hard"></div><div class="chips" id="hardC"></div>
-  {nav()}
- </div>
-
- <div class="step" data-step="4">
-  <h2 data-i18n="o.4.t"></h2>
+   <button class="btn btn-ghost" id="addCustom" data-i18n-title="c.add">{i("plus")}</button></div></div>
+  <div class="qlabel" data-i18n="n.o.3.time"></div>
   <div class="opts" id="oTime">
-   {opt("time","time","15","zap","o.time.15")}{opt("time","time","30","flame","o.time.30")}{opt("time","time","45","gem","o.time.45")}
-  </div>
-  <div class="qlabel" data-i18n="o.4.pref"></div>
-  <div class="opts" id="oAP">
-   {opt("ap","ap","short","clock","o.ap.short")}{opt("ap","ap","long","book","o.ap.long")}{opt("ap","ap","mix","refresh","o.ap.mix")}
+   {opt("time","15","zap","o.time.15")}{opt("time","30","flame","o.time.30")}{opt("time","45","gem","o.time.45")}
   </div>
   {nav()}
- </div>
+ </section>
 
- <div class="step" data-step="5">
-  <h2 data-i18n="o.5.t"></h2>
+ <section class="step" data-step="4">
+  <div id="qzIntro">
+   <h2 class="qz-h" data-i18n="qz.t"></h2>
+   <p class="sub" data-i18n="qz.s"></p>
+  </div>
+  <div class="qz-meta"><span class="qz-count" id="qzCount"></span><span class="qz-dim" id="qzDim"></span></div>
+  <div class="bar qz-bar"><i id="qzBar" style="width:10%"></i></div>
+  <h3 class="qz-q" id="qzQ" aria-live="polite"></h3>
+  <div class="qz-opts" id="qzOpts"></div>
+  <div class="qz-foot">
+   <button class="btn btn-quiet" id="qzPrev">{i("chevron","flip")}<span data-i18n="qz.prev"></span></button>
+  </div>
+  <p class="hint">{i("shield")}<span data-i18n="qz.notest"></span></p>
+ </section>
+
+ <section class="step" data-step="5">
+  <h2 data-i18n="rs.t"></h2><p class="sub" data-i18n="rs.s"></p>
+  <div class="profile" id="rsBody"></div>
+  {nav(back=False, next_id="rsNext", next_key="rs.cta")}
+ </section>
+
+ <section class="step" data-step="6">
+  <h2 data-i18n="n.o.5.t"></h2><p class="sub" data-i18n="n.o.5.s"></p>
+  <div class="field"><input type="text" id="oG1" data-i18n-ph="n.o.5.ph"></div>
+  {nav(skip=("skipGoal","n.o.5.skip"))}
+ </section>
+
+ <section class="step" data-step="7">
+  <h2 data-i18n="n.o.6.t"></h2><p class="sub" data-i18n="n.o.6.s"></p>
   <div class="qlabel" data-i18n="o.5.goal"></div>
   <div class="opts" id="oWO">
-   {opt("wo","wo","strength","activity","wo.strength")}{opt("wo","wo","cardio","trending","wo.cardio")}
-   {opt("wo","wo","flex","seedling","wo.flex")}{opt("wo","wo","general","sparkles","wo.general")}
+   {opt("wo","strength","activity","wo.strength")}{opt("wo","cardio","trending","wo.cardio")}
+   {opt("wo","flex","seedling","wo.flex")}{opt("wo","general","sparkles","wo.general")}
   </div>
   <div class="qlabel" data-i18n="o.5.exp"></div>
   <div class="opts" id="oFL">
-   {opt("fl","fl","beginner","seedling","fl.beginner")}{opt("fl","fl","basic","flame","fl.basic")}{opt("fl","fl","inter","gem","fl.inter")}
+   {opt("fl","beginner","seedling","fl.beginner")}{opt("fl","basic","flame","fl.basic")}{opt("fl","inter","gem","fl.inter")}
   </div>
-  {nav()}
- </div>
-
- <div class="step" data-step="6">
-  <h2 data-i18n="o.6.t"></h2>
   <div class="qlabel" data-i18n="o.6.skin"></div>
   <div class="opts" id="oSkin">
-   {opt("skin","skin","normal","user","sk.type.normal")}{opt("skin","skin","oily","drop","sk.type.oily")}
-   {opt("skin","skin","dry","sun","sk.type.dry")}{opt("skin","skin","combo","refresh","sk.type.combo")}
-   {opt("skin","skin","dunno","compass","sk.type.dunno")}
+   {opt("skin","normal","user","sk.type.normal")}{opt("skin","oily","drop","sk.type.oily")}
+   {opt("skin","dry","sun","sk.type.dry")}{opt("skin","combo","refresh","sk.type.combo")}
+   {opt("skin","dunno","compass","sk.type.dunno")}
   </div>
-  {nav()}
- </div>
+  {nav(skip=("skipBody","n.o.6.skip"), next_id="oFinish", next_key="n.o.6.finish")}
+ </section>
 
- <div class="step" data-step="7">
-  <h2 data-i18n="o.7.t"></h2><p class="sub" data-i18n="o.7.s"></p>
-  <div class="opts" id="oDiff">
-   {opt("diff","diff","easy","seedling","fl.beginner")}{opt("diff","diff","mid","flame","fl.basic")}{opt("diff","diff","hard","gem","fl.inter")}
-  </div>
-  {nav()}
- </div>
-
- <div class="step" data-step="8">
-  <h2 data-i18n="o.8.t"></h2>
-  <div class="field"><label data-i18n="o.8.dream"></label><input type="text" id="oDream" data-i18n-ph="o.8.dream.ph"></div>
-  <div class="qlabel" data-i18n="o.8.goals"></div>
-  <div class="field"><input type="text" id="oG1" data-i18n-ph="o.8.g1.ph"></div>
-  <div class="field"><input type="text" id="oG2" data-i18n-ph="o.8.g2.ph"></div>
-  <div class="field"><input type="text" id="oG3" data-i18n-ph="o.8.g3.ph"></div>
-  {nav(finish_id="oFinish")}
- </div>
-
- <div class="step" data-step="9">
+ <section class="step" data-step="8">
   <h2 data-i18n="o.9.t"></h2><p class="sub" data-i18n="o.9.s"></p>
   <div class="built" id="builtList"></div>
   <div class="plans">{plan_card("monthly")}{plan_card("annual", True)}</div>
@@ -233,8 +262,13 @@ def build_body(logo):
    <button class="btn btn-ghost btn-block" id="skipPay" data-i18n="o.9.later"></button>
    <p class="trust" style="margin:0" data-i18n="o.9.laternote"></p>
   </div>
- </div>
+ </section>
 </div></div>'''
+
+    tabs = ''.join(
+        f'<button class="tab" data-page="{p}" role="tab" aria-selected="false" '
+        f'aria-controls="page-{p}">{i(ic_)}<span data-i18n="{k}"></span></button>'
+        for p, ic_, k in TABS)
 
     # ---------- app ----------
     app = f'''
@@ -245,8 +279,8 @@ def build_body(logo):
  </div>
 
  <header class="apphead">
-  <div class="who"><img src="{logo}" alt="">
-   <div><h1 id="greetName"></h1><p class="quote" id="proQuote"></p><p class="date" id="dateStr"></p></div>
+  <div class="who"><img src="{logo}" alt="" width="40" height="40">
+   <div><p class="greet" id="greetName"></p><p class="quote" id="proQuote"></p><p class="date" id="dateStr"></p></div>
   </div>
   <div class="lvl">
    <div class="row">
@@ -257,21 +291,31 @@ def build_body(logo):
   </div>
  </header>
 
- <nav class="tabs">
-  <button class="tab on" data-page="home">{i("home")}<span data-i18n="a.tab.home"></span></button>
-  <button class="tab" data-page="goals">{i("target")}<span data-i18n="a.tab.goals"></span></button>
-  <button class="tab" data-page="week">{i("calendar")}<span data-i18n="a.tab.week"></span></button>
-  <button class="tab" data-page="body">{i("activity")}<span data-i18n="a.tab.body"></span></button>
-  <button class="tab" data-page="why">{i("brain")}<span data-i18n="a.tab.why"></span></button>
- </nav>
+ <nav class="tabs" id="tabBar" role="tablist" data-i18n-title="n.nav.label">{tabs}</nav>
 
- <div class="page on" id="page-home">
+ <div class="page" id="page-home" role="tabpanel">
+  <div class="dash-grid" id="dashStats"></div>
+  <div class="nextcard" id="nextCard"></div>
+  <div class="dash-two">
+   <section class="dash-box">
+    <h2 class="boxh">{i("gauge")}<span data-i18n="d.profile"></span></h2>
+    <div id="dashProfile"></div>
+   </section>
+   <section class="dash-box">
+    <h2 class="boxh">{i("compass")}<span data-i18n="d.focus"></span></h2>
+    <div id="dashFocus"></div>
+   </section>
+  </div>
   <div id="dIns"></div>
+ </div>
+
+ <div class="page" id="page-tasks" role="tabpanel">
+  <h2 class="ptitle" data-i18n="n.tk.t"></h2><p class="psub" data-i18n="n.tk.s"></p>
   <div class="ringbox">
-   <div class="ringwrap"><svg viewBox="0 0 132 132" id="rSvg"></svg>
+   <div class="ringwrap"><svg viewBox="0 0 132 132" id="rSvg" role="img" data-i18n-title="h.ring.t"></svg>
     <div class="ringmid"><div class="pct" id="rPct">0%</div><div class="cap" data-i18n="h.done"></div></div></div>
    <div class="ringtxt">
-    <h2 data-i18n="h.ring.t"></h2><p data-i18n="h.ring.s"></p>
+    <h3 data-i18n="h.ring.t"></h3><p data-i18n="h.ring.s"></p>
     <div class="stats">
      <div class="stat"><div class="v">{i("flame")}<span id="skV">0</span></div><div class="k" data-i18n="h.streak"></div></div>
      <div class="stat"><div class="v">{i("star")}<span id="ptV">0</span></div><div class="k" data-i18n="h.points"></div></div>
@@ -279,46 +323,67 @@ def build_body(logo):
     </div>
    </div>
   </div>
-  <div class="chal">
-   <div><div class="lab" data-i18n="h.ch.label"></div><div class="txt" id="chTxt"></div></div>
-   <button class="btn btn-primary btn-sm" id="chBtn">{i("check")}<span data-i18n="h.ch.btn"></span></button>
-  </div>
   <div class="catgrid" id="catGrid"></div>
  </div>
 
- <div class="page" id="page-goals">
+ <div class="page" id="page-goals" role="tabpanel">
   <h2 class="ptitle" data-i18n="g.t"></h2><p class="psub" data-i18n="g.s"></p>
-  <div id="goalsCont"></div>
-  <div class="newrow"><input type="text" id="nGoalIn" data-i18n-ph="g.new.ph">
+  <div class="newrow"><input type="text" id="nGoalIn" data-i18n-ph="g.new.ph" data-i18n-title="g.new.ph">
    <button class="btn btn-primary" id="aGoalBtn">{i("plus")}<span data-i18n="c.add"></span></button></div>
+  <div id="goalsCont"></div>
  </div>
 
- <div class="page" id="page-week">
-  <h2 class="ptitle" data-i18n="w.t"></h2><p class="psub" data-i18n="w.s"></p>
-  <div class="wkbar">
-   <div><span data-i18n="w.met"></span> <span class="numf"><b id="wMet">0</b>/<span id="wTot">0</span></span></div>
-   <button class="btn btn-ghost btn-sm" id="rWkBtn">{i("refresh")}<span data-i18n="w.reset"></span></button>
-  </div>
-  <div class="scroller"><table class="grid"><thead><tr id="wHead"></tr></thead><tbody id="wBody"></tbody></table></div>
-  <div class="addrow" style="margin-top:var(--s3)">
-   <input type="text" id="nMis" data-i18n-ph="w.new.ph">
-   <select id="nMisCat" style="max-width:150px"></select>
-   <input type="number" id="nMisT" min="1" max="7" value="3">
-   <button class="btn btn-primary" id="aMisBtn">{i("plus")}</button>
-  </div>
-  <div class="review">
-   <h3 data-i18n="w.rev.t"></h3><p data-i18n="w.rev.s"></p>
-   <button class="btn btn-ghost btn-sm" id="rvBtn">{i("flag")}<span data-i18n="w.rev.btn"></span></button>
-   <div class="rvout" id="rvRes"></div>
-  </div>
+ <div class="page" id="page-progress" role="tabpanel">
+  <h2 class="ptitle" data-i18n="n.pg.t"></h2><p class="psub" data-i18n="n.pg.s"></p>
+
+  <section class="dash-box">
+   <h3 class="boxh">{i("gauge")}<span data-i18n="rs.t"></span></h3>
+   <div class="profile" id="profBody"></div>
+  </section>
+
+  <section class="dash-box">
+   <div class="boxh-row"><h3 class="boxh">{i("star")}<span data-i18n="ac.t"></span></h3>
+    <span class="boxh-n" id="acCount"></span></div>
+   <p class="psub" data-i18n="ac.s"></p>
+   <div class="achgrid" id="acGrid"></div>
+  </section>
+
+  <section class="dash-box">
+   <h3 class="boxh">{i("calendar")}<span data-i18n="n.pg.week"></span></h3>
+   <p class="psub" data-i18n="w.s"></p>
+   <div class="wkbar">
+    <div><span data-i18n="w.met"></span> <span class="numf"><b id="wMet">0</b>/<span id="wTot">0</span></span></div>
+    <button class="btn btn-ghost btn-sm" id="rWkBtn">{i("refresh")}<span data-i18n="w.reset"></span></button>
+   </div>
+   <div class="scroller"><table class="grid"><caption class="sr" data-i18n="n.pg.week"></caption>
+    <thead><tr id="wHead"></tr></thead><tbody id="wBody"></tbody></table></div>
+   <div class="addrow" style="margin-top:var(--s3)">
+    <input type="text" id="nMis" data-i18n-ph="w.new.ph" data-i18n-title="w.new.ph">
+    <select id="nMisCat" style="max-width:150px" data-i18n-title="w.col.mission"></select>
+    <input type="number" id="nMisT" min="1" max="7" value="3" data-i18n-title="w.target">
+    <button class="btn btn-primary" id="aMisBtn" data-i18n-title="c.add">{i("plus")}</button>
+   </div>
+   <div class="review">
+    <h4 data-i18n="w.rev.t"></h4><p data-i18n="w.rev.s"></p>
+    <button class="btn btn-ghost btn-sm" id="rvBtn">{i("flag")}<span data-i18n="w.rev.btn"></span></button>
+    <div class="rvout" id="rvRes"></div>
+   </div>
+  </section>
  </div>
 
- <div class="page wide" id="page-body">
+ <div class="page" id="page-learn" role="tabpanel">
+  <h2 class="ptitle" data-i18n="ls.t"></h2><p class="psub" data-i18n="ls.s"></p>
+  <div class="lsgrid" id="lsGrid"></div>
+  <h3 class="ptitle sechead" data-i18n="y.t"></h3><p class="psub" data-i18n="y.s"></p>
+  <div class="thgrid" id="thGrid"></div>
+ </div>
+
+ <div class="page wide" id="page-body" role="tabpanel">
 
   <div class="mini-view on" data-mini="hub">
    <h2 class="ptitle" data-i18n="m.hub.t"></h2><p class="psub" data-i18n="m.hub.s"></p>
    <div class="mini-hub" id="hubGrid"></div>
-   <h2 class="ptitle sechead" data-i18n="bd.hy.t"></h2><p class="psub" data-i18n="bd.hy.s"></p>
+   <h3 class="ptitle sechead" data-i18n="bd.hy.t"></h3><p class="psub" data-i18n="bd.hy.s"></p>
    <div class="plangrid" id="hyGrid"></div>
   </div>
 
@@ -457,8 +522,8 @@ def build_body(logo):
     <div id="frGroups"></div>
     <div class="chips" id="frCustom"></div>
     <div class="addrow">
-     <input type="text" id="frAdd" data-i18n-ph="fr.custom.ph">
-     <button class="btn btn-ghost" id="frAddBtn">{i("plus")}</button>
+     <input type="text" id="frAdd" data-i18n-ph="fr.custom.ph" data-i18n-title="fr.custom.ph">
+     <button class="btn btn-ghost" id="frAddBtn" data-i18n-title="c.add">{i("plus")}</button>
     </div>
     <div class="fr-bar">
      <span id="frCount"></span>
@@ -497,17 +562,12 @@ def build_body(logo):
   </div>
  </div>
 
- <div class="page" id="page-why">
-  <h2 class="ptitle" data-i18n="y.t"></h2><p class="psub" data-i18n="y.s"></p>
-  <div class="thgrid" id="thGrid"></div>
- </div>
-
  <footer data-i18n="l.footer"></footer>
 </div></div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<div class="modal-bg" id="camModal"><div class="modal">
+<div class="modal-bg" id="camModal"><div class="modal" role="dialog" aria-modal="true">
  <h3 data-i18n="cam.t"></h3><p id="camTN"></p>
  <video class="cam-v" id="camV" autoplay playsinline muted></video>
  <img class="cam-p" id="camP" alt="">
@@ -515,7 +575,7 @@ def build_body(logo):
  <div class="modal-btns" id="camBtns"></div>
 </div></div>
 
-<div class="modal-bg" id="payModal"><div class="modal">
+<div class="modal-bg" id="payModal"><div class="modal" role="dialog" aria-modal="true">
  <h3 data-i18n="pay.soon.t"></h3><p id="paySoonBody"></p>
  <div class="modal-btns"><button class="btn btn-primary" id="paySoonOk" data-i18n="pay.soon.ok"></button></div>
 </div></div>'''

@@ -21,10 +21,13 @@ from i18n_content import CONTENT
 from i18n_plan import PLAN
 from i18n_mini import MINI
 from i18n_food import FOOD
+from i18n_quiz import QUIZ
+from i18n_home import HOME
 from assets import sprite
 from css import CSS
 from html import build_body
 from js_core import JS_CORE
+from js_quiz import JS_QUIZ
 from js_app import JS_APP
 from js_render import JS_RENDER
 from js_mini import JS_MINI
@@ -38,7 +41,8 @@ def merged_table():
     table = {}
     for src, name in ((UI, 'i18n_ui'), (APP, 'i18n_app'),
                       (CONTENT, 'i18n_content'), (PLAN, 'i18n_plan'),
-                      (MINI, 'i18n_mini'), (FOOD, 'i18n_food')):
+                      (MINI, 'i18n_mini'), (FOOD, 'i18n_food'),
+                      (QUIZ, 'i18n_quiz'), (HOME, 'i18n_home')):
         for k, v in src.items():
             if k in table:
                 raise SystemExit(f'duplicate translation key {k!r} (in {name})')
@@ -69,6 +73,65 @@ def check_placeholders(table):
         raise SystemExit('placeholder mismatch:\n  ' + '\n  '.join(bad))
 
 
+SITE = 'https://benmor042012-maker.github.io/proactivity/'
+
+# Static <head> metadata. The page is a single document with a JS language
+# switcher, so the markup carries the Hebrew default and applyLang() rewrites
+# the title and description once a language is chosen.
+SEO_TITLE = 'Proactivity — להפסיק לדחות ולהתחיל לעשות | לבני נוער'
+SEO_DESC = ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמראה לך איפה אתה עומד '
+            'ביוזמה, במטרות, בניהול זמן ובתכנון — ואז משימות קטנות, מטרות מפורקות לצעדים '
+            'והרגלים שנבנים. לבני נוער בגילאי 13–18, בלי הרשמה.')
+
+
+def structured_data(table):
+    """WebApplication + FAQPage, built from the same strings the page shows so
+    the markup can never drift from the visible content."""
+    faq = [{'@type': 'Question',
+            'name': table[f'l.faq.q{n}'][0],
+            'acceptedAnswer': {'@type': 'Answer', 'text': table[f'l.faq.a{n}'][0]}}
+           for n in range(1, 7)]
+    blocks = [
+        {'@context': 'https://schema.org', '@type': 'WebApplication',
+         'name': 'Proactivity', 'url': SITE,
+         'applicationCategory': 'LifestyleApplication',
+         'operatingSystem': 'Any', 'inLanguage': ['he', 'en', 'fr', 'ru', 'ar'],
+         'description': SEO_DESC,
+         'audience': {'@type': 'PeopleAudience', 'suggestedMinAge': 13, 'suggestedMaxAge': 18},
+         'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'ILS'}},
+        {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq},
+    ]
+    return ''.join(
+        '<script type="application/ld+json">'
+        + json.dumps(b, ensure_ascii=False, separators=(',', ':')) + '</script>'
+        for b in blocks)
+
+
+def head_meta(table):
+    tags = [
+        '<meta name="description" content="' + SEO_DESC + '">',
+        '<meta name="robots" content="index,follow,max-image-preview:large">',
+        '<meta name="author" content="Proactivity">',
+        f'<link rel="canonical" href="{SITE}">',
+        '<meta property="og:type" content="website">',
+        '<meta property="og:site_name" content="Proactivity">',
+        f'<meta property="og:url" content="{SITE}">',
+        f'<meta property="og:title" content="{SEO_TITLE}">',
+        f'<meta property="og:description" content="{SEO_DESC}">',
+        f'<meta property="og:image" content="{SITE}og.png">',
+        '<meta property="og:locale" content="he_IL">',
+        ''.join(f'<meta property="og:locale:alternate" content="{L}">'
+                for L in ('en_US', 'fr_FR', 'ru_RU', 'ar_001')),
+        '<meta name="twitter:card" content="summary">',
+        f'<meta name="twitter:title" content="{SEO_TITLE}">',
+        f'<meta name="twitter:description" content="{SEO_DESC}">',
+        f'<meta name="twitter:image" content="{SITE}og.png">',
+        '<meta name="apple-mobile-web-app-capable" content="yes">',
+        '<meta name="apple-mobile-web-app-title" content="Proactivity">',
+    ]
+    return '\n'.join(tags) + '\n' + structured_data(table)
+
+
 def main():
     table = merged_table()
     check_placeholders(table)
@@ -97,7 +160,7 @@ def main():
              "d.setAttribute('data-accent',['flame','bloom','mint'].indexOf(sa)>=0?sa:'mint');"
              "}catch(e){}})();")
 
-    js = '\n'.join([i18n_js(table), JS_CORE, JS_APP, JS_MINI, JS_RENDER])
+    js = '\n'.join([i18n_js(table), JS_CORE, JS_QUIZ, JS_APP, JS_MINI, JS_RENDER])
 
     html = (
         '<!DOCTYPE html>\n'
@@ -105,8 +168,9 @@ def main():
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
         '<meta name="theme-color" content="#14161C">\n'
-        '<meta name="description" content="Proactive - turn big goals into small daily steps, with photo proof.">\n'
-        '<title>Proactive</title>\n'
+        '<meta name="color-scheme" content="dark light">\n'
+        f'<title>{SEO_TITLE}</title>\n'
+        + head_meta(table) + '\n'
         f'<script>{early}</script>\n'
         '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
         '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
