@@ -31,6 +31,7 @@ from html import build_body
 from js_core import JS_CORE
 from js_quiz import JS_QUIZ
 from js_app import JS_APP
+from js_chain import JS_CHAIN
 from js_render import JS_RENDER
 from js_mini import JS_MINI
 
@@ -252,7 +253,7 @@ def main():
              "d.setAttribute('data-accent',['flame','bloom','mint'].indexOf(sa)>=0?sa:'mint');"
              "}catch(e){}})();")
 
-    js = '\n'.join([i18n_js(table), JS_CORE, JS_QUIZ, JS_APP, JS_MINI, JS_RENDER])
+    js = '\n'.join([i18n_js(table), JS_CORE, JS_QUIZ, JS_APP, JS_CHAIN, JS_MINI, JS_RENDER])
 
     html = (
         '<!DOCTYPE html>\n'

@@ -5,6 +5,7 @@ var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCa
        diff:'mid',workout:'general',fitLevel:'beginner',time:'30',actPref:'mix',
        easy:[],hard:[],dream:'',skinType:'normal',userGoals:[],
        plan:null, trialStart:null,
+       chainGoal:null, planAfter:null,
        gender:'', accent:'mint', theme:''};   // theme '' = follow the device
 /* S.streak is the count of ticks ever made and is kept only so old saves keep
    their number; the streak the user is shown is S.day, a real run of calendar
@@ -12,7 +13,7 @@ var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCa
 /* streak and chDone are dead fields kept so an old save round-trips through
    JSON unchanged; the live values are S.day and S.next.done. */
 var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[],
-       quiz:null, lessons:{}, ach:{}, next:null,
+       quiz:null, lessons:{}, ach:{}, next:null, tips:{},
        day:{streak:0,lastDay:null},
        stats:{tasksDone:0,challenges:0,comebacks:0,bestStreak:0}};
 var CATS=[], uid=1;
@@ -126,7 +127,13 @@ function emptyMini(){
 }
 
 var STORE_V=4;
+/* The profile is written only once setup finishes. Anything that fires during
+   onboarding - an achievement unlocking off the check-in, a tip - must not
+   persist a half-built profile, or a refresh drops the user into the app with
+   steps still unfinished. The look, the answers and the chain each have their
+   own key and are unaffected. */
 function save(){ try{
+  if(onbActive) return;
   saveLook();
   if(GENDERS.indexOf(P.gender)>=0) localStorage.setItem('proactive_gender', P.gender);
   localStorage.setItem('proactive_v',STORE_V);
@@ -179,8 +186,13 @@ function ensureV4Fields(){
   if(!S.quiz) S.quiz=emptyQuiz();
   if(!S.lessons) S.lessons={};
   if(!S.ach) S.ach={};
+  if(!S.tips) S.tips={};
   if(!S.day) S.day={streak:0,lastDay:null};
   if(!S.stats) S.stats={tasksDone:0, challenges:0, comebacks:0, bestStreak:0};
+  /* Goals made before the start gate existed were tracked from the day they
+     were written, so they count as started - anything else would silently
+     stop a streak someone already has. */
+  (S.goals||[]).forEach(function(g){ if(g.started===undefined){ g.started=true; g.startedAt=g.startedAt||null; } });
 }
 
 /* v3 predates the check-in, the lessons, the achievements and the real day
@@ -205,6 +217,7 @@ function markActiveToday(){
   if(broke) S.stats.comebacks=(S.stats.comebacks||0)+1;
   S.stats.bestStreak=Math.max(S.stats.bestStreak||0, S.day.streak||0);
   save();
+  if((S.day.streak||0)>=3 && typeof tip==='function') tip('streak');
 }
 function shownStreak(){ return liveStreak(S.day); }
 function streakLine(){
@@ -372,6 +385,7 @@ function showStep(n){
     if(count) count.textContent = n>ONB_TOTAL ? '' : t('o.step',{n:n,t:ONB_TOTAL});
   }
   if(n===5) renderProfile('rsBody');
+  if(n===6) renderChain('onbChain');
   if(n===8) renderBuilt();
   var h=el && el.querySelector('h2');
   if(h) h.setAttribute('tabindex','-1');
@@ -526,13 +540,21 @@ document.getElementById('oCustom').addEventListener('keydown',function(e){
   if(e.key==='Enter'){ e.preventDefault(); document.getElementById('addCustom').click(); }
 });
 
+/* The free-text fallback under the chain: a target in the user's own words. */
 function readFirstGoal(){
-  var v=document.getElementById('oG1').value.trim();
+  var el=document.getElementById('oG1');
+  var v=el ? el.value.trim() : '';
   P.userGoals = v ? [v] : [];
   P.dream = v;
 }
 document.getElementById('skipGoal').addEventListener('click',function(){
-  P.userGoals=[]; showStep(7);
+  P.userGoals=[]; P.chainGoal=null; resetChain(); showStep(7);
+});
+document.getElementById('oG1').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){ e.preventDefault(); readFirstGoal(); if(P.userGoals.length){ P.chainGoal=null; resetChain(); showStep(7); } }
+});
+document.getElementById('oG1Go').addEventListener('click',function(){
+  readFirstGoal(); if(P.userGoals.length){ P.chainGoal=null; resetChain(); showStep(7); } else toast(t('t.writegoal'));
 });
 document.getElementById('skipBody').addEventListener('click', function(){ finishOnboarding(); });
 document.getElementById('oFinish').addEventListener('click', function(){ finishOnboarding(); });
@@ -555,11 +577,22 @@ function closePlans(){
 
 function finishOnboarding(){
   document.getElementById('payModal').classList.remove('on');
-  if(os===6) readFirstGoal();
-  if(os===7 && !P.userGoals.length) readFirstGoal();
   if(!P.trialStart) P.trialStart=Date.now();
   onbActive=false;
   buildCats(); seedState();
+  /* the chain parked its target on the profile; seed it now and, if the user
+     pressed "start", start it - creating a goal never starts anything by itself */
+  if(P.chainGoal && P.chainGoal.goal){
+    var cg=P.chainGoal.goal; cg.id=uid++; cg.actions.forEach(function(a){ a.id=uid++; });
+    S.goals.unshift(cg);
+    if(P.chainGoal.start){ cg.started=true; cg.startedAt=dayKey();
+      var ca=areaById(cg.area);
+      S.missions.push({id:uid++, catId:ca?ca.cat:'hobby', titleKey:null, title:cg.title,
+        target:Math.min(7,Math.max(1, cg.freq===5?6:(cg.freq||3))), goalId:cg.id,
+        days:[false,false,false,false,false,false,false]});
+    }
+    P.chainGoal=null;
+  }
   if(S.quiz && !S.quiz.scores && quizAnswered()) { S.quiz.scores=scoreQuiz(); applyProfileToPlan(); }
   markActiveToday();
   save(); checkAchievements();
@@ -601,7 +634,9 @@ function seedGoals(){
 /* Every goal carries the ladder the app is built around: the goal itself,
    what it means this week, what it means today, and the suggested steps. */
 function newGoal(title){
-  return {id:uid++, title:title, week:'', today:'',
+  return {id:uid++, title:title, week:'', today:'', now:'',
+          started:false, startedAt:null,          // nothing counts until "start the target"
+          area:null, kind:null, kindText:'', freq:null, obst:null,
           actions:guessSteps(title).map(function(k){
             return {id:uid++, key:k, text:'', done:false};
           })};

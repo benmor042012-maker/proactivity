@@ -301,7 +301,7 @@ function renderLessons(){
       var n=b.dataset.lsn;
       if(!S.lessons) S.lessons={};
       S.lessons[n]=!S.lessons[n];
-      if(S.lessons[n]){ addPts(5); markActiveToday(); }
+      if(S.lessons[n]){ addPts(5); markActiveToday(); tip('lesson'); }
       save(); renderLessons(); renderStats(); checkAchievements();
     });
   });

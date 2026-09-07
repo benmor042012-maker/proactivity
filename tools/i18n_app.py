@@ -109,11 +109,11 @@ APP = {
 
 # ---------- goals ----------
 'g.t':           ('המטרות שלי', 'My goals', 'Mes objectifs', 'Мои цели', 'أهدافي'),
-'g.s':           ('{כתוב|כתבי} מטרה והמערכת תפרק אותה לצעדים. אפשר להוסיף צעדים משלך.',
-                  'Write a goal and it gets broken into steps. You can add your own steps too.',
-                  'Écris un objectif, il est découpé en étapes. Tu peux en ajouter.',
-                  'Напиши цель — она разобьётся на шаги. Свои шаги тоже можно добавить.',
-                  '{اكتب|اكتبي} هدفاً وسيُقسَّم إلى خطوات. ويمكنك إضافة خطوات خاصة بك.'),
+'g.s':           ('יעד נבנה ממה שבא לך לשפר, ומתחיל להיספר רק כשלוחצים "התחל".',
+                  'A target is built from what you want to improve, and only starts counting when you press "start".',
+                  'Un objectif se construit à partir de ce que tu veux améliorer, et ne compte qu\'une fois que tu appuies sur « lancer ».',
+                  'Цель строится из того, что ты хочешь улучшить, и начинает считаться только после нажатия «начать».',
+                  'يُبنى الهدف ممّا تريد تحسينه، ولا يبدأ العدّ إلا عند الضغط على «ابدأ».'),
 'g.new.ph':      ('מטרה חדשה', 'A new goal', 'Nouvel objectif', 'Новая цель', 'هدف جديد'),
 'g.step.ph':     ('צעד משלך', 'Your own step', 'Ton étape', 'Свой шаг', 'خطوة خاصة بك'),
 

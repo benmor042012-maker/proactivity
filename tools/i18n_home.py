@@ -206,12 +206,12 @@ HOME = {
                   'Сколько времени у тебя реально есть в день?',
                   'كم من الوقت لديك فعلياً كل يوم؟'),
 
-'n.o.5.t':       ('המטרה הראשונה שלך', 'Your first goal', 'Ton premier objectif', 'Твоя первая цель', 'هدفك الأول'),
-'n.o.5.s':       ('{כתוב|כתבי} דבר אחד {שאתה רוצה|שאת רוצה} שיקרה. אנחנו נפרק אותו לצעדים.',
-                  'Write one thing you want to happen. We will break it into steps.',
-                  'Écris une chose que tu veux voir arriver. On la découpe en étapes.',
-                  'Напиши одну вещь, которую хочешь осуществить. Мы разобьём её на шаги.',
-                  '{اكتب|اكتبي} شيئاً واحداً {تريد|تريدين} حدوثه. سنقسّمه إلى خطوات.'),
+'n.o.5.t':       ('היעד הראשון שלך', 'Your first target', 'Ton premier objectif', 'Твоя первая цель', 'هدفك الأول'),
+'n.o.5.s':       ('{בחר|בחרי} תחום, {ענה|עני} על שלוש שאלות, {וקבל|וקבלי} יעד שנובע ממה שאמרת.',
+                  'Pick an area, answer three questions, and get a target that follows from what you said.',
+                  'Choisis un domaine, réponds à trois questions, et obtiens un objectif qui découle de tes réponses.',
+                  'Выбери область, ответь на три вопроса — и получи цель, которая следует из твоих ответов.',
+                  '{اختر|اختاري} مجالاً، {أجب|أجيبي} على ثلاثة أسئلة، {واحصل|واحصلي} على هدف ينبع ممّا قلته.'),
 'n.o.5.ph':      ('למשל: להשתפר בכדורסל', 'e.g. get better at basketball', 'ex. progresser au basket', 'например: подтянуть баскетбол', 'مثلاً: أتحسّن في كرة السلة'),
 'n.o.5.skip':    ('אין לי כרגע — נמשיך', 'Nothing right now — carry on', 'Rien pour l\'instant — on continue', 'Пока ничего — дальше', 'لا شيء الآن — لنكمل'),
 

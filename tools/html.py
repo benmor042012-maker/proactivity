@@ -235,8 +235,13 @@ def build_body(logo):
 
  <section class="step" data-step="6">
   <h2 data-i18n="n.o.5.t"></h2><p class="sub" data-i18n="n.o.5.s"></p>
-  <div class="field"><input type="text" id="oG1" data-i18n-ph="n.o.5.ph"></div>
-  {nav(skip=("skipGoal","n.o.5.skip"))}
+  <div class="chain" id="onbChain"></div>
+  <details class="ch-free"><summary>{i("chevron")}<span data-i18n="gc.free"></span></summary>
+   <div class="addrow"><input type="text" id="oG1" data-i18n-ph="n.o.5.ph" data-i18n-title="n.o.5.ph">
+    <button type="button" class="btn btn-primary" id="oG1Go">{i("arrow")}</button></div>
+  </details>
+  <div class="nav"><button class="btn btn-ghost" data-back>{i("chevron","flip")}<span data-i18n="c.back"></span></button>
+   <button class="btn btn-quiet" id="skipGoal" data-i18n="n.o.5.skip"></button></div>
  </section>
 
  <section class="step" data-step="7">
@@ -334,8 +339,12 @@ def build_body(logo):
 
  <div class="page" id="page-goals" role="tabpanel">
   <h2 class="ptitle" data-i18n="g.t"></h2><p class="psub" data-i18n="g.s"></p>
-  <div class="newrow"><input type="text" id="nGoalIn" data-i18n-ph="g.new.ph" data-i18n-title="g.new.ph">
-   <button class="btn btn-primary" id="aGoalBtn">{i("plus")}<span data-i18n="c.add"></span></button></div>
+  <button class="btn btn-primary btn-lg btn-block" id="newGoalBtn">{i("plus")}<span data-i18n="gc.new"></span></button>
+  <div class="chain dash-box" id="goalChain" hidden></div>
+  <details class="ch-free"><summary>{i("chevron")}<span data-i18n="gc.free"></span></summary>
+   <div class="newrow"><input type="text" id="nGoalIn" data-i18n-ph="g.new.ph" data-i18n-title="g.new.ph">
+    <button class="btn btn-ghost" id="aGoalBtn">{i("plus")}<span data-i18n="c.add"></span></button></div>
+  </details>
   <div id="goalsCont"></div>
  </div>
 
@@ -572,6 +581,7 @@ def build_body(logo):
 </div></div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="tipcard" id="tipCard" role="status" aria-live="polite"></div>
 
 <div class="modal-bg" id="camModal"><div class="modal" role="dialog" aria-modal="true">
  <h3 data-i18n="cam.t"></h3><p id="camTN"></p>

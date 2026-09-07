@@ -83,7 +83,7 @@ function toggleTask(id){
     task.photo=photo; task.done=true; addPts(10);
     S.stats.tasksDone=(S.stats.tasksDone||0)+1;
     markActiveToday();
-    toast(praise()); save();
+    toast(praise()); save(); tip('task.done');
     renderTasks(); renderStats(); renderDash(); checkAchievements();
   });
 }
@@ -219,10 +219,17 @@ function renderGoals(){
   S.goals.forEach(function(g){
     var done=g.actions.filter(function(a){ return a.done; }).length;
     var pct=goalPct(g);
-    var card=document.createElement('article'); card.className='goal';
+    var started=!!g.started;
+    var card=document.createElement('article'); card.className='goal'+(started?'':' unstarted');
+    /* Until "start the target" is pressed the card is a written target and
+       nothing else: no percentage, no counter, no bar. */
+    var state = started
+      ? '<span class="gstate on">'+ic('play')+esc(t('gc.started',{d:fmtDay(g.startedAt)}))+'</span>'
+      : '<span class="gstate">'+ic('clock')+esc(t('gc.notstarted'))+'</span>';
     card.innerHTML=
       '<h3>'+ic('target')+'<span>'+esc(g.title)+'</span>'+
       '<button class="icon-btn" data-dg="'+g.id+'" aria-label="'+esc(t('c.delete'))+'">'+ic('trash')+'</button></h3>'+
+      state+
 
       '<div class="ladder">'+
         '<div class="rung"><span class="rung-k">'+esc(t('gl.goal'))+'</span>'+
@@ -234,9 +241,13 @@ function renderGoals(){
           '<input type="text" class="rung-in" data-lad="today" data-gid="'+g.id+'" '+
           'value="'+esc(g.today||'')+'" placeholder="'+esc(t('gl.td.ph'))+'" aria-label="'+esc(t('gl.today'))+'"></div>'+
         '<div class="rung now"><span class="rung-k">'+esc(t('gl.now'))+'</span>'+
-          '<button class="btn btn-primary btn-sm" data-gnow="'+g.id+'">'+ic('play')+
-          '<span>'+esc(t('gl.now.btn'))+'</span></button></div>'+
+          (g.now?'<span class="rung-v">'+esc(g.now)+'</span>':'')+
+          (started
+            ? '<button class="btn btn-primary btn-sm" data-gnow="'+g.id+'">'+ic('play')+'<span>'+esc(t('gl.now.btn'))+'</span></button>'
+            : '<button class="btn btn-primary btn-sm" data-gstart="'+g.id+'">'+ic('play')+'<span>'+esc(t('gc.start'))+'</span></button>')+
+        '</div>'+
       '</div>'+
+      (started?'':'<p class="hint gstart-n">'+ic('shield')+'<span>'+esc(t('gc.start.n'))+'</span></p>')+
 
       '<div class="acts-h">'+esc(t('gl.steps'))+'</div>'+
       '<div class="acts">'+g.actions.map(function(a){
@@ -245,9 +256,14 @@ function renderGoals(){
       }).join('')+'</div>'+
       '<div class="addrow"><input type="text" class="na" data-gid="'+g.id+'" placeholder="'+esc(t('g.step.ph'))+'" aria-label="'+esc(t('g.step.ph'))+'">'+
       '<button class="btn btn-ghost" data-na="'+g.id+'" aria-label="'+esc(t('c.add'))+'">'+ic('plus')+'</button></div>'+
-      '<div class="gmeta"><span class="numf">'+done+'/'+g.actions.length+'</span><span class="numf">'+pct+'%</span></div>'+
-      '<div class="gbar"><i style="width:'+pct+'%"></i></div>';
+      (started
+        ? '<div class="gmeta"><span class="numf">'+done+'/'+g.actions.length+'</span><span class="numf">'+pct+'%</span></div>'+
+          '<div class="gbar"><i style="width:'+pct+'%"></i></div>'
+        : '');
     box.appendChild(card);
+  });
+  box.querySelectorAll('[data-gstart]').forEach(function(b){
+    b.addEventListener('click',function(){ startGoal(goalById(Number(b.dataset.gstart))); });
   });
 
   box.querySelectorAll('.cb').forEach(function(cb){
@@ -256,8 +272,12 @@ function renderGoals(){
       if(!g) return;
       g.actions.forEach(function(x){ if(x.id===Number(e.target.dataset.aid)) a=x; });
       if(!a) return;
-      a.done=e.target.checked; addPts(a.done?12:-12);
-      if(a.done){ toast(t('t.step')); markActiveToday(); }
+      a.done=e.target.checked;
+      if(g.started){
+        addPts(a.done?12:-12);
+        if(a.done){ toast(t('t.step')); markActiveToday(); }
+        if(a.done && goalPct(g)===100) tip('goal.done');
+      }
       save(); renderGoals(); renderStats(); renderDash(); checkAchievements();
     });
   });
@@ -302,9 +322,20 @@ document.getElementById('nGoalIn').addEventListener('keydown',function(e){
 function addGoalFromInput(){
   var inp=document.getElementById('nGoalIn'), v=inp.value.trim();
   if(!v){ toast(t('t.writegoal')); return; }
-  S.goals.push(newGoal(v));
+  S.goals.unshift(newGoal(v));
   inp.value=''; save(); renderGoals(); renderDash(); checkAchievements();
-  toast(t('t.goaladded'));
+  toast(t('t.goaladded')); tip('goal.new');
+}
+document.getElementById('newGoalBtn').addEventListener('click',function(){
+  resetChain();
+  var host=document.getElementById('goalChain'); host.hidden=false;
+  document.getElementById('newGoalBtn').hidden=true;
+  renderChain('goalChain');
+  host.scrollIntoView({block:'start',behavior:'smooth'});
+});
+function fmtDay(k){
+  if(!k) return '';
+  try{ return new Date(k+'T00:00:00').toLocaleDateString(cur,{day:'numeric',month:'short'}); }catch(e){ return k; }
 }
 
 /* ================= week ================= */
@@ -513,7 +544,7 @@ function clearFive(){
 function startFiveMinutes(labelText){
   clearFive();
   fiveLeft=5*60;
-  markActiveToday();
+  markActiveToday(); tip('task.skip');
   goPage('home');
   renderNextCard(labelText);
   fiveTimer=setInterval(function(){
@@ -526,11 +557,20 @@ function startFiveMinutes(labelText){
     if(fiveLeft<=0){ clearFive(); toast(t('d.timeup')); renderNextCard(); }
   },1000);
 }
+/* If the user has started a target, its "right now" rung IS the next step -
+   that is the whole point of the chain. Only without one does the app fall
+   back to the profile-driven suggestion. */
+function activeGoalNow(){
+  var g=(S.goals||[]).filter(function(x){ return x.started && x.now; })[0];
+  return g ? {text:g.now, theme:g.title} : null;
+}
 function renderNextCard(overrideText){
   var box=document.getElementById('nextCard');
   if(!box) return;
   var step=pickNextStep();
-  var txt = overrideText || t(step.key);
+  var ag=activeGoalNow();
+  if(ag && !step.done){ step.theme=ag.theme; }
+  var txt = overrideText || (ag && !step.done ? ag.text : t(step.key));
   if(step.done && !overrideText){
     box.innerHTML='<div class="next done">'+ic('check')+
       '<div><div class="next-lab">'+esc(t('d.next'))+'</div>'+
@@ -576,7 +616,9 @@ function renderDashFocus(){
       '<div><span>'+esc(t('gl.goal'))+'</span><b>'+esc(goal.title)+'</b></div>'+
       (goal.week?'<div><span>'+esc(t('gl.week'))+'</span><b>'+esc(goal.week)+'</b></div>':'')+
       (goal.today?'<div><span>'+esc(t('gl.today'))+'</span><b>'+esc(goal.today)+'</b></div>':'')+
-      '</div>';
+      '</div>'+
+      (goal.started ? '' :
+        '<button class="btn btn-primary btn-sm" data-gstart="'+goal.id+'">'+ic('play')+'<span>'+esc(t('gc.start'))+'</span></button>');
   }
   box.innerHTML=ladder+'<div class="fchips">'+chips+'</div>'+
     '<button class="btn btn-ghost btn-sm" data-goto="goals">'+ic('target')+
@@ -584,6 +626,9 @@ function renderDashFocus(){
     '<button class="btn btn-quiet btn-sm" data-goto="tasks">'+esc(t('d.seeall'))+'</button>';
   box.querySelectorAll('[data-goto]').forEach(function(b){
     b.addEventListener('click',function(){ goPage(b.dataset.goto); });
+  });
+  box.querySelectorAll('[data-gstart]').forEach(function(b){
+    b.addEventListener('click',function(){ startGoal(goalById(Number(b.dataset.gstart))); });
   });
 }
 function renderDash(){
@@ -657,6 +702,7 @@ bindAccentPick();
 bindGenderPick();
 bindAgeInput();
 loadGender();
+loadChain();
 loadLook();
 applyTheme();
 loadQuiz();
