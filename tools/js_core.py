@@ -8,10 +8,53 @@ var cur = (function(){ try{var s=localStorage.getItem('proactive_lang');
   if(s&&I18N[s])return s;}catch(e){}
   var n=(navigator.language||'he').slice(0,2); return I18N[n]?n:'he'; })();
 
+/* Grammatical gender lives INSIDE the string as {masculine|feminine} rather than
+   in a parallel set of keys: '{אתה|את} {מתחיל|מתחילה}', 'בחר{|י}', 'prêt{|e}',
+   'выбрал{|а}'. One string per key, so the two forms can never drift apart, and
+   English simply contains no segments.
+
+   ORDER MATTERS, and it is the opposite of what looks natural. Gender resolves
+   FIRST, on the raw string straight out of the table, and only then are
+   {placeholder} values substituted in. Several call sites pass text the user
+   typed - a name, a goal title, a custom category - and if gender ran last, a
+   user who typed "{a|b}" would have one of their own branches silently deleted.
+   Resolving first is safe because a branch may not contain a brace, so no
+   placeholder can ever hide inside one.
+
+   Never resolve anywhere but here. esc() does not escape braces, so running
+   this over an already-assembled HTML string could let one match span an
+   attribute boundary. On the raw table string, before interpolation, it cannot. */
+var GSEG=/\{([^{}|]*)\|([^{}|]*)\}/g;
+var GENDERS=['m','f','n'];
+var gnd=(function(){ try{
+  var g=localStorage.getItem('proactive_gender');
+  return GENDERS.indexOf(g)>=0 ? g : '';
+}catch(e){ return ''; } })();
+
+/* Hebrew and Arabic have no neutral second person. When the user has not said,
+   the honest render is the slash form Israeli interfaces actually use -
+   מתחיל/ה, בחר/י - built by keeping the shared prefix and appending only the
+   part that differs. */
+function gmerge(m,f){
+  if(m===f) return m;
+  if(!m) return f;
+  if(!f) return m;
+  var i=0;
+  while(i<m.length && i<f.length && m.charAt(i)===f.charAt(i)) i++;
+  var tail=f.slice(i);
+  return (i>0 && tail && tail.length<=2) ? m+'/'+tail : m+'/'+f;
+}
+function gres(s){
+  if(s.indexOf('|')<0) return s;
+  return s.replace(GSEG, function(_,m,f){
+    return gnd==='f' ? f : gnd==='m' ? m : gmerge(m,f);
+  });
+}
 function t(k,vars){
   var s=(I18N[cur]&&I18N[cur][k]);
   if(s===undefined) s=(I18N.he&&I18N.he[k]);
   if(s===undefined) return k;
+  s=gres(s);
   if(vars) for(var v in vars) s=s.split('{'+v+'}').join(vars[v]);
   return s;
 }
@@ -36,17 +79,31 @@ function applyLang(){
   if(md) md.setAttribute('content', t('seo.desc'));
   renderPrices();
 }
-function setLang(l){
-  if(!I18N[l]) return;
-  cur = l;
-  try{ localStorage.setItem('proactive_lang', l); }catch(e){}
+/* Everything drawn by JS must be redrawn, not just the [data-i18n] nodes.
+   Language and gender both change every string on screen, so they share one
+   path rather than each remembering its own list of things to repaint. */
+function redrawAll(){
   applyLang();
-  // everything drawn by JS must be redrawn - this is what used to be missing
   if(document.getElementById('app').style.display==='block') startApp();
   if(document.getElementById('onboarding').style.display==='block'){
     renderGoalOpts(); markSelected(); renderBuilt(); showStep(os);
   }
 }
+function setLang(l){
+  if(!I18N[l]) return;
+  cur = l;
+  try{ localStorage.setItem('proactive_lang', l); }catch(e){}
+  redrawAll();
+}
+function setGender(g){
+  if(GENDERS.indexOf(g)<0) return;
+  gnd = g;
+  P.gender = g;
+  try{ localStorage.setItem('proactive_gender', g); }catch(e){}
+  redrawAll();
+}
+/* '' means never asked, and reads as the neutral slash form. */
+function genderValue(){ return GENDERS.indexOf(gnd)>=0 ? gnd : 'n'; }
 
 /* ================= data ================= */
 var ALL_CATS=[
@@ -106,18 +163,53 @@ function guessSteps(g){
   return ['gm.def.1','gm.def.2','gm.def.3','gm.def.4'];
 }
 
+/* ================= age ================= */
+/* The check-in asks a 14-year-old about school and a 40-year-old about work, so
+   the band picks the wording. It is derived from P.age at render time and never
+   cached: the user can go back from the questions, change their age, and come
+   forward again, and the questions have to follow. */
+var QBANDS=['a13','a18','a30','a50'];
+function ageBand(a){
+  var n=Number(a);
+  if(!n || n<13) return 'a13';
+  if(n<=17) return 'a13';
+  if(n<=29) return 'a18';
+  if(n<=49) return 'a30';
+  return 'a50';
+}
+
 /* ================= workout builder ================= */
 function reps(sets,n,unit){ return sets+'×'+n+(unit?' '+unit:''); }
 function secs(n){ return n+' '+t('c.sec'); }
 function mins(n){ return n+' '+t('c.min'); }
 
+/* Two independent axes, where there used to be one "band" capped at 17-18.
+
+   variant picks WHICH exercises (it still feeds every y / m2 / o ternary below,
+   so none of the plan literals change); x scales HOW MUCH. Splitting them is
+   what lets the plan serve a 70-year-old: 'young' is already the low-impact
+   branch - knee push-ups, table rows, static lunges, fast squats instead of
+   burpees - which is the right regression for a deconditioned older body, not
+   just for a small one. A 13-18 year old gets exactly what they got before. */
+function fitProfile(age){
+  var a=Math.min(120, Math.max(13, Number(age)||15));
+  if(a<=14) return {variant:'young', x:0.70, noteKey:'wo.n.a13', bandKey:'fb.a13'};
+  if(a<=17) return {variant:'mid',   x:0.90, noteKey:'wo.n.a15', bandKey:'fb.a15'};
+  if(a<=29) return {variant:'older', x:1.00, noteKey:'wo.n.a18', bandKey:'fb.a18'};
+  if(a<=49) return {variant:'older', x:0.95, noteKey:'wo.n.a30', bandKey:'fb.a30'};
+  if(a<=64) return {variant:'mid',   x:0.85, noteKey:'wo.n.a50', bandKey:'fb.a50'};
+  return             {variant:'young', x:0.60, noteKey:'wo.n.a65', bandKey:'fb.a65'};
+}
 function buildWorkout(age,goal,level){
-  var a=Number(age)||15, band = a<=14?'young' : a<=16?'mid':'older';
+  var F=fitProfile(age), band=F.variant;
+  /* Nobody over 50 gets handed four sets of burpees and pull-ups because they
+     once ticked "experienced". Capping the level is the safer default. */
+  if(Number(age)>=50 && level==='inter') level='basic';
   var R = ({beginner:{s:8,m:10,l:12,sets:2,hold:20},
             basic:   {s:10,m:12,l:15,sets:3,hold:30},
             inter:   {s:12,m:15,l:20,sets:4,hold:45}})[level] || {s:8,m:10,l:12,sets:2,hold:20};
-  var band_x = ({young:.7,mid:.9,older:1})[band];
-  var noteKey = ({young:'wo.n.young',mid:'wo.n.mid',older:'wo.n.older'})[band];
+  var band_x = F.x;
+  var noteKey = F.noteKey;
   var restTxt = level==='inter' ? secs(60) : secs(90);
   var subRest = t('wo.s.rest',{r:restTxt});
   var y = band==='young', m2 = band==='mid', o = band==='older';
@@ -128,7 +220,7 @@ function buildWorkout(age,goal,level){
 
   var plans = {
     strength:[
-      D('wo.d.chest', t('wo.n.'+band)+' '+subRest, [
+      D('wo.d.chest', t(noteKey)+' '+subRest, [
         E(y?'ex.pushup.k':(o?'ex.pushup.w':'ex.pushup'), reps(S,y?R.s:R.m), t('cue.shwidth')),
         E(y?'ex.shoulderpr':'ex.diamond', reps(S,R.s), t('cue.triceps')),
         E(y?'ex.dips.chair':'ex.dips', reps(S,R.m)),
@@ -217,7 +309,7 @@ function buildWorkout(age,goal,level){
   };
   return { blocks: plans[goal]||plans.general,
            levelKey:'fl.'+(level==='inter'?'inter':level==='basic'?'basic':'beginner'),
-           ageBand: y?'13-14' : m2?'15-16':'17-18',
+           ageBandKey: F.bandKey,      // a translation key, not the literal "17-18"
            note: t(noteKey) };
 }
 

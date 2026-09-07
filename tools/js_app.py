@@ -18,10 +18,7 @@ var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[],
 var CATS=[], uid=1;
 
 /* ================= theme ================= */
-/* The gender answer only picks a DEFAULT accent - the top bar can change it
-   at any time, so nobody is locked into a colour. */
 var ACCENTS=['flame','bloom','mint'];
-var GENDER_ACCENT={boy:'flame', girl:'bloom', na:'mint'};
 
 function prefersLight(){
   try{ return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches; }
@@ -57,6 +54,20 @@ function loadLook(){
     var th=localStorage.getItem('proactive_theme');
     if(th==='light'||th==='dark'||th==='') P.theme=th||'';
   }catch(e){}
+}
+/* Gender is picked during onboarding, before save() is allowed to write a
+   profile, so like the accent it lives under its own key and that key wins.
+   An older save can still hold the boy/girl/na values from the question this
+   replaced, so those map across rather than being dropped. */
+var LEGACY_GENDER={boy:'m', girl:'f', na:'n'};
+function loadGender(){
+  try{
+    var g=localStorage.getItem('proactive_gender');
+    if(GENDERS.indexOf(g)>=0){ gnd=g; P.gender=g; return; }
+  }catch(e){}
+  var fromProfile=LEGACY_GENDER[P.gender] || (GENDERS.indexOf(P.gender)>=0 ? P.gender : '');
+  gnd=fromProfile; P.gender=fromProfile;
+  if(fromProfile){ try{ localStorage.setItem('proactive_gender', fromProfile); }catch(e){} }
 }
 function setAccent(a){
   if(ACCENTS.indexOf(a)<0) return;
@@ -117,6 +128,7 @@ function emptyMini(){
 var STORE_V=4;
 function save(){ try{
   saveLook();
+  if(GENDERS.indexOf(P.gender)>=0) localStorage.setItem('proactive_gender', P.gender);
   localStorage.setItem('proactive_v',STORE_V);
   localStorage.setItem('proactive_p',JSON.stringify(P));
   localStorage.setItem('proactive_s',JSON.stringify(S));
@@ -403,6 +415,31 @@ function singleSelect(boxId,attr,field){
 /* Replaces the old "are you a boy or a girl" question. It asked for something
    the app never needed in order to pick a colour, so now it just asks for the
    colour. The top bar still overrides it at any time. */
+function bindGenderPick(){
+  var box=document.getElementById('oGender');
+  if(!box) return;
+  box.querySelectorAll('[data-gnd]').forEach(function(o){
+    o.addEventListener('click',function(){
+      setGender(o.dataset.gnd);   // redraws every string on screen immediately
+      markSelected();
+    });
+  });
+}
+/* min/max on a number input are only enforced by form validation, and there is
+   no <form> here, so the value has to be clamped by hand. */
+function readAge(){
+  var el=document.getElementById('oAge');
+  var n=parseInt(el.value,10);
+  P.age = (n>=13 && n<=120) ? String(n) : '';
+  var hint=document.getElementById('oAgeBand');
+  if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
+  return P.age;
+}
+function bindAgeInput(){
+  var el=document.getElementById('oAge');
+  if(!el) return;
+  el.addEventListener('input', readAge);
+}
 function bindAccentPick(){
   var box=document.getElementById('oAcc');
   if(!box) return;
@@ -415,6 +452,15 @@ function bindAccentPick(){
 }
 
 function markSelected(){
+  document.querySelectorAll('#oGender [data-gnd]').forEach(function(o){
+    var on=o.dataset.gnd===P.gender;
+    o.classList.toggle('on', on);
+    o.setAttribute('aria-pressed', on?'true':'false');
+  });
+  var ageEl=document.getElementById('oAge');
+  if(ageEl && P.age && !ageEl.value) ageEl.value=P.age;
+  var hint=document.getElementById('oAgeBand');
+  if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
   document.querySelectorAll('#oAcc [data-acc]').forEach(function(o){
     var on=o.dataset.acc===P.accent;
     o.classList.toggle('on', on);
@@ -442,14 +488,14 @@ function renderBuilt(){
 
 function readStep2(){
   P.name=document.getElementById('oName').value.trim();
-  P.age=document.getElementById('oAge').value;
+  readAge();
 }
 
 document.querySelectorAll('[data-next]').forEach(function(b){
   b.addEventListener('click',function(){
     if(os===2){
       readStep2();
-      if(!P.age){ toast(t('t.pickage')); return; }
+      if(!P.age){ toast(t('t.agerange')); return; }
     }
     if(os===3 && !P.goals.length){ toast(t('t.pickarea')); return; }
     showStep(os+1);

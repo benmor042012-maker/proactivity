@@ -500,6 +500,8 @@ td.scell.none{color:var(--fg-3);}
 .welc{list-style:none;display:grid;gap:var(--s3);margin-bottom:var(--s4);}
 .welc li{display:flex;gap:var(--s3);align-items:flex-start;font-size:var(--t-sm);color:var(--fg-2);}
 .welc svg{color:var(--acc);flex:none;margin-top:2px;}
+.agehint{min-height:1.2em;color:var(--acc);font-weight:600;}
+#oAge{max-width:140px;}
 .swatch .sw{width:22px;height:22px;border-radius:50%;display:block;border:2px solid var(--ink-3);}
 .sw-flame{background:#FF7A47;} .sw-bloom{background:#FF7FB0;} .sw-mint{background:#3DDCA8;}
 .swatch.on .sw{border-color:var(--fg);}

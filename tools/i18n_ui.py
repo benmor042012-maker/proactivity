@@ -9,8 +9,6 @@ UI = {
 'c.back':        ('חזרה', 'Back', 'Retour', 'Назад', 'رجوع'),
 'c.add':         ('הוסף', 'Add', 'Ajouter', 'Добавить', 'إضافة'),
 'c.cancel':      ('ביטול', 'Cancel', 'Annuler', 'Отмена', 'إلغاء'),
-'c.save':        ('שמור', 'Save', 'Enregistrer', 'Сохранить', 'حفظ'),
-'c.close':       ('סגור', 'Close', 'Fermer', 'Закрыть', 'إغلاق'),
 'c.retake':      ('שוב', 'Retake', 'Reprendre', 'Заново', 'إعادة'),
 'c.use':         ('אישור', 'Use photo', 'Valider', 'Готово', 'تأكيد'),
 'c.gallery':     ('מהגלריה', 'From gallery', 'Galerie', 'Из галереи', 'من المعرض'),
@@ -19,12 +17,10 @@ UI = {
 'c.min':         ('דק׳', 'min', 'min', 'мин', 'د'),
 'c.hr':          ('ש׳', 'h', 'h', 'ч', 'س'),
 'c.sec':         ('שנ׳', 'sec', 's', 'сек', 'ث'),
-'c.reps_sep':    ('×', '×', '×', '×', '×'),
 'c.perleg':      ('לרגל', 'per leg', 'par jambe', 'на ногу', 'لكل ساق'),
 'c.perside':     ('לצד', 'per side', 'par côté', 'на сторону', 'لكل جانب'),
 'c.rounds':      ('סבבים', 'rounds', 'tours', 'кругов', 'جولات'),
 'c.breaths':     ('נשימות', 'breaths', 'respirations', 'вдохов', 'أنفاس'),
-'c.rest':        ('מנוחה', 'Rest', 'Repos', 'Отдых', 'راحة'),
 'c.day':         ('יום', 'Day', 'Jour', 'День', 'يوم'),
 'c.age':         ('גיל', 'Age', 'Âge', 'Возраст', 'العمر'),
 'c.timer':       ('הפעל טיימר', 'Start timer', 'Lancer le minuteur', 'Запустить таймер', 'ابدأ المؤقت'),
@@ -32,48 +28,8 @@ UI = {
 
 # ---------- brand ----------
 'b.name':        ('פרואקטיב', 'Proactive', 'Proactive', 'Proactive', 'بروأكتيف'),
-'b.tagline':     ('יוזמים. בוחרים. יוצרים מציאות.',
-                  'Take initiative. Make the call. Build the life.',
-                  'Prends l\'initiative. Décide. Construis ta vie.',
-                  'Проявляй инициативу. Выбирай. Создавай свою жизнь.',
-                  'بادر. اختر. اصنع واقعك.'),
-
-# ---------- landing: hero ----------
-'l.kicker':      ('לגילאי 12–19', 'Built for ages 12–19', 'Pour les 12–19 ans', 'Для 12–19 лет', 'لأعمار 12–19'),
-'l.hero.a':      ('תפסיק לחכות', 'Stop waiting', 'Arrête d\'attendre', 'Хватит ждать', 'توقّف عن الانتظار'),
-'l.hero.b':      ('שהיום יקרה לך', 'for your day to happen', 'que ta journée arrive', 'пока день случится с тобой', 'أن يحدث يومك'),
-'l.hero.sub':    ('אפליקציה אחת שהופכת מטרות גדולות לצעדים קטנים — עם הוכחה בתמונה על כל אחד מהם.',
-                  'One app that turns big goals into small daily steps — with photo proof for every one of them.',
-                  'Une app qui transforme les grands objectifs en petits pas quotidiens — avec une preuve photo à chaque fois.',
-                  'Одно приложение, которое превращает большие цели в маленькие шаги — с фотодоказательством каждого.',
-                  'تطبيق واحد يحوّل الأهداف الكبيرة إلى خطوات صغيرة — مع إثبات بالصورة لكل خطوة.'),
-'l.hero.cta':    ('התחל 14 יום חינם', 'Start 14 days free', 'Commencer 14 jours gratuits', 'Начать 14 дней бесплатно', 'ابدأ 14 يوماً مجاناً'),
-'l.hero.cta2':   ('איך זה עובד', 'See how it works', 'Voir comment ça marche', 'Как это работает', 'كيف يعمل'),
-'l.hero.note':   ('בלי כרטיס אשראי · בטל בכל רגע',
-                  'No credit card · Cancel anytime',
-                  'Sans carte bancaire · Annulable à tout moment',
-                  'Без карты · Отмена в любой момент',
-                  'بدون بطاقة ائتمان · إلغاء في أي وقت'),
 
 # ---------- landing: proof strip ----------
-'l.pf1.n':       ('14', '14', '14', '14', '14'),
-'l.pf1.t':       ('ימי ניסיון חינם', 'days free trial', 'jours d\'essai gratuit', 'дней бесплатно', 'يوم تجربة مجانية'),
-'l.pf2.n':       ('5', '5', '5', '5', '5'),
-'l.pf2.t':       ('שפות מלאות', 'full languages', 'langues complètes', 'полных языков', 'لغات كاملة'),
-'l.pf3.n':       ('8', '8', '8', '8', '8'),
-'l.pf3.t':       ('תיאוריות מחקריות', 'research-backed theories', 'théories issues de la recherche', 'научных теорий', 'نظريات بحثية'),
-
-# ---------- landing: what ----------
-'l.what.t':      ('מה זה בכלל להיות פרואקטיבי?',
-                  'What does proactive actually mean?',
-                  'Être proactif, ça veut dire quoi ?',
-                  'Что значит быть проактивным?',
-                  'ما معنى أن تكون استباقياً؟'),
-'l.what.b':      ('זה לא לחכות שהדברים יקרו — אלא להחליט מראש מה יקרה, ולעשות את הצעד הקטן שמביא לשם. במקום "מה יהיה יהיה", אתה בוחר מה יהיה.',
-                  'It is not waiting for things to happen — it is deciding in advance what will happen, and taking the small step that gets you there. Instead of "whatever happens", you choose what happens.',
-                  'Ce n\'est pas attendre que les choses arrivent — c\'est décider à l\'avance ce qui va arriver, et faire le petit pas qui y mène. Au lieu de « on verra bien », tu choisis.',
-                  'Это не ожидание событий — это решение заранее, что произойдёт, и маленький шаг, который туда ведёт. Вместо «будь что будет» — ты выбираешь, что будет.',
-                  'ليست انتظاراً لحدوث الأشياء — بل قرار مسبق بما سيحدث، وخطوة صغيرة توصلك إليه. بدلاً من «ما سيكون سيكون»، أنت تختار ما سيكون.'),
 
 # ---------- landing: benefits ----------
 'l.why.t':       ('מה תקבל מזה', 'What you get out of it', 'Ce que ça t\'apporte', 'Что это тебе даст', 'ماذا ستحصل من ذلك'),
@@ -85,27 +41,6 @@ UI = {
 'l.why.6':       ('להתחזק פיזית', 'Get physically stronger', 'Devenir plus fort', 'Становиться сильнее физически', 'كن أقوى جسدياً'),
 'l.why.7':       ('לנהל את הזמן שלך', 'Own your time', 'Gérer ton temps', 'Управлять своим временем', 'أدر وقتك'),
 'l.why.8':       ('להרגיש בשליטה', 'Feel in control', 'Te sentir en contrôle', 'Чувствовать контроль', 'اشعر بالسيطرة'),
-
-# ---------- landing: how ----------
-'l.how.t':       ('שלושה צעדים. זהו.', 'Three steps. That is it.', 'Trois étapes. C\'est tout.', 'Три шага. И всё.', 'ثلاث خطوات. هذا كل شيء.'),
-'l.how.1.t':     ('אתה מגדיר מטרה', 'You set a goal', 'Tu fixes un objectif', 'Ты ставишь цель', 'تحدد هدفاً'),
-'l.how.1.d':     ('כותב מה אתה רוצה. המערכת מפרקת את זה לצעדים קטנים שאפשר לעשות היום.',
-                  'Write what you want. The app breaks it into small steps you can actually do today.',
-                  'Écris ce que tu veux. L\'app le découpe en petits pas faisables aujourd\'hui.',
-                  'Напиши, чего хочешь. Приложение разобьёт это на шаги, выполнимые сегодня.',
-                  'اكتب ما تريده. يقسّمه التطبيق إلى خطوات صغيرة يمكنك تنفيذها اليوم.'),
-'l.how.2.t':     ('אתה עושה את הצעד', 'You take the step', 'Tu fais le pas', 'Ты делаешь шаг', 'تنفّذ الخطوة'),
-'l.how.2.d':     ('משימות יומיות לפי הקטגוריות שבחרת, בזמן שיש לך — 15, 30 או 45 דקות.',
-                  'Daily tasks in the categories you picked, in the time you actually have — 15, 30 or 45 minutes.',
-                  'Des tâches quotidiennes dans tes catégories, dans le temps que tu as — 15, 30 ou 45 minutes.',
-                  'Ежедневные задачи в выбранных категориях, за то время, что у тебя есть — 15, 30 или 45 минут.',
-                  'مهام يومية في الفئات التي اخترتها، ضمن الوقت المتاح لك — 15 أو 30 أو 45 دقيقة.'),
-'l.how.3.t':     ('אתה מוכיח שעשית', 'You prove you did it', 'Tu prouves que tu l\'as fait', 'Ты доказываешь, что сделал', 'تثبت أنك فعلتها'),
-'l.how.3.d':     ('כל וי דורש תמונה. בלי הוכחה אין נקודות — וזה בדיוק מה שגורם לזה לעבוד.',
-                  'Every check needs a photo. No proof, no points — and that is exactly what makes it work.',
-                  'Chaque validation demande une photo. Pas de preuve, pas de points — et c\'est ce qui fait que ça marche.',
-                  'Каждая галочка требует фото. Нет доказательства — нет очков. Именно это и заставляет работать.',
-                  'كل علامة تحتاج صورة. لا إثبات، لا نقاط — وهذا بالضبط ما يجعلها تنجح.'),
 
 # ---------- landing: pricing ----------
 'l.pr.t':        ('תוכניות', 'Pricing', 'Tarifs', 'Тарифы', 'الخطط'),
@@ -175,8 +110,6 @@ UI = {
                   'تُبنى الخطة حسب العمر الذي تدخله — 13–14 و15–16 و17–18 يحصلون على أحمال وتمارين مختلفة.'),
 
 # ---------- landing: final ----------
-'l.fin.t':       ('אז מה יהיה מחר?', 'So what happens tomorrow?', 'Alors, demain ?', 'Так что будет завтра?', 'إذاً ماذا سيحدث غداً؟'),
-'l.fin.sub':     ('שאלון של שתי דקות, ואתה בפנים.', 'A two-minute questionnaire and you are in.', 'Un questionnaire de deux minutes et c\'est parti.', 'Двухминутная анкета — и ты внутри.', 'استبيان من دقيقتين وأنت بالداخل.'),
 'l.footer':      ('פרואקטיב · יוזמים. בוחרים. יוצרים מציאות.',
                   'Proactive · Take initiative. Make the call. Build the life.',
                   'Proactive · Prends l\'initiative. Décide. Construis ta vie.',

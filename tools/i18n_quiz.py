@@ -2,15 +2,23 @@
 """The proactivity check-in, the personal profile it produces, the micro-lessons
 and the achievements. Order of tuple values: he, en, fr, ru, ar
 
-Tone rules for everything in this file: talk to a 13-18 year old the way a
-slightly older friend would. Never diagnose, never scold, never say the reader
-is lazy or broken. "There is room to grow" beats "you are not good enough".
+Tone rules for everything in this file: talk to the reader the way a slightly
+older friend would. Never diagnose, never scold, never say the reader is lazy or
+broken. "There is room to grow" beats "you are not good enough".
+
+Gender: write {masculine|feminine} and segment at the WORD, not the phrase.
+    good : '{אתה|את} {מתחיל|מתחילה}'   -> unset renders  אתה/את מתחיל/ה
+    bad  : '{אתה מתחיל|את מתחילה}'      -> unset renders  אתה מתחיל/את מתחילה
+When nobody has said which, the segments are merged into the slash form Hebrew
+actually uses, and that only reads well if each pair shares a prefix. For
+buttons and imperatives prefer an infinitive or a noun, which is genderless in
+Hebrew, Arabic and Russian alike, and needs no segment at all.
 """
 
 QUIZ = {
 
 # ---------- the check-in shell ----------
-'qz.t':          ('בוא נראה איפה אתה עומד',
+'qz.t':          ('{בוא|בואי} נראה איפה {אתה|את} {עומד|עומדת}',
                   'Let us see where you are',
                   'Voyons où tu en es',
                   'Посмотрим, где ты сейчас',
@@ -311,8 +319,6 @@ QUIZ = {
 'rs.index':      ('מדד פרואקטיביות', 'Proactivity score', 'Indice de proactivité', 'Индекс проактивности', 'مؤشر المبادرة'),
 'rs.mean':       ('מה זה אומר?', 'What does this mean?', 'Ça veut dire quoi ?', 'Что это значит?', 'ماذا يعني هذا؟'),
 'rs.try':        ('מה כדאי לך לנסות', 'What to try next', 'À essayer maintenant', 'Что стоит попробовать', 'ما الذي يستحق تجربته'),
-'rs.strong':     ('החוזק שלך', 'Your strong side', 'Ton point fort', 'Твоя сильная сторона', 'نقطة قوّتك'),
-'rs.grow':       ('יש מקום לגדול', 'Room to grow', 'De la marge', 'Есть куда расти', 'مساحة للنمو'),
 'rs.cta':        ('קדימה, נתחיל', 'Alright, let us start', 'Allez, on commence', 'Отлично, начнём', 'هيا نبدأ'),
 'rs.again':      ('לענות שוב', 'Answer again', 'Refaire le test', 'Пройти заново', 'أعد الإجابة'),
 'rs.updated':    ('הפרופיל עודכן', 'Profile updated', 'Profil mis à jour', 'Профиль обновлён', 'تم تحديث الملف'),

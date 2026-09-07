@@ -154,7 +154,6 @@ def build_body(logo):
 </div>'''
 
     # ---------- onboarding ----------
-    ages = ''.join(f'<option value="{a}">{a}</option>' for a in range(12, 19)) + '<option value="19">19+</option>'
     colours = ''.join(
         f'<button type="button" class="opt swatch" data-acc="{a}" aria-pressed="false">'
         f'<span class="sw sw-{a}" aria-hidden="true"></span>'
@@ -185,7 +184,14 @@ def build_body(logo):
   <div class="field"><label for="oName" data-i18n="n.o.2.name"></label>
    <input type="text" id="oName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
   <div class="field"><label for="oAge" data-i18n="n.o.2.age"></label>
-   <select id="oAge"><option value="" data-i18n="o.age.ph"></option>{ages}</select></div>
+   <input type="number" id="oAge" min="13" max="120" step="1" inputmode="numeric"
+          enterkeyhint="next" autocomplete="off" data-i18n-ph="o.age.ph">
+   <p class="hint agehint" id="oAgeBand"></p></div>
+  <div class="qlabel" data-i18n="n.o.2.gender"></div>
+  <div class="opts" id="oGender">
+   {opt("gnd","m","user","o.iam.boy")}{opt("gnd","f","user","o.iam.girl")}{opt("gnd","n","compass","o.iam.na")}
+  </div>
+  <p class="hint">{i("sparkles")}<span data-i18n="n.o.2.gendern"></span></p>
   <div class="qlabel" data-i18n="n.o.2.color"></div>
   <div class="opts" id="oAcc">{colours}</div>
   <p class="hint">{i("palette")}<span data-i18n="n.o.2.colorn"></span></p>

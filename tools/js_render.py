@@ -634,7 +634,7 @@ function startApp(){
 
   var wp=buildWorkout(P.age,P.workout,P.fitLevel);
   document.getElementById('woSub').textContent=
-    t('c.age')+' '+wp.ageBand+' · '+t(wp.levelKey)+' · '+t('wo.'+P.workout);
+    t(wp.ageBandKey)+' · '+t(wp.levelKey)+' · '+t('wo.'+P.workout);
   document.getElementById('woInfo').innerHTML=ic('sliders')+'<span>'+esc(wp.note)+'</span>';
 
   fillMissionCats(); renderInsight(); renderTasks(); renderGoals(); renderWeek();
@@ -654,6 +654,9 @@ document.querySelectorAll('.langbtn').forEach(function(b){
 
 bindMini();
 bindAccentPick();
+bindGenderPick();
+bindAgeInput();
+loadGender();
 loadLook();
 applyTheme();
 loadQuiz();
@@ -667,7 +670,7 @@ renderGoalOpts();
 markSelected();
 
 if(load()){
-  loadLook(); applyTheme();     // the profile may carry an older look; the keys win
+  loadLook(); loadGender(); applyTheme();     // the profile may carry an older look; the keys win
   buildCats();
   document.getElementById('landing').style.display='none';
   document.body.classList.remove('has-sticky');

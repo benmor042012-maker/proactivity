@@ -274,7 +274,6 @@ HOME = {
                   'Tout est facultatif. Coche ce que tu as vraiment fait.',
                   'Всё по желанию. Отмечай то, что реально сделал.',
                   'كل شيء اختياري. علّم ما فعلته فعلاً.'),
-'n.tk.today':    ('היום', 'Today', 'Aujourd\'hui', 'Сегодня', 'اليوم'),
 
 # ================= GOAL LADDER =================
 'gl.goal':       ('מטרה', 'Goal', 'Objectif', 'Цель', 'الهدف'),
@@ -285,8 +284,6 @@ HOME = {
 'gl.wk.ph':      ('מה תעשה השבוע?', 'What will you do this week?', 'Tu fais quoi cette semaine ?', 'Что сделаешь на этой неделе?', 'ماذا ستفعل هذا الأسبوع؟'),
 'gl.td.ph':      ('ומה היום?', 'And today?', 'Et aujourd\'hui ?', 'А сегодня?', 'وماذا اليوم؟'),
 'gl.steps':      ('צעדים מוצעים', 'Suggested steps', 'Étapes suggérées', 'Предложенные шаги', 'خطوات مقترحة'),
-'gl.open':       ('פרק אותה', 'Break it down', 'Découper', 'Разбить', 'قسّمه'),
-'gl.close':      ('סגור', 'Collapse', 'Replier', 'Свернуть', 'إغلاق'),
 'gl.saved':      ('נשמר', 'Saved', 'Enregistré', 'Сохранено', 'تم الحفظ'),
 
 # ================= PROGRESS PAGE =================
@@ -299,15 +296,11 @@ HOME = {
 'n.pg.week':     ('הטבלה השבועית', 'Weekly grid', 'Tableau hebdo', 'Недельная таблица', 'الجدول الأسبوعي'),
 
 # ================= misc =================
-'n.optional':    ('לא חובה', 'optional', 'facultatif', 'необязательно', 'اختياري'),
-'n.skip':        ('דלג', 'Skip', 'Passer', 'Пропустить', 'تخطّي'),
-'n.continue':    ('המשך', 'Continue', 'Continuer', 'Продолжить', 'متابعة'),
 'n.empty.goals': ('עוד אין מטרה. כתוב אחת ונפרק אותה ביחד.',
                   'No goal yet. Write one and we will break it down together.',
                   'Pas encore d\'objectif. Écris-en un, on le découpe ensemble.',
                   'Пока нет цели. Напиши одну — разберём вместе.',
                   'لا هدف بعد. اكتب واحداً ولنقسّمه معاً.'),
-'n.pricing.q':   ('ומה עם כסף?', 'And what about money?', 'Et l\'argent dans tout ça ?', 'А что с деньгами?', 'وماذا عن المال؟'),
 
 # ================= SEO (title + meta description per language) =================
 'seo.title':     ('Proactivity — להפסיק לדחות ולהתחיל לעשות | לבני נוער',
@@ -320,4 +313,19 @@ HOME = {
                   'Être proactif, ça veut dire quoi et comment le devenir ? Un point rapide montre où tu en es sur l\'initiative, les objectifs, la gestion du temps et l\'anticipation — puis des petites tâches, des objectifs découpés en étapes et des habitudes qui tiennent. Pour les 13-18 ans, sans inscription.',
                   'Что такое проактивность и как ею стать? Короткий чек-ин покажет, где ты по инициативе, целям, времени и планированию — затем небольшие задачи, цели по шагам и привычки, которые держатся. Для подростков 13-18, без регистрации.',
                   'ما معنى المبادرة وكيف تصبح مبادراً؟ استبيان قصير يريك أين أنت في المبادرة والأهداف وإدارة الوقت والتخطيط — ثم مهام صغيرة وأهداف مقسّمة إلى خطوات وعادات تدوم. للمراهقين 13-18، بلا تسجيل.'),
+
+# ================= age + gender =================
+# The four check-in bands. Shown under the age field so the user can see the
+# questionnaire adapting to what they typed.
+'ab.a13': ('שאלות שמתאימות לגיל 13–17', 'Questions for ages 13–17', 'Questions pour 13–17 ans', 'Вопросы для 13–17 лет', 'أسئلة لأعمار 13–17'),
+'ab.a18': ('שאלות שמתאימות לגיל 18–29', 'Questions for ages 18–29', 'Questions pour 18–29 ans', 'Вопросы для 18–29 лет', 'أسئلة لأعمار 18–29'),
+'ab.a30': ('שאלות שמתאימות לגיל 30–49', 'Questions for ages 30–49', 'Questions pour 30–49 ans', 'Вопросы для 30–49 лет', 'أسئلة لأعمار 30–49'),
+'ab.a50': ('שאלות שמתאימות לגיל 50+', 'Questions for ages 50+', 'Questions pour 50 ans et plus', 'Вопросы для 50+', 'أسئلة لأعمار 50+'),
+
+'n.o.2.gender':  ('איך לפנות אליך?', 'How should we address you?', 'Comment s\'adresser à toi ?', 'Как к тебе обращаться?', 'كيف نخاطبك؟'),
+'n.o.2.gendern': ('זה רק קובע איך האתר מדבר אליך. אפשר לשנות מתי שבא לך.',
+                  'This only sets how the site talks to you. Change it whenever you like.',
+                  'Ça définit seulement la façon dont le site te parle. Modifiable quand tu veux.',
+                  'Это влияет только на то, как сайт к тебе обращается. Меняй когда захочешь.',
+                  'هذا يحدد فقط كيف يخاطبك الموقع. غيّره متى شئت.'),
 }

@@ -11,11 +11,8 @@ APP = {
                   'Nom, âge et e-mail — pour sauvegarder ta progression.',
                   'Имя, возраст и почта — чтобы сохранять прогресс.',
                   'الاسم والعمر والبريد — لحفظ تقدّمك.'),
-'o.name':        ('השם שלי', 'My name', 'Mon prénom', 'Моё имя', 'اسمي'),
-'o.name.ph':     ('איך קוראים לך?', 'What should we call you?', 'Comment t\'appelles-tu ?', 'Как тебя зовут?', 'بماذا نناديك؟'),
 'o.age':         ('גיל', 'Age', 'Âge', 'Возраст', 'العمر'),
-'o.age.ph':      ('בחר גיל', 'Select age', 'Choisis ton âge', 'Выбери возраст', 'اختر العمر'),
-'o.email':       ('מייל', 'Email', 'E-mail', 'Почта', 'البريد الإلكتروني'),
+'o.age.ph':      ('הגיל שלך', 'Your age', 'Ton âge', 'Твой возраст', 'عمرك'),
 'o.iam':        ('אני', 'I am', 'Je suis', 'Я', 'أنا'),
 'o.iam.boy':    ('בן', 'A boy', 'Un garçon', 'Парень', 'ولد'),
 'o.iam.girl':   ('בת', 'A girl', 'Une fille', 'Девушка', 'بنت'),
@@ -33,12 +30,6 @@ APP = {
 'th.acc.bloom': ('פריחה', 'Bloom', 'Éclat', 'Цветение', 'إزهار'),
 'th.acc.mint':  ('מנטה', 'Mint', 'Menthe', 'Мята', 'نعناع'),
 
-'o.trial':       ('14 ימי ניסיון חינם · אפשר לבטל בכל רגע',
-                  '14 days free · cancel anytime',
-                  '14 jours gratuits · annulable à tout moment',
-                  '14 дней бесплатно · отмена в любой момент',
-                  '14 يوماً مجاناً · إلغاء في أي وقت'),
-
 'o.2.t':         ('מה מעניין אותך?', 'What are you into?', 'Qu\'est-ce qui t\'intéresse ?', 'Что тебе интересно?', 'ما الذي يهمك؟'),
 'o.2.s':         ('בחר תחומים, והוסף משלך אם חסר משהו.',
                   'Pick your areas, and add your own if something is missing.',
@@ -49,14 +40,7 @@ APP = {
 'o.2.custom.ph': ('משהו שלא ברשימה...', 'Something not on the list…', 'Quelque chose qui n\'y est pas…', 'Чего нет в списке…', 'شيء ليس في القائمة…'),
 
 'o.3.t':         ('מה קל ומה קשה?', 'What is easy, what is hard?', 'Facile ou difficile ?', 'Что легко, что трудно?', 'ما السهل وما الصعب؟'),
-'o.3.easy':      ('מה קל לך', 'Comes easy to you', 'Ce qui te vient facilement', 'Что даётся легко', 'ما يسهل عليك'),
-'o.3.hard':      ('מה קשה לך', 'What you struggle with', 'Ce qui te coûte', 'Что даётся трудно', 'ما تجد صعوبة فيه'),
 
-'o.4.t':         ('כמה זמן ביום?', 'How much time a day?', 'Combien de temps par jour ?', 'Сколько времени в день?', 'كم وقتاً يومياً؟'),
-'o.4.pref':      ('סוג הפעילות שאתה מעדיף', 'The kind of activity you prefer', 'Le type d\'activité que tu préfères', 'Какой формат тебе ближе', 'نوع النشاط الذي تفضله'),
-'o.ap.short':    ('קצרות', 'Short bursts', 'Sessions courtes', 'Короткие', 'قصيرة'),
-'o.ap.long':     ('ארוכות', 'Longer blocks', 'Sessions longues', 'Длинные', 'طويلة'),
-'o.ap.mix':      ('מיקס', 'A mix', 'Un mix', 'Смешанные', 'مزيج'),
 'o.time.15':     ('15 דקות', '15 minutes', '15 minutes', '15 минут', '15 دقيقة'),
 'o.time.30':     ('30 דקות', '30 minutes', '30 minutes', '30 минут', '30 دقيقة'),
 'o.time.45':     ('45+ דקות', '45+ minutes', '45+ minutes', '45+ минут', '45+ دقيقة'),
@@ -67,18 +51,6 @@ APP = {
 
 'o.6.t':         ('טיפוח', 'Skincare', 'Soin de la peau', 'Уход за кожей', 'العناية بالبشرة'),
 'o.6.skin':      ('סוג העור שלך', 'Your skin type', 'Ton type de peau', 'Тип твоей кожи', 'نوع بشرتك'),
-
-'o.7.t':         ('רמת אתגר', 'Challenge level', 'Niveau de difficulté', 'Уровень сложности', 'مستوى التحدي'),
-'o.7.s':         ('כמה עומס אתה רוצה על עצמך?', 'How much load do you want on yourself?', 'Quelle charge veux-tu t\'imposer ?', 'Какую нагрузку ты хочешь?', 'كم من الحمل تريد على نفسك؟'),
-
-'o.8.t':         ('החזון שלך', 'Your vision', 'Ta vision', 'Твоё видение', 'رؤيتك'),
-'o.8.dream':     ('לאן אתה רוצה להגיע', 'Where you want to get to', 'Où tu veux arriver', 'Куда ты хочешь прийти', 'إلى أين تريد أن تصل'),
-'o.8.dream.ph':  ('להיות ממוקד, בכושר, עצמאי...', 'Focused, fit, independent…', 'Concentré, en forme, autonome…', 'Собранным, в форме, самостоятельным…', 'مركّزاً، لائقاً، مستقلاً…'),
-'o.8.goals':     ('מטרות ספציפיות שנפרק לצעדים', 'Specific goals we will break into steps', 'Objectifs précis à découper en étapes', 'Конкретные цели, которые мы разобьём на шаги', 'أهداف محددة سنقسمها إلى خطوات'),
-'o.8.g1.ph':     ('מטרה ראשונה — למשל: להשתפר באנגלית', 'First goal — e.g. get better at English', 'Premier objectif — ex. progresser en anglais', 'Первая цель — например, подтянуть английский', 'الهدف الأول — مثلاً: تحسين الإنجليزية'),
-'o.8.g2.ph':     ('מטרה שנייה (לא חובה)', 'Second goal (optional)', 'Deuxième objectif (facultatif)', 'Вторая цель (необязательно)', 'الهدف الثاني (اختياري)'),
-'o.8.g3.ph':     ('מטרה שלישית (לא חובה)', 'Third goal (optional)', 'Troisième objectif (facultatif)', 'Третья цель (необязательно)', 'الهدف الثالث (اختياري)'),
-'o.8.finish':    ('בנה לי תוכנית', 'Build my plan', 'Construis mon plan', 'Построить мой план', 'ابنِ خطتي'),
 
 # ---------- paywall (onboarding step 9) ----------
 'o.9.t':         ('התוכנית שלך מוכנה', 'Your plan is ready', 'Ton plan est prêt', 'Твой план готов', 'خطتك جاهزة'),
@@ -116,11 +88,8 @@ APP = {
 'a.greet':       ('היי {name}', 'Hey {name}', 'Salut {name}', 'Привет, {name}', 'أهلاً {name}'),
 'a.greet.anon':  ('אלוף', 'champ', 'champion', 'чемпион', 'بطل'),
 'a.level':       ('רמה', 'Level', 'Niveau', 'Уровень', 'المستوى'),
-'a.tab.home':    ('היום', 'Today', 'Aujourd\'hui', 'Сегодня', 'اليوم'),
 'a.tab.goals':   ('מטרות', 'Goals', 'Objectifs', 'Цели', 'الأهداف'),
-'a.tab.week':    ('שבוע', 'Week', 'Semaine', 'Неделя', 'الأسبوع'),
 'a.tab.body':    ('גוף', 'Body', 'Corps', 'Тело', 'الجسم'),
-'a.tab.why':     ('למה זה עובד', 'Why it works', 'Pourquoi ça marche', 'Почему это работает', 'لماذا ينجح'),
 
 # ---------- home ----------
 'h.ring.t':      ('המעגל של היום', 'Today\'s ring', 'Le cercle du jour', 'Круг дня', 'دائرة اليوم'),
@@ -134,8 +103,6 @@ APP = {
 'h.points':      ('נקודות', 'Points', 'Points', 'Очки', 'نقاط'),
 'h.tasks':       ('משימות', 'Tasks', 'Tâches', 'Задачи', 'المهام'),
 'h.insight':     ('תובנה', 'Insight', 'Éclairage', 'Инсайт', 'ملاحظة'),
-'h.ch.label':    ('אתגר היום', 'Today\'s challenge', 'Défi du jour', 'Вызов дня', 'تحدي اليوم'),
-'h.ch.btn':      ('בוצע', 'Done', 'Fait', 'Готово', 'تم'),
 'h.empty':       ('אין עוד משימות כאן. הוסף אחת.', 'No tasks here yet. Add one.', 'Aucune tâche ici. Ajoutes-en une.', 'Здесь пока нет задач. Добавь одну.', 'لا مهام هنا بعد. أضف واحدة.'),
 'h.add.ph':      ('משימה משלך', 'Your own task', 'Ta propre tâche', 'Своя задача', 'مهمتك الخاصة'),
 'h.add.min':     ('דק׳', 'min', 'min', 'мин', 'د'),
@@ -147,11 +114,6 @@ APP = {
                   'Écris un objectif, il est découpé en étapes. Tu peux en ajouter.',
                   'Напиши цель — она разобьётся на шаги. Свои шаги тоже можно добавить.',
                   'اكتب هدفاً وسيُقسَّم إلى خطوات. ويمكنك إضافة خطوات خاصة بك.'),
-'g.empty':       ('עוד אין מטרות. כתוב אחת למטה ונפרק אותה.',
-                  'No goals yet. Write one below and we will break it down.',
-                  'Pas encore d\'objectif. Écris-en un ci-dessous.',
-                  'Целей пока нет. Напиши одну ниже — мы её разберём.',
-                  'لا أهداف بعد. اكتب واحداً بالأسفل وسنقسّمه.'),
 'g.new.ph':      ('מטרה חדשה', 'A new goal', 'Nouvel objectif', 'Новая цель', 'هدف جديد'),
 'g.step.ph':     ('צעד משלך', 'Your own step', 'Ton étape', 'Свой шаг', 'خطوة خاصة بك'),
 
@@ -181,11 +143,8 @@ APP = {
 'w.rev.start':   ('כל התחלה נחשבת.', 'Every start counts.', 'Chaque début compte.', 'Любое начало важно.', 'كل بداية تُحتسب.'),
 
 # ---------- body ----------
-'bd.wo.t':       ('תוכנית האימונים', 'Training plan', 'Programme d\'entraînement', 'План тренировок', 'خطة التمارين'),
-'bd.sk.t':       ('שגרת טיפוח', 'Skincare routine', 'Routine de soin', 'Уход за кожей', 'روتين العناية'),
 'bd.hy.t':       ('בריאות והיגיינה', 'Health and hygiene', 'Santé et hygiène', 'Здоровье и гигиена', 'الصحة والنظافة'),
 'bd.hy.s':       ('הרגלים יומיים שקל לשכוח.', 'Daily habits that are easy to forget.', 'Des habitudes quotidiennes vite oubliées.', 'Ежедневные привычки, о которых легко забыть.', 'عادات يومية يسهل نسيانها.'),
-'bd.sk.sub':     ('עור {type}, עם הסבר לכל שלב', '{type} skin, with a reason for each step', 'Peau {type}, avec une explication par étape', 'Кожа: {type}, с объяснением каждого шага', 'بشرة {type}، مع شرح لكل خطوة'),
 
 # ---------- why it works ----------
 'y.t':           ('למה זה עובד', 'Why this works', 'Pourquoi ça marche', 'Почему это работает', 'لماذا ينجح هذا'),
@@ -194,21 +153,23 @@ APP = {
                   'Chaque mécanisme repose sur des recherches existantes. Voici lesquelles.',
                   'Каждый механизм здесь опирается на существующие исследования. Вот на какие.',
                   'كل آلية هنا تستند إلى بحث قائم. إليك ماذا وعلى ماذا.'),
-'y.applied':     ('איך זה מיושם', 'How it is applied', 'Application', 'Как применяется', 'كيف يُطبَّق'),
 'y.where':       ('איפה באפליקציה', 'Where in the app', 'Où dans l\'app', 'Где в приложении', 'أين في التطبيق'),
 
 # ---------- camera ----------
 'cam.t':         ('צלם הוכחה', 'Capture proof', 'Prends la preuve', 'Сделай доказательство', 'التقط الإثبات'),
 
 # ---------- toasts ----------
-'t.pickage':     ('בחר גיל כדי להמשיך', 'Pick an age to continue', 'Choisis un âge pour continuer', 'Выбери возраст, чтобы продолжить', 'اختر عمراً للمتابعة'),
+'t.agerange':    ('כתוב גיל בין 13 ל-120 כדי להמשיך',
+                  'Enter an age between 13 and 120 to continue',
+                  'Saisis un âge entre 13 et 120 pour continuer',
+                  'Введи возраст от 13 до 120, чтобы продолжить',
+                  'أدخل عمراً بين 13 و120 للمتابعة'),
 't.pickarea':    ('בחר לפחות תחום אחד', 'Pick at least one area', 'Choisis au moins un domaine', 'Выбери хотя бы одно направление', 'اختر مجالاً واحداً على الأقل'),
 't.added':       ('נוסף: {x}', 'Added: {x}', 'Ajouté : {x}', 'Добавлено: {x}', 'أُضيف: {x}'),
 't.goaladded':   ('מטרה נוספה ופורקה לצעדים', 'Goal added and broken into steps', 'Objectif ajouté et découpé', 'Цель добавлена и разбита на шаги', 'أُضيف الهدف وقُسّم إلى خطوات'),
 't.writegoal':   ('כתוב מטרה קודם', 'Write a goal first', 'Écris d\'abord un objectif', 'Сначала напиши цель', 'اكتب هدفاً أولاً'),
 't.newweek':     ('שבוע חדש התחיל', 'A new week has started', 'Nouvelle semaine lancée', 'Началась новая неделя', 'بدأ أسبوع جديد'),
 't.timerdone':   ('הטיימר נגמר', 'Timer finished', 'Minuteur terminé', 'Таймер закончился', 'انتهى المؤقت'),
-'t.later':       ('בסדר גמור. תמיד אפשר לחזור.', 'All good. You can always come back.', 'Pas de souci. Tu peux revenir.', 'Всё нормально. Всегда можно вернуться.', 'لا بأس. يمكنك العودة دائماً.'),
 't.pts':         ('+{n} נקודות', '+{n} points', '+{n} points', '+{n} очков', '+{n} نقاط'),
 't.step':        ('צעד קדימה', 'A step forward', 'Un pas en avant', 'Шаг вперёд', 'خطوة إلى الأمام'),
 't.proof':       ('הוכחה נשמרה', 'Proof saved', 'Preuve enregistrée', 'Доказательство сохранено', 'حُفظ الإثبات'),

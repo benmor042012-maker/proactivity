@@ -60,17 +60,69 @@ def i18n_js(table):
     return 'var I18N=' + json.dumps(per_lang, ensure_ascii=False, separators=(',', ':')) + ';'
 
 
+# {masculine|feminine}, resolved at runtime by gres() in js_core.py. The
+# character classes forbid nesting: a branch may not contain a brace, so a
+# {placeholder} can never hide inside one and the two syntaxes cannot overlap.
+GENDER_SEG = re.compile(r'\{([^{}|]*)\|([^{}|]*)\}')
+PLACEHOLDER = re.compile(r'\{[A-Za-z][A-Za-z0-9_]*\}')
+
+
 def check_placeholders(table):
-    """Every {var} in the Hebrew source must exist in the other four."""
+    """Every {var} in the Hebrew source must exist in the other four.
+
+    Gender segments are stripped first: {a|b} is not a placeholder, and a
+    language is free to need gender agreement where Hebrew does not (or the
+    other way round), so they are checked separately by check_gender().
+    """
     bad = []
     for k, v in table.items():
-        want = set(re.findall(r'\{(\w+)\}', v[0]))
+        want = set(re.findall(r'\{(\w+)\}', GENDER_SEG.sub('', v[0])))
         for j in range(1, len(LANGS)):
-            got = set(re.findall(r'\{(\w+)\}', v[j]))
+            got = set(re.findall(r'\{(\w+)\}', GENDER_SEG.sub('', v[j])))
             if got != want:
                 bad.append(f'{k} [{LANGS[j]}]: expected {sorted(want)}, got {sorted(got)}')
     if bad:
         raise SystemExit('placeholder mismatch:\n  ' + '\n  '.join(bad))
+
+
+def check_gender(table):
+    """A gender segment must be well formed, or it renders as literal braces.
+
+    A bare "|" in prose is legitimate (a title separator, say), so the check is
+    not "does this string contain a pipe". It is: after removing every valid
+    {placeholder} and every valid {m|f} segment, no brace may remain. That
+    catches the shapes that actually break - {מתחילה} with the pipe forgotten,
+    an unclosed {a|b, and a nested {a|{n}|c} - because each leaves a stray
+    brace behind. t() fails open and prints the key, and esc() does not escape
+    braces, so a malformed segment reaches the screen silently; this validator
+    is the only thing standing between an author typo and a user seeing it.
+    """
+    bad = []
+    for k, v in table.items():
+        for j, s in enumerate(v):
+            rest = GENDER_SEG.sub('', s)
+            rest = PLACEHOLDER.sub('', rest)
+            if '{' in rest or '}' in rest:
+                bad.append(f'{k} [{LANGS[j]}]: stray brace - malformed gender segment '
+                           f'or placeholder in {s!r}')
+            for m, f in GENDER_SEG.findall(s):
+                if m == f:
+                    bad.append(f'{k} [{LANGS[j]}]: {{{m}|{f}}} has identical forms, drop the markup')
+                if not m and not f:
+                    bad.append(f'{k} [{LANGS[j]}]: {{|}} is empty on both sides')
+    if bad:
+        raise SystemExit('gender markup:\n  ' + '\n  '.join(bad))
+
+
+def gender_report(table):
+    """Hebrew and Arabic have no genderless second person, so a Hebrew string
+    that needed a segment almost always means Arabic needs one too. Not fatal -
+    plenty of strings are impersonal - but worth seeing at every build."""
+    he_seg = {k for k, v in table.items() if GENDER_SEG.search(v[0])}
+    missing_ar = sorted(k for k in he_seg if not GENDER_SEG.search(table[k][4]))
+    counts = {L: sum(1 for v in table.values() if GENDER_SEG.search(v[j]))
+              for j, L in enumerate(LANGS)}
+    return counts, missing_ar
 
 
 SITE = 'https://benmor042012-maker.github.io/proactivity/'
@@ -135,6 +187,7 @@ def head_meta(table):
 def main():
     table = merged_table()
     check_placeholders(table)
+    check_gender(table)
 
     with open(LOGO_FILE, encoding='utf-8') as f:
         logo = f.read().strip()
@@ -188,7 +241,11 @@ def main():
         f.write(html)
 
     print(f'wrote {OUT}')
+    gcounts, missing_ar = gender_report(table)
     print(f'  {len(table)} translation keys x {len(LANGS)} languages')
+    print('  gendered strings: ' + ', '.join(f'{L}={gcounts[L]}' for L in LANGS))
+    if missing_ar:
+        print(f'  note: {len(missing_ar)} keys inflect in he but not yet in ar')
     print(f'  {len(html):,} bytes ({len(html) - 3 * len(logo):,} excluding the embedded logo)')
 
 
