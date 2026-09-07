@@ -56,8 +56,8 @@ MINI = {
 'sp.w.core':    ('ליבה', 'Core', 'Gainage', 'Кор', 'الجذع'),
 'sp.w.flex':    ('גמישות', 'Mobility', 'Souplesse', 'Гибкость', 'المرونة'),
 'sp.w.short':   ('אימון קצר', 'Quick session', 'Séance express', 'Быстрая тренировка', 'تمرين سريع'),
-'sp.meta':      ('{n} תרגילים · {m} דקות', '{n} exercises · {m} min', '{n} exercices · {m} min',
-                 '{n} упражнений · {m} мин', '{n} تمارين · {m} دقيقة'),
+'sp.meta':      ('{n} תרגילים · {min} דקות', '{n} exercises · {min} min', '{n} exercices · {min} min',
+                 '{n} упражнений · {min} мин', '{n} تمارين · {min} دقيقة'),
 
 # ---------- sport: run ----------
 'sp.of':        ('תרגיל {n} מתוך {t}', 'Exercise {n} of {t}', 'Exercice {n} sur {t}',
@@ -76,7 +76,7 @@ MINI = {
 # ---------- sport: done ----------
 'sp.done.t':    ('סיימת', 'You finished', 'Terminé', 'Готово', 'أنهيت'),
 'sp.done.n':    ('{n} תרגילים', '{n} exercises', '{n} exercices', '{n} упражнений', '{n} تمارين'),
-'sp.done.m':    ('{m} דקות', '{m} minutes', '{m} minutes', '{m} минут', '{m} دقيقة'),
+'sp.done.m':    ('{min} דקות', '{min} minutes', '{min} minutes', '{min} минут', '{min} دقيقة'),
 'sp.done.save': ('חזרה למסך הראשי', 'Back to the start', 'Retour à l\'accueil', 'Вернуться в начало', 'العودة للبداية'),
 'sp.enc.1':     ('הופעת. זה החלק הקשה.', 'You showed up. That is the hard part.',
                  'Tu es venu. C\'est le plus dur.', 'Ты пришёл. Это и есть самое трудное.',

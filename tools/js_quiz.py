@@ -34,7 +34,22 @@ var QUESTIONS=[
 ];
 var QLETTERS=['a','b','c','d'];
 
-function emptyQuiz(){ return {answers:{}, scores:null, i:0, done:false}; }
+/* Question text is looked up per age band. This probes I18N.he rather than
+   t(), because t() returns the key on a miss and so cannot say "missing"; and a
+   key present in I18N.he is present in all five languages, since build.py
+   rejects any key with fewer. The fallback to a13 is belt and braces - build.py
+   already fails on a band with a hole in it. */
+function qk(band,n,part){
+  var k='qz.'+band+'.'+n+'.'+part;
+  return (I18N.he && I18N.he[k]!==undefined) ? k : 'qz.a13.'+n+'.'+part;
+}
+function quizBand(){ return ageBand(P.age); }
+
+/* band records which wording the answers were given against. The scores stay
+   valid across bands - question number -> dimension -> score vector does not
+   depend on wording - so a changed age never throws a profile away; it only
+   offers a retake. */
+function emptyQuiz(){ return {answers:{}, scores:null, i:0, done:false, band:null}; }
 
 /* ================= scoring ================= */
 function scoreQuiz(){
@@ -93,7 +108,7 @@ function quizOptionRow(Q,letter,i){
   return '<button class="qz-opt'+(chosen?' on':'')+'" type="button" data-qa="'+letter+'" '+
     'aria-pressed="'+(chosen?'true':'false')+'">'+
     '<span class="qz-let" aria-hidden="true">'+letter.toUpperCase()+'</span>'+
-    '<span class="qz-tx">'+esc(t('qz.'+Q.n+'.'+letter))+'</span>'+
+    '<span class="qz-tx">'+esc(t(qk(quizBand(),Q.n,letter)))+'</span>'+
     '<span class="qz-tick" aria-hidden="true">'+ic('check')+'</span></button>';
 }
 function renderQuiz(){
@@ -122,7 +137,7 @@ function renderQuiz(){
   var tag=document.getElementById('qzDim');
   if(tag) tag.textContent=t(dimById(Q.dim).k);
 
-  document.getElementById('qzQ').textContent=t('qz.'+Q.n+'.q');
+  document.getElementById('qzQ').textContent=t(qk(quizBand(),Q.n,'q'));
   var box=document.getElementById('qzOpts');
   box.innerHTML=QLETTERS.map(function(L,ix){ return quizOptionRow(Q,L,ix); }).join('');
   box.querySelectorAll('[data-qa]').forEach(function(b){
@@ -134,6 +149,7 @@ function renderQuiz(){
 function answerQuiz(letter){
   var Q=QUESTIONS[S.quiz.i];
   S.quiz.answers[Q.n]=letter;
+  S.quiz.band=quizBand();
   saveQuiz();
   if(S.quiz.i < QUESTIONS.length-1){
     S.quiz.i++;
@@ -145,6 +161,7 @@ function answerQuiz(letter){
 function finishQuiz(){
   S.quiz.scores=scoreQuiz();
   S.quiz.done=true;
+  S.quiz.band=quizBand();
   applyProfileToPlan();
   saveQuiz();
   unlock('ach.quiz');
@@ -167,7 +184,10 @@ function loadQuiz(){
     var raw=localStorage.getItem('proactive_quiz');
     if(raw){
       var q=JSON.parse(raw);
-      if(q && q.answers) S.quiz=q;
+      if(q && q.answers){
+        if(!q.band) q.band='a13';   // every save before bands existed was teen-worded
+        S.quiz=q;
+      }
     }
   }catch(e){}
   if(!S.quiz) S.quiz=emptyQuiz();
@@ -223,7 +243,9 @@ function renderProfile(boxId, compact){
     return;
   }
 
-  box.innerHTML=head+
+  var stale = S.quiz.band && S.quiz.band!==quizBand()
+    ? '<p class="hint">'+ic('refresh')+'<span>'+esc(t('rs.ageband'))+'</span></p>' : '';
+  box.innerHTML=head+stale+
    '<div class="pro-blk"><h3>'+esc(t('rs.mean'))+'</h3><p>'+esc(profileMeaning())+'</p></div>'+
    '<div class="pro-blk"><h3>'+esc(t('rs.try'))+'</h3><ol class="pro-acts">'+
      profileActions().map(function(a){ return '<li>'+esc(a)+'</li>'; }).join('')+

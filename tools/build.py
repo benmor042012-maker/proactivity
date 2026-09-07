@@ -23,6 +23,7 @@ from i18n_mini import MINI
 from i18n_food import FOOD
 from i18n_quiz import QUIZ
 from i18n_home import HOME
+from i18n_qbands import QBANDS
 from assets import sprite
 from css import CSS
 from html import build_body
@@ -42,7 +43,8 @@ def merged_table():
     for src, name in ((UI, 'i18n_ui'), (APP, 'i18n_app'),
                       (CONTENT, 'i18n_content'), (PLAN, 'i18n_plan'),
                       (MINI, 'i18n_mini'), (FOOD, 'i18n_food'),
-                      (QUIZ, 'i18n_quiz'), (HOME, 'i18n_home')):
+                      (QUIZ, 'i18n_quiz'), (HOME, 'i18n_home'),
+                      (QBANDS, 'i18n_qbands')):
         for k, v in src.items():
             if k in table:
                 raise SystemExit(f'duplicate translation key {k!r} (in {name})')
@@ -112,6 +114,41 @@ def check_gender(table):
                     bad.append(f'{k} [{LANGS[j]}]: {{|}} is empty on both sides')
     if bad:
         raise SystemExit('gender markup:\n  ' + '\n  '.join(bad))
+
+
+QUIZ_BANDS = ('a13', 'a18', 'a30', 'a50')
+QUIZ_N = 10
+QUIZ_PARTS = ('q', 'a', 'b', 'c', 'd')
+
+
+def check_quiz_bands(table):
+    """Every band spells out all ten questions and all five parts, and nothing
+    that looks like a question key can be a typo the runtime never reads.
+
+    What this cannot check - and the reason the warning at the top of
+    i18n_qbands.py exists - is that option a in band a30 means the same thing
+    as option a in band a13. Scoring is by position; a band whose options
+    were reordered to read better scores its users backwards, silently.
+    """
+    bad = []
+    pat = re.compile(r'^qz\.(a\d+)\.(\d+)\.([a-z])$')
+    seen = {b: set() for b in QUIZ_BANDS}
+    for k in table:
+        m = pat.match(k)
+        if not m:
+            continue
+        band, n, part = m.group(1), int(m.group(2)), m.group(3)
+        if band not in QUIZ_BANDS or not (1 <= n <= QUIZ_N) or part not in QUIZ_PARTS:
+            bad.append(f'{k}: not a valid band/question/part - the runtime will never read it')
+            continue
+        seen[band].add((n, part))
+    for band in QUIZ_BANDS:
+        for n in range(1, QUIZ_N + 1):
+            for part in QUIZ_PARTS:
+                if (n, part) not in seen[band]:
+                    bad.append(f'qz.{band}.{n}.{part} is missing')
+    if bad:
+        raise SystemExit('check-in bands:\n  ' + '\n  '.join(bad))
 
 
 def gender_report(table):
@@ -188,6 +225,7 @@ def main():
     table = merged_table()
     check_placeholders(table)
     check_gender(table)
+    check_quiz_bands(table)
 
     with open(LOGO_FILE, encoding='utf-8') as f:
         logo = f.read().strip()

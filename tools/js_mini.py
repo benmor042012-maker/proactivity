@@ -148,7 +148,7 @@ function renderSportPick(){
     var list=sets[id];
     return '<button class="pick-card" data-sp-type="'+id+'">'+
       '<span class="pk-n">'+esc(t('sp.w.'+id))+'</span>'+
-      '<span class="pk-m">'+esc(t('sp.meta',{n:list.length,m:workoutMinutes(list)}))+'</span>'+
+      '<span class="pk-m">'+esc(t('sp.meta',{n:list.length, min:workoutMinutes(list)}))+'</span>'+
       ic('arrow')+'</button>';
   }).join('');
   sportScreen('pick');
@@ -218,7 +218,7 @@ function endRun(){
   addPts(15);
   save();
   document.getElementById('spDoneN').textContent=t('sp.done.n',{n:n});
-  document.getElementById('spDoneM').textContent=t('sp.done.m',{m:mins});
+  document.getElementById('spDoneM').textContent=t('sp.done.m',{min:mins});
   document.getElementById('spDoneMsg').textContent=t(pick(['sp.enc.1','sp.enc.2','sp.enc.3','sp.enc.4']));
   run=null;
   renderStats();
@@ -251,7 +251,7 @@ function renderSportProgress(){
   document.getElementById('spHist').innerHTML = hist.length
     ? hist.map(function(x){
         return '<div class="hist-row"><span class="hr-n">'+esc(t('sp.w.'+x.type))+'</span>'+
-          '<span class="hr-m">'+esc(t('sp.done.n',{n:x.n}))+' · '+esc(t('sp.done.m',{m:x.mins}))+'</span>'+
+          '<span class="hr-m">'+esc(t('sp.done.n',{n:x.n}))+' · '+esc(t('sp.done.m',{min:x.mins}))+'</span>'+
           '<span class="hr-d">'+esc(x.d)+'</span></div>';
       }).join('')
     : '<div class="empty">'+esc(t('sp.pr.empty'))+'</div>';
