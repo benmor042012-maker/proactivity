@@ -31,6 +31,9 @@ function applyLang(){
   });
   var mb=document.getElementById('modeBtn');
   if(mb) mb.setAttribute('data-i18n-title', activeTheme()==='light' ? 'th.dark' : 'th.light');
+  document.title = t('seo.title');
+  var md=document.querySelector('meta[name="description"]');
+  if(md) md.setAttribute('content', t('seo.desc'));
   renderPrices();
 }
 function setLang(l){
@@ -41,8 +44,7 @@ function setLang(l){
   // everything drawn by JS must be redrawn - this is what used to be missing
   if(document.getElementById('app').style.display==='block') startApp();
   if(document.getElementById('onboarding').style.display==='block'){
-    renderGoalOpts(); renderChips('easyC',P.easy); renderChips('hardC',P.hard);
-    markSelected(); renderBuilt(); showStep(os);
+    renderGoalOpts(); markSelected(); renderBuilt(); showStep(os);
   }
 }
 

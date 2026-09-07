@@ -68,7 +68,7 @@ function addTask(catId,title,min){
   if(!String(title||'').trim()) return;
   S.tasks.push({id:uid++,catId:catId,titleKey:null,title:String(title).trim(),
                 min:Number(min)||0,done:false,photo:null});
-  save(); renderHome();
+  save(); renderTasks(); renderStats(); renderDash();
 }
 function toggleTask(id){
   var task=null;
@@ -76,16 +76,20 @@ function toggleTask(id){
   if(!task) return;
   if(task.done){
     task.done=false; task.photo=null; addPts(-10);
-    S.streak=Math.max(0,S.streak-1); renderHome(); renderStats(); return;
+    S.stats.tasksDone=Math.max(0,(S.stats.tasksDone||0)-1);
+    save(); renderTasks(); renderStats(); renderDash(); return;
   }
   openCam(label(task), function(photo){
-    task.photo=photo; task.done=true; addPts(10); S.streak++;
-    toast(praise()); save(); renderHome(); renderStats();
+    task.photo=photo; task.done=true; addPts(10);
+    S.stats.tasksDone=(S.stats.tasksDone||0)+1;
+    markActiveToday();
+    toast(praise()); save();
+    renderTasks(); renderStats(); renderDash(); checkAchievements();
   });
 }
 function delTask(id){
   S.tasks=S.tasks.filter(function(x){ return x.id!==id; });
-  save(); renderHome(); renderStats();
+  save(); renderTasks(); renderStats(); renderDash();
 }
 
 function renderRing(){
@@ -193,48 +197,79 @@ function startTimer(btn,minutes){
 }
 
 /* ================= goals ================= */
+/* The point of this screen is the ladder: a goal is only real once it says
+   what it means this week, what it means today, and what you do right now. */
+function goalById(id){
+  var g=null;
+  (S.goals||[]).forEach(function(x){ if(x.id===id) g=x; });
+  return g;
+}
+function goalPct(g){
+  if(!g.actions.length) return 0;
+  var done=g.actions.filter(function(a){ return a.done; }).length;
+  return Math.round(done/g.actions.length*100);
+}
 function renderGoals(){
   var box=document.getElementById('goalsCont'); box.innerHTML='';
-  if(!S.goals.length){ box.innerHTML='<div class="empty">'+esc(t('g.empty'))+'</div>'; return; }
+  if(!S.goals.length){
+    box.innerHTML='<div class="empty-state">'+ic('target')+
+      '<p>'+esc(t('n.empty.goals'))+'</p></div>';
+    return;
+  }
   S.goals.forEach(function(g){
     var done=g.actions.filter(function(a){ return a.done; }).length;
-    var pct=g.actions.length ? Math.round(done/g.actions.length*100) : 0;
-    var card=document.createElement('div'); card.className='goal';
+    var pct=goalPct(g);
+    var card=document.createElement('article'); card.className='goal';
     card.innerHTML=
       '<h3>'+ic('target')+'<span>'+esc(g.title)+'</span>'+
       '<button class="icon-btn" data-dg="'+g.id+'" aria-label="'+esc(t('c.delete'))+'">'+ic('trash')+'</button></h3>'+
+
+      '<div class="ladder">'+
+        '<div class="rung"><span class="rung-k">'+esc(t('gl.goal'))+'</span>'+
+          '<span class="rung-v strong">'+esc(g.title)+'</span></div>'+
+        '<div class="rung"><span class="rung-k">'+esc(t('gl.week'))+'</span>'+
+          '<input type="text" class="rung-in" data-lad="week" data-gid="'+g.id+'" '+
+          'value="'+esc(g.week||'')+'" placeholder="'+esc(t('gl.wk.ph'))+'" aria-label="'+esc(t('gl.week'))+'"></div>'+
+        '<div class="rung"><span class="rung-k">'+esc(t('gl.today'))+'</span>'+
+          '<input type="text" class="rung-in" data-lad="today" data-gid="'+g.id+'" '+
+          'value="'+esc(g.today||'')+'" placeholder="'+esc(t('gl.td.ph'))+'" aria-label="'+esc(t('gl.today'))+'"></div>'+
+        '<div class="rung now"><span class="rung-k">'+esc(t('gl.now'))+'</span>'+
+          '<button class="btn btn-primary btn-sm" data-gnow="'+g.id+'">'+ic('play')+
+          '<span>'+esc(t('gl.now.btn'))+'</span></button></div>'+
+      '</div>'+
+
+      '<div class="acts-h">'+esc(t('gl.steps'))+'</div>'+
       '<div class="acts">'+g.actions.map(function(a){
         return '<label><input type="checkbox" class="cb" data-gid="'+g.id+'" data-aid="'+a.id+'"'+
           (a.done?' checked':'')+'><span'+(a.done?' class="done"':'')+'>'+esc(actLabel(a))+'</span></label>';
       }).join('')+'</div>'+
-      '<div class="addrow"><input type="text" class="na" data-gid="'+g.id+'" placeholder="'+esc(t('g.step.ph'))+'">'+
-      '<button class="btn btn-ghost" data-na="'+g.id+'">'+ic('plus')+'</button></div>'+
+      '<div class="addrow"><input type="text" class="na" data-gid="'+g.id+'" placeholder="'+esc(t('g.step.ph'))+'" aria-label="'+esc(t('g.step.ph'))+'">'+
+      '<button class="btn btn-ghost" data-na="'+g.id+'" aria-label="'+esc(t('c.add'))+'">'+ic('plus')+'</button></div>'+
       '<div class="gmeta"><span class="numf">'+done+'/'+g.actions.length+'</span><span class="numf">'+pct+'%</span></div>'+
       '<div class="gbar"><i style="width:'+pct+'%"></i></div>';
     box.appendChild(card);
   });
+
   box.querySelectorAll('.cb').forEach(function(cb){
     cb.addEventListener('change',function(e){
-      var g=null,a=null;
-      S.goals.forEach(function(x){ if(x.id===Number(e.target.dataset.gid)) g=x; });
+      var g=goalById(Number(e.target.dataset.gid)), a=null;
       if(!g) return;
       g.actions.forEach(function(x){ if(x.id===Number(e.target.dataset.aid)) a=x; });
       if(!a) return;
       a.done=e.target.checked; addPts(a.done?12:-12);
-      if(a.done) toast(t('t.step'));
-      save(); renderGoals(); renderStats();
+      if(a.done){ toast(t('t.step')); markActiveToday(); }
+      save(); renderGoals(); renderStats(); renderDash(); checkAchievements();
     });
   });
   box.querySelectorAll('[data-dg]').forEach(function(b){
     b.addEventListener('click',function(){
       S.goals=S.goals.filter(function(g){ return g.id!==Number(b.dataset.dg); });
-      save(); renderGoals();
+      save(); renderGoals(); renderDash();
     });
   });
   box.querySelectorAll('[data-na]').forEach(function(b){
     b.addEventListener('click',function(){
-      var gid=Number(b.dataset.na), g=null;
-      S.goals.forEach(function(x){ if(x.id===gid) g=x; });
+      var gid=Number(b.dataset.na), g=goalById(gid);
       if(!g) return;
       var inp=box.querySelector('.na[data-gid="'+gid+'"]'), v=inp.value.trim();
       if(!v) return;
@@ -242,15 +277,35 @@ function renderGoals(){
       inp.value=''; save(); renderGoals();
     });
   });
+  /* The ladder inputs save on blur rather than on every keystroke: a full
+     re-render mid-typing would steal the caret. */
+  box.querySelectorAll('.rung-in').forEach(function(inp){
+    inp.addEventListener('change',function(){
+      var g=goalById(Number(inp.dataset.gid));
+      if(!g) return;
+      g[inp.dataset.lad]=inp.value.trim();
+      save(); renderDash(); toast(t('gl.saved'));
+    });
+  });
+  box.querySelectorAll('[data-gnow]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.gnow));
+      if(!g) return;
+      startFiveMinutes(g.today || g.week || g.title);
+    });
+  });
 }
-document.getElementById('aGoalBtn').addEventListener('click',function(){
+document.getElementById('aGoalBtn').addEventListener('click',addGoalFromInput);
+document.getElementById('nGoalIn').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){ e.preventDefault(); addGoalFromInput(); }
+});
+function addGoalFromInput(){
   var inp=document.getElementById('nGoalIn'), v=inp.value.trim();
   if(!v){ toast(t('t.writegoal')); return; }
-  S.goals.push({id:uid++,title:v,actions:guessSteps(v).map(function(k){
-    return {id:uid++,key:k,text:'',done:false};
-  })});
-  inp.value=''; save(); renderGoals(); toast(t('t.goaladded'));
-});
+  S.goals.push(newGoal(v));
+  inp.value=''; save(); renderGoals(); renderDash(); checkAchievements();
+  toast(t('t.goaladded'));
+}
 
 /* ================= week ================= */
 function dayNames(){
@@ -308,8 +363,8 @@ function renderWeek(){
       var d=Number(cell.dataset.day);
       m.days[d]=!m.days[d];
       addPts(m.days[d]?6:-6);
-      if(m.days[d]) toast(praise());
-      save(); renderWeek(); renderStats();
+      if(m.days[d]){ toast(praise()); markActiveToday(); }
+      save(); renderWeek(); renderStats(); renderDash(); checkAchievements();
     });
   });
   body.querySelectorAll('[data-dm]').forEach(function(b){
@@ -401,7 +456,7 @@ function renderTheories(){
   g.innerHTML=THEORIES.map(function(th,i){
     return '<div class="th"><div class="n">'+String(i+1).padStart(2,'0')+'</div>'+
       ic(th.icon)+
-      '<h3>'+esc(t(th.n))+'</h3><div class="au">'+esc(t(th.a))+'</div>'+
+      '<h4>'+esc(t(th.n))+'</h4><div class="au">'+esc(t(th.a))+'</div>'+
       '<div class="pr2">'+esc(t(th.p))+'</div>'+
       '<div class="hw">'+esc(t(th.h))+'</div>'+
       '<dl><dt>'+esc(t('y.where'))+'</dt><dd>'+esc(t(th.f))+'</dd></dl></div>';
@@ -414,7 +469,7 @@ function renderStats(){
   document.getElementById('lvl').textContent=s.level;
   document.getElementById('stg').textContent=s.stage;
   document.getElementById('xpF').style.width=s.progress+'%';
-  document.getElementById('skV').textContent=S.streak;
+  document.getElementById('skV').textContent=shownStreak();
   document.getElementById('ptV').textContent=S.points;
   document.getElementById('dnV').textContent=S.tasks.filter(function(x){return x.done;}).length;
   document.getElementById('tlV').textContent=S.tasks.length;
@@ -428,25 +483,145 @@ function renderInsight(){
     '<div class="src">'+esc(t(ins.s))+'</div></div></div>';
 }
 
-/* ================= tabs ================= */
-document.querySelectorAll('.tab').forEach(function(tab){
-  tab.addEventListener('click',function(){
-    document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('on'); });
-    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
-    tab.classList.add('on');
-    document.getElementById('page-'+tab.dataset.page).classList.add('on');
+/* ================= the dashboard ================= */
+/* Deliberately narrow: four numbers, one next step, one profile summary. The
+   full task list lives on its own tab so the first screen never turns into a
+   wall of twenty things. */
+function renderDashStats(){
+  var box=document.getElementById('dashStats');
+  if(!box) return;
+  var cells=[
+    {ic:'flame',    v:shownStreak(),                                 k:'d.streak'},
+    {ic:'target',   v:(S.goals||[]).length,                          k:'d.goals'},
+    {ic:'check',    v:(S.stats.tasksDone||0),                        k:'d.done'},
+    {ic:'gauge',    v:hasProfile()? profileIndex()+'%' : '—',        k:'d.index'}
+  ];
+  box.innerHTML='<h2 class="sr">'+esc(t('d.progress'))+'</h2>'+
+    cells.map(function(c){
+      return '<div class="dstat">'+ic(c.ic)+
+        '<div class="dv numf">'+esc(String(c.v))+'</div>'+
+        '<div class="dk">'+esc(t(c.k))+'</div></div>';
+    }).join('')+
+    '<p class="dstreak">'+esc(streakLine())+'</p>';
+}
+
+/* ---- the single next step, and the five-minute starter ---- */
+var fiveTimer=null, fiveLeft=0;
+function clearFive(){
+  if(fiveTimer){ clearInterval(fiveTimer); fiveTimer=null; }
+}
+function startFiveMinutes(labelText){
+  clearFive();
+  fiveLeft=5*60;
+  markActiveToday();
+  goPage('home');
+  renderNextCard(labelText);
+  fiveTimer=setInterval(function(){
+    fiveLeft--;
+    var el=document.getElementById('fiveTxt');
+    if(el){
+      var m=Math.floor(fiveLeft/60), sec=String(fiveLeft%60).padStart(2,'0');
+      el.textContent=t('d.running',{t:m+':'+sec});
+    }
+    if(fiveLeft<=0){ clearFive(); toast(t('d.timeup')); renderNextCard(); }
+  },1000);
+}
+function renderNextCard(overrideText){
+  var box=document.getElementById('nextCard');
+  if(!box) return;
+  var step=pickNextStep();
+  var txt = overrideText || t(step.key);
+  if(step.done && !overrideText){
+    box.innerHTML='<div class="next done">'+ic('check')+
+      '<div><div class="next-lab">'+esc(t('d.next'))+'</div>'+
+      '<p class="next-tx">'+esc(t('d.allclear'))+'</p></div></div>';
+    return;
+  }
+  var running = !!fiveTimer;
+  box.innerHTML='<div class="next">'+
+    '<div class="next-lab">'+ic('rocket')+'<span>'+esc(t('d.next'))+'</span>'+
+      (step.theme?'<span class="next-th">'+esc(step.theme)+'</span>':'')+'</div>'+
+    '<p class="next-tx">'+esc(txt)+'</p>'+
+    '<p class="next-sub">'+esc(t('d.next.s'))+'</p>'+
+    '<div class="next-btns">'+
+      '<button class="btn btn-primary" id="fiveBtn"'+(running?' disabled':'')+'>'+ic('play')+
+        '<span id="fiveTxt">'+esc(running?t('d.running',{t:'5:00'}):t('d.start5'))+'</span></button>'+
+      '<button class="btn btn-ghost" id="nextDone">'+ic('check')+'<span>'+esc(t('d.mark'))+'</span></button>'+
+    '</div></div>';
+  var fb=document.getElementById('fiveBtn');
+  if(fb) fb.addEventListener('click',function(){ startFiveMinutes(txt); });
+  document.getElementById('nextDone').addEventListener('click',function(){
+    clearFive();
+    if(!S.next || S.next.done) return;
+    S.next.done=true;
+    S.stats.challenges=(S.stats.challenges||0)+1;
+    addPts(25); markActiveToday();
+    toast(t('t.pts',{n:25}));
+    save(); renderNextCard(); renderDashStats(); renderStats(); checkAchievements();
   });
+}
+
+/* The areas the user chose during setup, shown back to them so the dashboard
+   answers "what am I even aiming at" without opening another tab. */
+function renderDashFocus(){
+  var box=document.getElementById('dashFocus');
+  if(!box) return;
+  var goal=(S.goals||[])[0];
+  var chips=CATS.map(function(c){
+    return '<span class="fchip">'+ic(c.icon)+esc(catName(c))+'</span>';
+  }).join('');
+  var ladder='';
+  if(goal){
+    ladder='<div class="mini-ladder">'+
+      '<div><span>'+esc(t('gl.goal'))+'</span><b>'+esc(goal.title)+'</b></div>'+
+      (goal.week?'<div><span>'+esc(t('gl.week'))+'</span><b>'+esc(goal.week)+'</b></div>':'')+
+      (goal.today?'<div><span>'+esc(t('gl.today'))+'</span><b>'+esc(goal.today)+'</b></div>':'')+
+      '</div>';
+  }
+  box.innerHTML=ladder+'<div class="fchips">'+chips+'</div>'+
+    '<button class="btn btn-ghost btn-sm" data-goto="goals">'+ic('target')+
+    '<span>'+esc(t('a.tab.goals'))+'</span></button>'+
+    '<button class="btn btn-quiet btn-sm" data-goto="tasks">'+esc(t('d.seeall'))+'</button>';
+  box.querySelectorAll('[data-goto]').forEach(function(b){
+    b.addEventListener('click',function(){ goPage(b.dataset.goto); });
+  });
+}
+function renderDash(){
+  renderDashStats(); renderNextCard(); renderDashFocus();
+  renderProfile('dashProfile', true);
+}
+
+/* ================= tabs ================= */
+/* One <nav> serves as top tabs on a wide screen and as the bottom bar on a
+   phone, so there is a single set of buttons and a single source of truth. */
+function goPage(name){
+  document.querySelectorAll('.tab').forEach(function(x){
+    var on=x.dataset.page===name;
+    x.classList.toggle('on', on);
+    x.setAttribute('aria-selected', on?'true':'false');
+  });
+  document.querySelectorAll('.page').forEach(function(p){
+    p.classList.toggle('on', p.id==='page-'+name);
+  });
+  try{ localStorage.setItem('proactive_tab', name); }catch(e){}
+  if(name==='home') renderDash();
+  if(name==='progress'){ renderProfile('profBody'); renderAchievements(); }
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click',function(){ goPage(tab.dataset.page); });
 });
-document.getElementById('chBtn').addEventListener('click',function(){
-  if(S.chDone) return;
-  S.chDone=true; addPts(25); toast(t('t.pts',{n:25}));
-  var b=document.getElementById('chBtn');
-  b.disabled=true; b.innerHTML=ic('check');
-  save(); renderStats();
-});
+function lastTab(){
+  try{
+    var v=localStorage.getItem('proactive_tab');
+    if(v && document.getElementById('page-'+v)) return v;
+  }catch(e){}
+  return 'home';
+}
 
 /* ================= boot ================= */
-function renderHome(){ renderRing(); renderCats(); }
+function renderTasks(){ renderRing(); renderCats(); }
+function renderHome(){ renderTasks(); }   // kept: other modules still call it
 
 function startApp(){
   var name=P.name || t('a.greet.anon');
@@ -457,23 +632,20 @@ function startApp(){
       new Date().toLocaleDateString(cur,{weekday:'long',day:'numeric',month:'long'});
   }catch(e){ document.getElementById('dateStr').textContent=''; }
 
-  var ch=pick(CHALLENGES);
-  document.getElementById('chTxt').innerHTML=
-    esc(t(ch.t))+' <span class="theme">· '+esc(t(ch.th))+'</span>';
-  var cb=document.getElementById('chBtn');
-  cb.disabled=!!S.chDone;
-  if(S.chDone) cb.innerHTML=ic('check');
-
   var wp=buildWorkout(P.age,P.workout,P.fitLevel);
   document.getElementById('woSub').textContent=
     t('c.age')+' '+wp.ageBand+' · '+t(wp.levelKey)+' · '+t('wo.'+P.workout);
   document.getElementById('woInfo').innerHTML=ic('sliders')+'<span>'+esc(wp.note)+'</span>';
 
-  fillMissionCats(); renderInsight(); renderHome(); renderGoals(); renderWeek();
-  renderPlan('woGrid', wp.blocks, 'w');   // now the "my weekly plan" section of the sport mini-app
+  fillMissionCats(); renderInsight(); renderTasks(); renderGoals(); renderWeek();
+  renderPlan('woGrid', wp.blocks, 'w');   // the "my weekly plan" section of the sport mini-app
   renderPlan('hyGrid', buildHygiene(), 'hy');
-  renderTheories(); renderStats(); renderTrial();
-  renderMini();                            // the skincare routine now lives in its mini-app
+  renderTheories(); renderLessons(); renderAchievements();
+  renderStats(); renderTrial();
+  renderMini();                            // the skincare routine lives in its mini-app
+  renderDash();
+  checkAchievements();
+  goPage(lastTab());
 }
 
 document.querySelectorAll('.langbtn').forEach(function(b){
@@ -481,16 +653,15 @@ document.querySelectorAll('.langbtn').forEach(function(b){
 });
 
 bindMini();
-bindGender();
+bindAccentPick();
 loadLook();
 applyTheme();
+loadQuiz();
 applyLang();
 renderGoalOpts();
-renderChips('easyC',P.easy);
-renderChips('hardC',P.hard);
-['oTime','oAP','oWO','oFL','oSkin','oDiff'].forEach(function(id){
-  var attr={oTime:'time',oAP:'ap',oWO:'wo',oFL:'fl',oSkin:'skin',oDiff:'diff'}[id];
-  var field={oTime:'time',oAP:'actPref',oWO:'workout',oFL:'fitLevel',oSkin:'skinType',oDiff:'diff'}[id];
+['oTime','oWO','oFL','oSkin'].forEach(function(id){
+  var attr={oTime:'time',oWO:'wo',oFL:'fl',oSkin:'skin'}[id];
+  var field={oTime:'time',oWO:'workout',oFL:'fitLevel',oSkin:'skinType'}[id];
   singleSelect(id,attr,field);
 });
 markSelected();
@@ -502,7 +673,8 @@ if(load()){
   document.body.classList.remove('has-sticky');
   document.getElementById('stickyCta').style.display='none';
   document.getElementById('app').style.display='block';
-  renderGoalOpts(); renderChips('easyC',P.easy); renderChips('hardC',P.hard); markSelected();
+  document.body.classList.add('in-app');
+  renderGoalOpts(); markSelected();
   startApp();
 }
 """

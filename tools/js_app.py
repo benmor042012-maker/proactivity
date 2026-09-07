@@ -6,7 +6,15 @@ var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCa
        easy:[],hard:[],dream:'',skinType:'normal',userGoals:[],
        plan:null, trialStart:null,
        gender:'', accent:'mint', theme:''};   // theme '' = follow the device
-var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[]};
+/* S.streak is the count of ticks ever made and is kept only so old saves keep
+   their number; the streak the user is shown is S.day, a real run of calendar
+   days built with the same bumpStreak/liveStreak helpers the mini-apps use. */
+/* streak and chDone are dead fields kept so an old save round-trips through
+   JSON unchanged; the live values are S.day and S.next.done. */
+var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[],
+       quiz:null, lessons:{}, ach:{}, next:null,
+       day:{streak:0,lastDay:null},
+       stats:{tasksDone:0,challenges:0,comebacks:0,bestStreak:0}};
 var CATS=[], uid=1;
 
 /* ================= theme ================= */
@@ -106,7 +114,7 @@ function emptyMini(){
   };
 }
 
-var STORE_V=3;
+var STORE_V=4;
 function save(){ try{
   saveLook();
   localStorage.setItem('proactive_v',STORE_V);
@@ -152,6 +160,47 @@ function migrateV2(){
   if(!S.mini) S.mini=emptyMini();
 }
 
+/* Fields the v4 schema adds. Object.assign in load() merges a stored save over
+   the defaults, so a v3 save arrives with these already present (as defaults);
+   this only backfills a save that was hand-edited or partially written. */
+function ensureV4Fields(){
+  if(!S.quiz) S.quiz=emptyQuiz();
+  if(!S.lessons) S.lessons={};
+  if(!S.ach) S.ach={};
+  if(!S.day) S.day={streak:0,lastDay:null};
+  if(!S.stats) S.stats={tasksDone:0, challenges:0, comebacks:0, bestStreak:0};
+}
+
+/* v3 predates the check-in, the lessons, the achievements and the real day
+   streak. Additive only: nothing stored by v3 is touched. The old S.streak
+   counted ticks rather than days, so it seeds stats.tasksDone - which is what
+   it actually measured - and the day streak starts fresh instead of inheriting
+   a number that never meant days. */
+function migrateV3(){
+  ensureV4Fields();
+  S.stats.tasksDone = Number(S.streak)||0;
+}
+
+/* Every real action routes through here: it is the single place that decides
+   the day streak, so nothing can bump it twice in one day and a missed day
+   simply starts a new run instead of "failing". */
+function markActiveToday(){
+  if(!S.day) S.day={streak:0,lastDay:null};
+  var day=dayKey();
+  if(S.day.lastDay===day) return;
+  var broke = S.day.lastDay && daysBetween(S.day.lastDay,day)>1;
+  bumpStreak(S.day,day);
+  if(broke) S.stats.comebacks=(S.stats.comebacks||0)+1;
+  S.stats.bestStreak=Math.max(S.stats.bestStreak||0, S.day.streak||0);
+  save();
+}
+function shownStreak(){ return liveStreak(S.day); }
+function streakLine(){
+  var n=shownStreak();
+  if(S.day && S.day.lastDay && daysBetween(S.day.lastDay,dayKey())>1) return t('d.sk.miss');
+  return n<=0 ? t('d.sk.0') : n===1 ? t('d.sk.1') : t('d.sk.n',{n:n});
+}
+
 function load(){ try{
   var p=localStorage.getItem('proactive_p'), s=localStorage.getItem('proactive_s');
   if(!p||!s) return false;
@@ -166,8 +215,11 @@ function load(){ try{
       g.id=uid++; g.actions.forEach(function(a){ a.id=uid++; });
     });
   }
-  if(v<3) migrateV2();                  // chains, so a v1 save lands on v3
+  if(v<3) migrateV2();                  // chains, so a v1 save lands on v4
+  if(v<4) migrateV3();
   if(!S.mini) S.mini=emptyMini();       // belt and braces for a hand-edited save
+  ensureV4Fields();
+  loadQuiz();                           // answers saved before onboarding ended
   if(v<STORE_V) save();
   return true;
 }catch(e){ return false; } }
@@ -241,7 +293,7 @@ document.addEventListener('click',function(e){
 document.getElementById('paySoonOk').addEventListener('click',function(){
   document.getElementById('payModal').classList.remove('on');
   if(document.getElementById('onboarding').style.display==='block'){
-    finishOnboarding();                       // paid from the paywall step
+    closePlans();                             // finishes setup, or returns to the app
   } else if(document.getElementById('app').style.display==='block'){
     renderTrial();                            // upgraded from inside the app
   } else {
@@ -265,11 +317,12 @@ function renderTrial(){
 document.getElementById('trialCta').addEventListener('click',function(){
   document.getElementById('app').style.display='none';
   document.getElementById('onboarding').style.display='block';
-  showStep(9);
+  showStep(8);
 });
 
 /* ================= landing ================= */
 function goOnboarding(){
+  onbActive=true;
   document.getElementById('landing').style.display='none';
   document.body.classList.remove('has-sticky');
   document.getElementById('stickyCta').style.display='none';
@@ -283,101 +336,138 @@ function goOnboarding(){
 document.body.classList.add('has-sticky');
 
 /* ================= onboarding ================= */
-var os=1, TOTAL=9;
+/* 1 welcome · 2 you · 3 focus + time · 4 check-in · 5 profile · 6 first goal
+   · 7 body plan (skippable). Step 8 is the plans screen: it is deliberately
+   NOT part of the count, because nothing about setting the app up should be
+   gated behind a price. It is reached only from the trial strip. */
+var os=1, ONB_TOTAL=7;
+/* True only while the user is walking the setup flow. The plans screen reuses
+   the same overlay from inside the app, and without this flag paying from
+   there used to re-run seedState() and wipe every task, mission and goal. */
+var onbActive=false;
+
 function showStep(n){
   os=n;
   document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('on'); });
   var el=document.querySelector('.step[data-step="'+n+'"]');
   if(el) el.classList.add('on');
-  document.getElementById('onbBar').style.width=Math.round(n/TOTAL*100)+'%';
-  document.getElementById('stepCount').textContent=t('o.step',{n:n,t:TOTAL});
-  if(n===9) renderBuilt();
+  var bar=document.getElementById('onbBar');
+  var count=document.getElementById('stepCount');
+  if(n===4){
+    renderQuiz();                       // owns the bar and the counter itself
+  } else {
+    if(bar) bar.style.width=Math.round(Math.min(n,ONB_TOTAL)/ONB_TOTAL*100)+'%';
+    if(count) count.textContent = n>ONB_TOTAL ? '' : t('o.step',{n:n,t:ONB_TOTAL});
+  }
+  if(n===5) renderProfile('rsBody');
+  if(n===8) renderBuilt();
+  var h=el && el.querySelector('h2');
+  if(h) h.setAttribute('tabindex','-1');
   window.scrollTo(0,0);
 }
+
 function renderGoalOpts(){
   var box=document.getElementById('oGoals'); box.innerHTML='';
   ALL_CATS.concat(P.customCats).forEach(function(c){
-    var d=document.createElement('div');
-    d.className='opt'+(P.goals.indexOf(c.id)>=0?' on':'');
+    var on=P.goals.indexOf(c.id)>=0;
+    var d=document.createElement('button');
+    d.type='button';
+    d.className='opt'+(on?' on':'');
+    d.setAttribute('aria-pressed', on?'true':'false');
     d.innerHTML=ic(c.icon)+'<span>'+esc(catName(c))+'</span>';
     d.onclick=function(){
       var i=P.goals.indexOf(c.id);
       if(i>=0) P.goals.splice(i,1); else P.goals.push(c.id);
-      d.classList.toggle('on');
+      var now=P.goals.indexOf(c.id)>=0;
+      d.classList.toggle('on', now);
+      d.setAttribute('aria-pressed', now?'true':'false');
     };
     box.appendChild(d);
   });
 }
-function renderChips(id,arr){
-  var box=document.getElementById(id); box.innerHTML='';
-  TRAITS.forEach(function(k){
-    var c=document.createElement('div');
-    c.className='chip'+(arr.indexOf(k)>=0?' on':'');
-    c.textContent=t(k);
-    c.onclick=function(){
-      var i=arr.indexOf(k);
-      if(i>=0) arr.splice(i,1); else arr.push(k);
-      c.classList.toggle('on');
-    };
-    box.appendChild(c);
-  });
-}
+
 function singleSelect(boxId,attr,field){
-  document.querySelectorAll('#'+boxId+' .opt').forEach(function(o){
+  var box=document.getElementById(boxId);
+  if(!box) return;
+  box.querySelectorAll('.opt').forEach(function(o){
     o.addEventListener('click',function(){
-      document.querySelectorAll('#'+boxId+' .opt').forEach(function(x){ x.classList.remove('on'); });
-      o.classList.add('on'); P[field]=o.dataset[attr];
+      box.querySelectorAll('.opt').forEach(function(x){
+        x.classList.remove('on'); x.setAttribute('aria-pressed','false');
+      });
+      o.classList.add('on'); o.setAttribute('aria-pressed','true');
+      P[field]=o.dataset[attr];
     });
   });
 }
-/* choosing here sets the default accent straight away, so the rest of the
-   questionnaire is already in the user's colour */
-function bindGender(){
-  document.querySelectorAll('#oGender .opt').forEach(function(o){
+
+/* Replaces the old "are you a boy or a girl" question. It asked for something
+   the app never needed in order to pick a colour, so now it just asks for the
+   colour. The top bar still overrides it at any time. */
+function bindAccentPick(){
+  var box=document.getElementById('oAcc');
+  if(!box) return;
+  box.querySelectorAll('[data-acc]').forEach(function(o){
     o.addEventListener('click',function(){
-      document.querySelectorAll('#oGender .opt').forEach(function(x){ x.classList.remove('on'); });
-      o.classList.add('on');
-      P.gender=o.dataset.g;
-      setAccent(GENDER_ACCENT[P.gender]||'mint');
+      setAccent(o.dataset.acc);
+      markSelected();
     });
   });
 }
 
 function markSelected(){
-  document.querySelectorAll('#oGender .opt').forEach(function(o){
-    o.classList.toggle('on', o.dataset.g===P.gender);
+  document.querySelectorAll('#oAcc [data-acc]').forEach(function(o){
+    var on=o.dataset.acc===P.accent;
+    o.classList.toggle('on', on);
+    o.setAttribute('aria-pressed', on?'true':'false');
   });
-  [['oTime','time','time'],['oAP','ap','actPref'],['oWO','wo','workout'],
-   ['oFL','fl','fitLevel'],['oSkin','skin','skinType'],['oDiff','diff','diff']]
+  [['oTime','time','time'],['oWO','wo','workout'],
+   ['oFL','fl','fitLevel'],['oSkin','skin','skinType']]
   .forEach(function(x){
     document.querySelectorAll('#'+x[0]+' .opt').forEach(function(o){
-      o.classList.toggle('on', o.dataset[x[1]]===P[x[2]]);
+      var on=o.dataset[x[1]]===P[x[2]];
+      o.classList.toggle('on', on);
+      o.setAttribute('aria-pressed', on?'true':'false');
     });
   });
 }
+
 function renderBuilt(){
   var box=document.getElementById('builtList');
+  if(!box) return;
   box.innerHTML =
     '<div>'+ic('check')+'<span>'+esc(t('o.9.built1',{n:Math.max(1,P.goals.length)}))+'</span></div>'+
     '<div>'+ic('check')+'<span>'+esc(t('o.9.built2'))+'</span></div>'+
     '<div>'+ic('check')+'<span>'+esc(t('o.9.built3',{n:P.userGoals.length||1}))+'</span></div>';
 }
 
+function readStep2(){
+  P.name=document.getElementById('oName').value.trim();
+  P.age=document.getElementById('oAge').value;
+}
+
 document.querySelectorAll('[data-next]').forEach(function(b){
   b.addEventListener('click',function(){
-    if(os===1){
-      P.name=document.getElementById('oName').value.trim();
-      P.age=document.getElementById('oAge').value;
-      P.email=document.getElementById('oEmail').value.trim();
+    if(os===2){
+      readStep2();
       if(!P.age){ toast(t('t.pickage')); return; }
     }
-    if(os===2 && !P.goals.length){ toast(t('t.pickarea')); return; }
+    if(os===3 && !P.goals.length){ toast(t('t.pickarea')); return; }
     showStep(os+1);
   });
 });
 document.querySelectorAll('[data-back]').forEach(function(b){
-  b.addEventListener('click',function(){ showStep(Math.max(1,os-1)); });
+  b.addEventListener('click',function(){
+    if(os===2) readStep2();
+    showStep(Math.max(1,os-1));
+  });
 });
+
+document.getElementById('qzPrev').addEventListener('click',function(){
+  if(S.quiz.i>0){ S.quiz.i--; renderQuiz(); }
+  else showStep(3);
+});
+document.getElementById('rsNext').addEventListener('click',function(){ showStep(6); });
+
 document.getElementById('addCustom').addEventListener('click',function(){
   var inp=document.getElementById('oCustom'), v=inp.value.trim();
   if(!v) return;
@@ -386,23 +476,50 @@ document.getElementById('addCustom').addEventListener('click',function(){
   P.goals.push(id); inp.value='';
   renderGoalOpts(); toast(t('t.added',{x:v}));
 });
-document.getElementById('oFinish').addEventListener('click',function(){
-  P.dream=document.getElementById('oDream').value.trim();
-  P.userGoals=[];
-  ['oG1','oG2','oG3'].forEach(function(id){
-    var v=document.getElementById(id).value.trim(); if(v) P.userGoals.push(v);
-  });
-  save(); showStep(9);
+document.getElementById('oCustom').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('addCustom').click(); }
 });
+
+function readFirstGoal(){
+  var v=document.getElementById('oG1').value.trim();
+  P.userGoals = v ? [v] : [];
+  P.dream = v;
+}
+document.getElementById('skipGoal').addEventListener('click',function(){
+  P.userGoals=[]; showStep(7);
+});
+document.getElementById('skipBody').addEventListener('click', function(){ finishOnboarding(); });
+document.getElementById('oFinish').addEventListener('click', function(){ finishOnboarding(); });
 document.getElementById('skipPay').addEventListener('click',function(){
   if(!P.trialStart) P.trialStart=Date.now();
-  finishOnboarding();
+  closePlans();
 });
-function finishOnboarding(){
+
+/* Leaving the plans screen. During setup that means finishing setup; from
+   inside the app it means going back to the app untouched. */
+function closePlans(){
   document.getElementById('payModal').classList.remove('on');
-  buildCats(); seedState(); save();
+  if(onbActive){ finishOnboarding(); return; }
   document.getElementById('onboarding').style.display='none';
   document.getElementById('app').style.display='block';
+  document.body.classList.add('in-app');
+  renderTrial();
+  window.scrollTo(0,0);
+}
+
+function finishOnboarding(){
+  document.getElementById('payModal').classList.remove('on');
+  if(os===6) readFirstGoal();
+  if(os===7 && !P.userGoals.length) readFirstGoal();
+  if(!P.trialStart) P.trialStart=Date.now();
+  onbActive=false;
+  buildCats(); seedState();
+  if(S.quiz && !S.quiz.scores && quizAnswered()) { S.quiz.scores=scoreQuiz(); applyProfileToPlan(); }
+  markActiveToday();
+  save(); checkAchievements();
+  document.getElementById('onboarding').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.body.classList.add('in-app');
   window.scrollTo(0,0);
   startApp();
 }
@@ -433,11 +550,15 @@ function seedMissions(){
 
 function seedGoals(){
   S.goals=[];
-  P.userGoals.forEach(function(g){
-    S.goals.push({id:uid++, title:g, actions:guessSteps(g).map(function(k){
-      return {id:uid++, key:k, text:'', done:false};
-    })});
-  });
+  P.userGoals.forEach(function(g){ S.goals.push(newGoal(g)); });
+}
+/* Every goal carries the ladder the app is built around: the goal itself,
+   what it means this week, what it means today, and the suggested steps. */
+function newGoal(title){
+  return {id:uid++, title:title, week:'', today:'',
+          actions:guessSteps(title).map(function(k){
+            return {id:uid++, key:k, text:'', done:false};
+          })};
 }
 
 function seedState(){
