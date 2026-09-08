@@ -5,6 +5,7 @@ var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCa
        diff:'mid',workout:'general',fitLevel:'beginner',time:'30',actPref:'mix',
        easy:[],hard:[],dream:'',skinType:'normal',userGoals:[],
        plan:null, trialStart:null,
+       chainGoal:null, planAfter:null,
        gender:'', accent:'mint', theme:''};   // theme '' = follow the device
 /* S.streak is the count of ticks ever made and is kept only so old saves keep
    their number; the streak the user is shown is S.day, a real run of calendar
@@ -12,16 +13,13 @@ var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCa
 /* streak and chDone are dead fields kept so an old save round-trips through
    JSON unchanged; the live values are S.day and S.next.done. */
 var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[],
-       quiz:null, lessons:{}, ach:{}, next:null,
+       quiz:null, lessons:{}, ach:{}, next:null, tips:{},
        day:{streak:0,lastDay:null},
        stats:{tasksDone:0,challenges:0,comebacks:0,bestStreak:0}};
 var CATS=[], uid=1;
 
 /* ================= theme ================= */
-/* The gender answer only picks a DEFAULT accent - the top bar can change it
-   at any time, so nobody is locked into a colour. */
 var ACCENTS=['flame','bloom','mint'];
-var GENDER_ACCENT={boy:'flame', girl:'bloom', na:'mint'};
 
 function prefersLight(){
   try{ return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches; }
@@ -57,6 +55,20 @@ function loadLook(){
     var th=localStorage.getItem('proactive_theme');
     if(th==='light'||th==='dark'||th==='') P.theme=th||'';
   }catch(e){}
+}
+/* Gender is picked during onboarding, before save() is allowed to write a
+   profile, so like the accent it lives under its own key and that key wins.
+   An older save can still hold the boy/girl/na values from the question this
+   replaced, so those map across rather than being dropped. */
+var LEGACY_GENDER={boy:'m', girl:'f', na:'n'};
+function loadGender(){
+  try{
+    var g=localStorage.getItem('proactive_gender');
+    if(GENDERS.indexOf(g)>=0){ gnd=g; P.gender=g; return; }
+  }catch(e){}
+  var fromProfile=LEGACY_GENDER[P.gender] || (GENDERS.indexOf(P.gender)>=0 ? P.gender : '');
+  gnd=fromProfile; P.gender=fromProfile;
+  if(fromProfile){ try{ localStorage.setItem('proactive_gender', fromProfile); }catch(e){} }
 }
 function setAccent(a){
   if(ACCENTS.indexOf(a)<0) return;
@@ -115,8 +127,15 @@ function emptyMini(){
 }
 
 var STORE_V=4;
+/* The profile is written only once setup finishes. Anything that fires during
+   onboarding - an achievement unlocking off the check-in, a tip - must not
+   persist a half-built profile, or a refresh drops the user into the app with
+   steps still unfinished. The look, the answers and the chain each have their
+   own key and are unaffected. */
 function save(){ try{
+  if(onbActive) return;
   saveLook();
+  if(GENDERS.indexOf(P.gender)>=0) localStorage.setItem('proactive_gender', P.gender);
   localStorage.setItem('proactive_v',STORE_V);
   localStorage.setItem('proactive_p',JSON.stringify(P));
   localStorage.setItem('proactive_s',JSON.stringify(S));
@@ -167,8 +186,13 @@ function ensureV4Fields(){
   if(!S.quiz) S.quiz=emptyQuiz();
   if(!S.lessons) S.lessons={};
   if(!S.ach) S.ach={};
+  if(!S.tips) S.tips={};
   if(!S.day) S.day={streak:0,lastDay:null};
   if(!S.stats) S.stats={tasksDone:0, challenges:0, comebacks:0, bestStreak:0};
+  /* Goals made before the start gate existed were tracked from the day they
+     were written, so they count as started - anything else would silently
+     stop a streak someone already has. */
+  (S.goals||[]).forEach(function(g){ if(g.started===undefined){ g.started=true; g.startedAt=g.startedAt||null; } });
 }
 
 /* v3 predates the check-in, the lessons, the achievements and the real day
@@ -193,6 +217,7 @@ function markActiveToday(){
   if(broke) S.stats.comebacks=(S.stats.comebacks||0)+1;
   S.stats.bestStreak=Math.max(S.stats.bestStreak||0, S.day.streak||0);
   save();
+  if((S.day.streak||0)>=3 && typeof tip==='function') tip('streak');
 }
 function shownStreak(){ return liveStreak(S.day); }
 function streakLine(){
@@ -253,12 +278,18 @@ function praise(){ return t(pick(PRAISE)); }
 
 /* ================= pricing ================= */
 var PRICES={
-  he:{sym:'₪', m:29,  y:17,  ytot:199},
-  en:{sym:'$', m:7.99,y:4.99,ytot:59},
-  fr:{sym:'€', m:7.99,y:4.99,ytot:59},
-  ru:{sym:'₽', m:599, y:349, ytot:4190},
-  ar:{sym:'$', m:7.99,y:4.99,ytot:59}
+  he:{sym:'₪', m:19,  y:13,  ytot:149},
+  en:{sym:'$', m:4.99,y:3.49,ytot:39},
+  fr:{sym:'€', m:4.99,y:3.49,ytot:39},
+  ru:{sym:'₽', m:399, y:249, ytot:2990},
+  ar:{sym:'$', m:4.99,y:3.49,ytot:39}
 };
+/* Real checkout. Paste the Payment Link for each plan (Stripe, Paddle, Lemon
+   Squeezy - anything that is a URL) and the buy buttons open it. While either
+   is empty the buttons are not shown at all, rather than opening a modal that
+   says payment is not ready. Nothing in the app is gated on this and nothing
+   can be, on a static site with no server: it is a way to pay, not a wall. */
+var CHECKOUT={monthly:'', annual:''};
 function money(n){
   var p=PRICES[cur]||PRICES.en;
   var s=(n%1===0)? String(n) : n.toFixed(2);
@@ -275,31 +306,25 @@ function renderPrices(){
       : t('l.pr.billedm');
   });
 }
-/* Checkout is a STUB. No payment provider is wired up in this project, so this
-   opens an explanatory modal and grants the full trial instead of charging. */
 function startCheckout(planId){
-  var p=PRICES[cur]||PRICES.en;
-  var label = planId==='annual'
-    ? t('l.pr.annual')+' · '+money(p.ytot)
-    : t('l.pr.monthly')+' · '+money(p.m);
-  document.getElementById('paySoonBody').textContent = t('pay.soon.b',{plan:label});
-  document.getElementById('payModal').classList.add('on');
+  var url=CHECKOUT[planId];
+  if(!url) return;
   P.plan=planId; if(!P.trialStart) P.trialStart=Date.now(); save();
+  window.open(url,'_blank','noopener');
 }
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-buy]'); if(!b) return;
   startCheckout(b.dataset.buy);
 });
-document.getElementById('paySoonOk').addEventListener('click',function(){
-  document.getElementById('payModal').classList.remove('on');
-  if(document.getElementById('onboarding').style.display==='block'){
-    closePlans();                             // finishes setup, or returns to the app
-  } else if(document.getElementById('app').style.display==='block'){
-    renderTrial();                            // upgraded from inside the app
-  } else {
-    goOnboarding();                           // paid straight off the landing page
-  }
-});
+/* Buy buttons exist only when there is somewhere for them to go. */
+function renderCheckout(){
+  document.querySelectorAll('[data-buy]').forEach(function(b){
+    b.hidden = !CHECKOUT[b.dataset.buy];
+  });
+  var any = !!(CHECKOUT.monthly||CHECKOUT.annual);
+  document.querySelectorAll('[data-i18n="l.pr.trust"]').forEach(function(el){ el.hidden=!any; });
+  document.querySelectorAll('.plans-soon').forEach(function(el){ el.hidden=any; });
+}
 
 /* ================= trial strip ================= */
 var TRIAL_DAYS=14;
@@ -360,6 +385,7 @@ function showStep(n){
     if(count) count.textContent = n>ONB_TOTAL ? '' : t('o.step',{n:n,t:ONB_TOTAL});
   }
   if(n===5) renderProfile('rsBody');
+  if(n===6) renderChain('onbChain');
   if(n===8) renderBuilt();
   var h=el && el.querySelector('h2');
   if(h) h.setAttribute('tabindex','-1');
@@ -403,6 +429,31 @@ function singleSelect(boxId,attr,field){
 /* Replaces the old "are you a boy or a girl" question. It asked for something
    the app never needed in order to pick a colour, so now it just asks for the
    colour. The top bar still overrides it at any time. */
+function bindGenderPick(){
+  var box=document.getElementById('oGender');
+  if(!box) return;
+  box.querySelectorAll('[data-gnd]').forEach(function(o){
+    o.addEventListener('click',function(){
+      setGender(o.dataset.gnd);   // redraws every string on screen immediately
+      markSelected();
+    });
+  });
+}
+/* min/max on a number input are only enforced by form validation, and there is
+   no <form> here, so the value has to be clamped by hand. */
+function readAge(){
+  var el=document.getElementById('oAge');
+  var n=parseInt(el.value,10);
+  P.age = (n>=13 && n<=120) ? String(n) : '';
+  var hint=document.getElementById('oAgeBand');
+  if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
+  return P.age;
+}
+function bindAgeInput(){
+  var el=document.getElementById('oAge');
+  if(!el) return;
+  el.addEventListener('input', readAge);
+}
 function bindAccentPick(){
   var box=document.getElementById('oAcc');
   if(!box) return;
@@ -415,6 +466,15 @@ function bindAccentPick(){
 }
 
 function markSelected(){
+  document.querySelectorAll('#oGender [data-gnd]').forEach(function(o){
+    var on=o.dataset.gnd===P.gender;
+    o.classList.toggle('on', on);
+    o.setAttribute('aria-pressed', on?'true':'false');
+  });
+  var ageEl=document.getElementById('oAge');
+  if(ageEl && P.age && !ageEl.value) ageEl.value=P.age;
+  var hint=document.getElementById('oAgeBand');
+  if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
   document.querySelectorAll('#oAcc [data-acc]').forEach(function(o){
     var on=o.dataset.acc===P.accent;
     o.classList.toggle('on', on);
@@ -442,14 +502,14 @@ function renderBuilt(){
 
 function readStep2(){
   P.name=document.getElementById('oName').value.trim();
-  P.age=document.getElementById('oAge').value;
+  readAge();
 }
 
 document.querySelectorAll('[data-next]').forEach(function(b){
   b.addEventListener('click',function(){
     if(os===2){
       readStep2();
-      if(!P.age){ toast(t('t.pickage')); return; }
+      if(!P.age){ toast(t('t.agerange')); return; }
     }
     if(os===3 && !P.goals.length){ toast(t('t.pickarea')); return; }
     showStep(os+1);
@@ -480,13 +540,21 @@ document.getElementById('oCustom').addEventListener('keydown',function(e){
   if(e.key==='Enter'){ e.preventDefault(); document.getElementById('addCustom').click(); }
 });
 
+/* The free-text fallback under the chain: a target in the user's own words. */
 function readFirstGoal(){
-  var v=document.getElementById('oG1').value.trim();
+  var el=document.getElementById('oG1');
+  var v=el ? el.value.trim() : '';
   P.userGoals = v ? [v] : [];
   P.dream = v;
 }
 document.getElementById('skipGoal').addEventListener('click',function(){
-  P.userGoals=[]; showStep(7);
+  P.userGoals=[]; P.chainGoal=null; resetChain(); showStep(7);
+});
+document.getElementById('oG1').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){ e.preventDefault(); readFirstGoal(); if(P.userGoals.length){ P.chainGoal=null; resetChain(); showStep(7); } }
+});
+document.getElementById('oG1Go').addEventListener('click',function(){
+  readFirstGoal(); if(P.userGoals.length){ P.chainGoal=null; resetChain(); showStep(7); } else toast(t('t.writegoal'));
 });
 document.getElementById('skipBody').addEventListener('click', function(){ finishOnboarding(); });
 document.getElementById('oFinish').addEventListener('click', function(){ finishOnboarding(); });
@@ -498,7 +566,6 @@ document.getElementById('skipPay').addEventListener('click',function(){
 /* Leaving the plans screen. During setup that means finishing setup; from
    inside the app it means going back to the app untouched. */
 function closePlans(){
-  document.getElementById('payModal').classList.remove('on');
   if(onbActive){ finishOnboarding(); return; }
   document.getElementById('onboarding').style.display='none';
   document.getElementById('app').style.display='block';
@@ -508,12 +575,22 @@ function closePlans(){
 }
 
 function finishOnboarding(){
-  document.getElementById('payModal').classList.remove('on');
-  if(os===6) readFirstGoal();
-  if(os===7 && !P.userGoals.length) readFirstGoal();
   if(!P.trialStart) P.trialStart=Date.now();
   onbActive=false;
   buildCats(); seedState();
+  /* the chain parked its target on the profile; seed it now and, if the user
+     pressed "start", start it - creating a goal never starts anything by itself */
+  if(P.chainGoal && P.chainGoal.goal){
+    var cg=P.chainGoal.goal; cg.id=uid++; cg.actions.forEach(function(a){ a.id=uid++; });
+    S.goals.unshift(cg);
+    if(P.chainGoal.start){ cg.started=true; cg.startedAt=dayKey();
+      var ca=areaById(cg.area);
+      S.missions.push({id:uid++, catId:ca?ca.cat:'hobby', titleKey:null, title:cg.title,
+        target:Math.min(7,Math.max(1, cg.freq===5?6:(cg.freq||3))), goalId:cg.id,
+        days:[false,false,false,false,false,false,false]});
+    }
+    P.chainGoal=null;
+  }
   if(S.quiz && !S.quiz.scores && quizAnswered()) { S.quiz.scores=scoreQuiz(); applyProfileToPlan(); }
   markActiveToday();
   save(); checkAchievements();
@@ -555,7 +632,9 @@ function seedGoals(){
 /* Every goal carries the ladder the app is built around: the goal itself,
    what it means this week, what it means today, and the suggested steps. */
 function newGoal(title){
-  return {id:uid++, title:title, week:'', today:'',
+  return {id:uid++, title:title, week:'', today:'', now:'',
+          started:false, startedAt:null,          // nothing counts until "start the target"
+          area:null, kind:null, kindText:'', freq:null, obst:null,
           actions:guessSteps(title).map(function(k){
             return {id:uid++, key:k, text:'', done:false};
           })};

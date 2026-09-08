@@ -23,12 +23,15 @@ from i18n_mini import MINI
 from i18n_food import FOOD
 from i18n_quiz import QUIZ
 from i18n_home import HOME
+from i18n_qbands import QBANDS
+from i18n_chain import CHAIN
 from assets import sprite
 from css import CSS
 from html import build_body
 from js_core import JS_CORE
 from js_quiz import JS_QUIZ
 from js_app import JS_APP
+from js_chain import JS_CHAIN
 from js_render import JS_RENDER
 from js_mini import JS_MINI
 
@@ -42,7 +45,8 @@ def merged_table():
     for src, name in ((UI, 'i18n_ui'), (APP, 'i18n_app'),
                       (CONTENT, 'i18n_content'), (PLAN, 'i18n_plan'),
                       (MINI, 'i18n_mini'), (FOOD, 'i18n_food'),
-                      (QUIZ, 'i18n_quiz'), (HOME, 'i18n_home')):
+                      (QUIZ, 'i18n_quiz'), (HOME, 'i18n_home'),
+                      (QBANDS, 'i18n_qbands'), (CHAIN, 'i18n_chain')):
         for k, v in src.items():
             if k in table:
                 raise SystemExit(f'duplicate translation key {k!r} (in {name})')
@@ -60,17 +64,104 @@ def i18n_js(table):
     return 'var I18N=' + json.dumps(per_lang, ensure_ascii=False, separators=(',', ':')) + ';'
 
 
+# {masculine|feminine}, resolved at runtime by gres() in js_core.py. The
+# character classes forbid nesting: a branch may not contain a brace, so a
+# {placeholder} can never hide inside one and the two syntaxes cannot overlap.
+GENDER_SEG = re.compile(r'\{([^{}|]*)\|([^{}|]*)\}')
+PLACEHOLDER = re.compile(r'\{[A-Za-z][A-Za-z0-9_]*\}')
+
+
 def check_placeholders(table):
-    """Every {var} in the Hebrew source must exist in the other four."""
+    """Every {var} in the Hebrew source must exist in the other four.
+
+    Gender segments are stripped first: {a|b} is not a placeholder, and a
+    language is free to need gender agreement where Hebrew does not (or the
+    other way round), so they are checked separately by check_gender().
+    """
     bad = []
     for k, v in table.items():
-        want = set(re.findall(r'\{(\w+)\}', v[0]))
+        want = set(re.findall(r'\{(\w+)\}', GENDER_SEG.sub('', v[0])))
         for j in range(1, len(LANGS)):
-            got = set(re.findall(r'\{(\w+)\}', v[j]))
+            got = set(re.findall(r'\{(\w+)\}', GENDER_SEG.sub('', v[j])))
             if got != want:
                 bad.append(f'{k} [{LANGS[j]}]: expected {sorted(want)}, got {sorted(got)}')
     if bad:
         raise SystemExit('placeholder mismatch:\n  ' + '\n  '.join(bad))
+
+
+def check_gender(table):
+    """A gender segment must be well formed, or it renders as literal braces.
+
+    A bare "|" in prose is legitimate (a title separator, say), so the check is
+    not "does this string contain a pipe". It is: after removing every valid
+    {placeholder} and every valid {m|f} segment, no brace may remain. That
+    catches the shapes that actually break - {מתחילה} with the pipe forgotten,
+    an unclosed {a|b, and a nested {a|{n}|c} - because each leaves a stray
+    brace behind. t() fails open and prints the key, and esc() does not escape
+    braces, so a malformed segment reaches the screen silently; this validator
+    is the only thing standing between an author typo and a user seeing it.
+    """
+    bad = []
+    for k, v in table.items():
+        for j, s in enumerate(v):
+            rest = GENDER_SEG.sub('', s)
+            rest = PLACEHOLDER.sub('', rest)
+            if '{' in rest or '}' in rest:
+                bad.append(f'{k} [{LANGS[j]}]: stray brace - malformed gender segment '
+                           f'or placeholder in {s!r}')
+            for m, f in GENDER_SEG.findall(s):
+                if m == f:
+                    bad.append(f'{k} [{LANGS[j]}]: {{{m}|{f}}} has identical forms, drop the markup')
+                if not m and not f:
+                    bad.append(f'{k} [{LANGS[j]}]: {{|}} is empty on both sides')
+    if bad:
+        raise SystemExit('gender markup:\n  ' + '\n  '.join(bad))
+
+
+QUIZ_BANDS = ('a13', 'a18', 'a30', 'a50')
+QUIZ_N = 10
+QUIZ_PARTS = ('q', 'a', 'b', 'c', 'd')
+
+
+def check_quiz_bands(table):
+    """Every band spells out all ten questions and all five parts, and nothing
+    that looks like a question key can be a typo the runtime never reads.
+
+    What this cannot check - and the reason the warning at the top of
+    i18n_qbands.py exists - is that option a in band a30 means the same thing
+    as option a in band a13. Scoring is by position; a band whose options
+    were reordered to read better scores its users backwards, silently.
+    """
+    bad = []
+    pat = re.compile(r'^qz\.(a\d+)\.(\d+)\.([a-z])$')
+    seen = {b: set() for b in QUIZ_BANDS}
+    for k in table:
+        m = pat.match(k)
+        if not m:
+            continue
+        band, n, part = m.group(1), int(m.group(2)), m.group(3)
+        if band not in QUIZ_BANDS or not (1 <= n <= QUIZ_N) or part not in QUIZ_PARTS:
+            bad.append(f'{k}: not a valid band/question/part - the runtime will never read it')
+            continue
+        seen[band].add((n, part))
+    for band in QUIZ_BANDS:
+        for n in range(1, QUIZ_N + 1):
+            for part in QUIZ_PARTS:
+                if (n, part) not in seen[band]:
+                    bad.append(f'qz.{band}.{n}.{part} is missing')
+    if bad:
+        raise SystemExit('check-in bands:\n  ' + '\n  '.join(bad))
+
+
+def gender_report(table):
+    """Hebrew and Arabic have no genderless second person, so a Hebrew string
+    that needed a segment almost always means Arabic needs one too. Not fatal -
+    plenty of strings are impersonal - but worth seeing at every build."""
+    he_seg = {k for k, v in table.items() if GENDER_SEG.search(v[0])}
+    missing_ar = sorted(k for k in he_seg if not GENDER_SEG.search(table[k][4]))
+    counts = {L: sum(1 for v in table.values() if GENDER_SEG.search(v[j]))
+              for j, L in enumerate(LANGS)}
+    return counts, missing_ar
 
 
 SITE = 'https://benmor042012-maker.github.io/proactivity/'
@@ -78,10 +169,10 @@ SITE = 'https://benmor042012-maker.github.io/proactivity/'
 # Static <head> metadata. The page is a single document with a JS language
 # switcher, so the markup carries the Hebrew default and applyLang() rewrites
 # the title and description once a language is chosen.
-SEO_TITLE = 'Proactivity — להפסיק לדחות ולהתחיל לעשות | לבני נוער'
-SEO_DESC = ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמראה לך איפה אתה עומד '
-            'ביוזמה, במטרות, בניהול זמן ובתכנון — ואז משימות קטנות, מטרות מפורקות לצעדים '
-            'והרגלים שנבנים. לבני נוער בגילאי 13–18, בלי הרשמה.')
+SEO_TITLE = 'Proactivity — להפסיק לדחות ולהתחיל לעשות'
+SEO_DESC = ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמותאם לגיל ומראה איפה '
+            'הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, '
+            'צעדים קטנים והרגלים שנבנים. מגיל 13 ומעלה, בלי הרשמה.')
 
 
 def structured_data(table):
@@ -97,7 +188,7 @@ def structured_data(table):
          'applicationCategory': 'LifestyleApplication',
          'operatingSystem': 'Any', 'inLanguage': ['he', 'en', 'fr', 'ru', 'ar'],
          'description': SEO_DESC,
-         'audience': {'@type': 'PeopleAudience', 'suggestedMinAge': 13, 'suggestedMaxAge': 18},
+         'audience': {'@type': 'PeopleAudience', 'suggestedMinAge': 13},
          'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'ILS'}},
         {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq},
     ]
@@ -135,6 +226,8 @@ def head_meta(table):
 def main():
     table = merged_table()
     check_placeholders(table)
+    check_gender(table)
+    check_quiz_bands(table)
 
     with open(LOGO_FILE, encoding='utf-8') as f:
         logo = f.read().strip()
@@ -160,7 +253,7 @@ def main():
              "d.setAttribute('data-accent',['flame','bloom','mint'].indexOf(sa)>=0?sa:'mint');"
              "}catch(e){}})();")
 
-    js = '\n'.join([i18n_js(table), JS_CORE, JS_QUIZ, JS_APP, JS_MINI, JS_RENDER])
+    js = '\n'.join([i18n_js(table), JS_CORE, JS_QUIZ, JS_APP, JS_CHAIN, JS_MINI, JS_RENDER])
 
     html = (
         '<!DOCTYPE html>\n'
@@ -188,7 +281,11 @@ def main():
         f.write(html)
 
     print(f'wrote {OUT}')
+    gcounts, missing_ar = gender_report(table)
     print(f'  {len(table)} translation keys x {len(LANGS)} languages')
+    print('  gendered strings: ' + ', '.join(f'{L}={gcounts[L]}' for L in LANGS))
+    if missing_ar:
+        print(f'  note: {len(missing_ar)} keys inflect in he but not yet in ar')
     print(f'  {len(html):,} bytes ({len(html) - 3 * len(logo):,} excluding the embedded logo)')
 
 
