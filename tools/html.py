@@ -96,6 +96,7 @@ def build_body(logo):
     <p><span data-i18n="n.hero.q1"></span><q dir="auto" data-i18n="n.hero.q2"></q><span data-i18n="n.hero.q3"></span><q dir="auto" data-i18n="n.hero.q4"></q><span data-i18n="n.hero.q5"></span></p>
    </blockquote>
    <p class="lead hero-def" data-i18n="n.hero.def"></p>
+   <p class="hero-line" data-i18n="n.hero.a"></p>
    <p class="lead" data-i18n="n.hero.sub"></p>
    <div class="cta-row">
     <button class="btn btn-primary btn-lg" id="ctaTop"><span data-i18n="n.hero.cta"></span>{i("arrow")}</button>
@@ -137,6 +138,8 @@ def build_body(logo):
    <p class="lede" style="margin-bottom:var(--s5)" data-i18n="l.pr.sub"></p>
    <div class="plans">{plan_card("monthly")}{plan_card("annual", True)}</div>
    <p class="trust plans-soon" data-i18n="l.pr.soon"></p>
+   <p class="trust contact-line"><span data-i18n="l.pr.ask"></span>
+    <a data-contact href="#"></a></p>
    <p class="trust" data-i18n="l.pr.trust"></p>
   </section>
 
@@ -274,7 +277,23 @@ def build_body(logo):
   <div class="built" id="builtList"></div>
   <div class="plans">{plan_card("monthly")}{plan_card("annual", True)}</div>
   <p class="trust plans-soon" data-i18n="l.pr.soon"></p>
+  <p class="trust contact-line"><span data-i18n="l.pr.ask"></span>
+   <a data-contact href="#"></a></p>
   <p class="trust" data-i18n="l.pr.trust"></p>
+  <p class="lic-state" id="licState" role="status" aria-live="polite"></p>
+  <details class="lic" id="licBox" hidden>
+   <summary data-i18n="pro.have"></summary>
+   <p class="hint" data-i18n="pro.lic.s"></p>
+   <div class="lic-row">
+    <input type="text" id="licKey" autocomplete="off" spellcheck="false" data-i18n-ph="pro.lic.ph"
+           aria-label="Licence key">
+    <button class="btn btn-primary" id="licGo" data-i18n="pro.lic.go"></button>
+   </div>
+   <p class="hint" id="licMsg" role="status" aria-live="polite"></p>
+   <button class="btn btn-ghost btn-sm" id="licRelease" hidden data-i18n="pro.lic.release"></button>
+   <a class="btn btn-ghost btn-sm" id="portalLink" hidden target="_blank" rel="noopener"
+      data-i18n="pro.portal"></a>
+  </details>
   <div class="nav" style="flex-direction:column;gap:var(--s2)">
    <button class="btn btn-ghost btn-block" id="skipPay" data-i18n="o.9.later"></button>
    <p class="trust" style="margin:0" data-i18n="o.9.laternote"></p>
@@ -293,6 +312,11 @@ def build_body(logo):
  <div class="trialbar" id="trialBar">
   {i("flame")}<span id="trialTxt"></span>
   <button id="trialCta" data-i18n="trial.cta"></button>
+ </div>
+ <div class="installbar" id="installBar">
+  {i("rocket")}<span data-i18n="pwa.t"></span>
+  <button id="installGo" data-i18n="pwa.go"></button>
+  <button class="x" id="installNo" data-i18n="pwa.no"></button>
  </div>
 
  <header class="apphead">
@@ -362,6 +386,22 @@ def build_body(logo):
    <div class="profile" id="profBody"></div>
   </section>
 
+  <section class="dash-box" id="trendSection">
+   <h3 class="boxh">{i("trending")}<span data-i18n="tr.sec"></span></h3>
+   <div class="trendbox" id="trendBox"></div>
+  </section>
+
+  <section class="dash-box" id="backupBox">
+   <h3 class="boxh">{i("shield")}<span data-i18n="bk.t"></span></h3>
+   <p class="psub" data-i18n="bk.s"></p>
+   <div class="bk-row">
+    <button class="btn btn-ghost" id="bkExport">{i("arrow")}<span data-i18n="bk.export"></span></button>
+    <label class="btn btn-ghost" for="bkFile">{i("refresh")}<span data-i18n="bk.import"></span></label>
+    <input type="file" accept="application/json,.json" class="hidden-file" id="bkFile">
+   </div>
+   <p class="hint" id="bkMsg" role="status" aria-live="polite"></p>
+  </section>
+
   <section class="dash-box" id="settingsBox">
    <h3 class="boxh">{i("user")}<span data-i18n="pf.t"></span></h3>
    <p class="psub" data-i18n="pf.s"></p>
@@ -371,6 +411,9 @@ def build_body(logo):
     <div class="field"><label for="pfAge" data-i18n="n.o.2.age"></label>
      <input type="number" id="pfAge" min="13" max="120" step="1" inputmode="numeric" data-i18n-ph="o.age.ph">
      <p class="hint agehint" id="pfAgeBand"></p></div>
+    <div class="field"><label for="pfRemind" data-i18n="cal.time"></label>
+     <input type="time" id="pfRemind" step="300">
+     <p class="hint" data-i18n="cal.time.h"></p></div>
    </div>
    <div class="qlabel" data-i18n="n.o.2.gender"></div>
    <div class="opts" id="pfGender">
@@ -416,6 +459,8 @@ def build_body(logo):
  </div>
 
  <div class="page wide" id="page-body" role="tabpanel">
+  <div class="lockwrap" id="bodyLock" hidden></div>
+  <div id="bodyViews">
 
   <div class="mini-view on" data-mini="hub">
    <h2 class="ptitle" data-i18n="m.hub.t"></h2><p class="psub" data-i18n="m.hub.s"></p>
@@ -596,6 +641,7 @@ def build_body(logo):
    </div>
 
    <input type="file" accept="image/*" class="hidden-file" id="frFile">
+  </div>
   </div>
  </div>
 

@@ -4,7 +4,7 @@ JS_APP = r"""
 var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCats:[],
        diff:'mid',workout:'general',fitLevel:'beginner',time:'30',actPref:'mix',
        easy:[],hard:[],dream:'',skinType:'normal',userGoals:[],
-       plan:null, trialStart:null,
+       plan:null, trialStart:null, founder:false, remind:'17:00',
        chainGoal:null, planAfter:null,
        gender:'', accent:'mint', theme:''};   // theme '' = follow the device
 /* S.streak is the count of ticks ever made and is kept only so old saves keep
@@ -13,7 +13,7 @@ var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCa
 /* streak and chDone are dead fields kept so an old save round-trips through
    JSON unchanged; the live values are S.day and S.next.done. */
 var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[],
-       quiz:null, lessons:{}, ach:{}, next:null, tips:{},
+       quiz:null, lessons:{}, ach:{}, next:null, tips:{}, hist:[],
        day:{streak:0,lastDay:null},
        stats:{tasksDone:0,challenges:0,comebacks:0,bestStreak:0}};
 var CATS=[], uid=1;
@@ -102,19 +102,35 @@ function daysBetween(a,b){
   return Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00'))/86400000);
 }
 /* Shared by the sport and skincare mini-apps: same day is a no-op, yesterday
-   extends the run, any longer gap starts over. */
+   extends the run. One missed day is forgiven once per run - a month of work
+   should not be wiped out by a single bad Tuesday, which is the moment most
+   people stop opening the app for good. A second miss does reset it: a streak
+   that can never break is not a streak. */
 function bumpStreak(o,day){
   day = day || dayKey();
   if(o.lastDay === day) return o.streak;
-  o.streak = (o.lastDay && daysBetween(o.lastDay, day) === 1) ? (o.streak||0)+1 : 1;
+  var gap = o.lastDay ? daysBetween(o.lastDay, day) : 0;
+  if(!o.lastDay){ o.streak=1; o.grace=0; }
+  else if(gap === 1){ o.streak=(o.streak||0)+1; }
+  else if(gap === 2 && !o.grace){ o.streak=(o.streak||0)+1; o.grace=1; }
+  else { o.streak=1; o.grace=0; }
   o.lastDay = day;
   return o.streak;
 }
-/* A run that was broken before today should read as 0, not as its stale value. */
+/* A run that was broken before today should read as 0, not as its stale value.
+   A run with one day missed and the grace still unspent is not broken yet: act
+   today and it carries on, so it keeps showing. */
 function liveStreak(o){
   if(!o || !o.lastDay) return 0;
   var gap = daysBetween(o.lastDay, dayKey());
-  return (gap === 0 || gap === 1) ? (o.streak||0) : 0;
+  if(gap === 0 || gap === 1) return o.streak||0;
+  if(gap === 2 && !o.grace) return o.streak||0;
+  return 0;
+}
+/* True while one missed day can still be rescued by acting today. */
+function streakRescuable(o){
+  if(!o || !o.lastDay || o.grace) return false;
+  return daysBetween(o.lastDay, dayKey()) === 2;
 }
 
 function emptyMini(){
@@ -140,7 +156,7 @@ function save(){ try{
   localStorage.setItem('proactive_p',JSON.stringify(P));
   localStorage.setItem('proactive_s',JSON.stringify(S));
   localStorage.setItem('proactive_uid',uid);
-}catch(e){} }
+}catch(e){ if(typeof warnQuota==='function') warnQuota(); } }
 
 /* ids must never collide with ids already sitting in storage, whatever their
    origin - a stale counter silently makes one checkbox toggle another row. */
@@ -187,6 +203,8 @@ function ensureV4Fields(){
   if(!S.lessons) S.lessons={};
   if(!S.ach) S.ach={};
   if(!S.tips) S.tips={};
+  if(!S.hist) S.hist=[];
+  if(S.mini && S.mini.skin && typeof migrateRoutine==='function') migrateRoutine(S.mini.skin);
   if(!S.day) S.day={streak:0,lastDay:null};
   if(!S.stats) S.stats={tasksDone:0, challenges:0, comebacks:0, bestStreak:0};
   /* Goals made before the start gate existed were tracked from the day they
@@ -212,7 +230,8 @@ function markActiveToday(){
   if(!S.day) S.day={streak:0,lastDay:null};
   var day=dayKey();
   if(S.day.lastDay===day) return;
-  var broke = S.day.lastDay && daysBetween(S.day.lastDay,day)>1;
+  var gap = S.day.lastDay ? daysBetween(S.day.lastDay,day) : 0;
+  var broke = S.day.lastDay && (gap>2 || (gap===2 && S.day.grace));
   bumpStreak(S.day,day);
   if(broke) S.stats.comebacks=(S.stats.comebacks||0)+1;
   S.stats.bestStreak=Math.max(S.stats.bestStreak||0, S.day.streak||0);
@@ -222,14 +241,21 @@ function markActiveToday(){
 function shownStreak(){ return liveStreak(S.day); }
 function streakLine(){
   var n=shownStreak();
-  if(S.day && S.day.lastDay && daysBetween(S.day.lastDay,dayKey())>1) return t('d.sk.miss');
+  if(streakRescuable(S.day)) return t('d.sk.rescue',{n:n});
+  if(n<=0 && S.day && S.day.lastDay) return t('d.sk.miss');
   return n<=0 ? t('d.sk.0') : n===1 ? t('d.sk.1') : t('d.sk.n',{n:n});
 }
 
 function load(){ try{
   var p=localStorage.getItem('proactive_p'), s=localStorage.getItem('proactive_s');
   if(!p||!s) return false;
-  P=Object.assign(P,JSON.parse(p)); S=Object.assign(S,JSON.parse(s));
+  var pp=JSON.parse(p);
+  /* A profile written before Pro existed has no `founder` field at all. Those
+     people were promised a free app and got one, so they keep every feature for
+     good - checked before the merge, because the default would mask it. */
+  var grandfather = !('founder' in pp);
+  P=Object.assign(P,pp); S=Object.assign(S,JSON.parse(s));
+  if(grandfather) P.founder=true;
   reseedUid();                          // before anything hands out a new id
   var v=Number(localStorage.getItem('proactive_v'))||1;
   if(v<2){
@@ -284,12 +310,6 @@ var PRICES={
   ru:{sym:'₽', m:399, y:249, ytot:2990},
   ar:{sym:'$', m:4.99,y:3.49,ytot:39}
 };
-/* Real checkout. Paste the Payment Link for each plan (Stripe, Paddle, Lemon
-   Squeezy - anything that is a URL) and the buy buttons open it. While either
-   is empty the buttons are not shown at all, rather than opening a modal that
-   says payment is not ready. Nothing in the app is gated on this and nothing
-   can be, on a static site with no server: it is a way to pay, not a wall. */
-var CHECKOUT={monthly:'', annual:''};
 function money(n){
   var p=PRICES[cur]||PRICES.en;
   var s=(n%1===0)? String(n) : n.toFixed(2);
@@ -306,25 +326,6 @@ function renderPrices(){
       : t('l.pr.billedm');
   });
 }
-function startCheckout(planId){
-  var url=CHECKOUT[planId];
-  if(!url) return;
-  P.plan=planId; if(!P.trialStart) P.trialStart=Date.now(); save();
-  window.open(url,'_blank','noopener');
-}
-document.addEventListener('click',function(e){
-  var b=e.target.closest('[data-buy]'); if(!b) return;
-  startCheckout(b.dataset.buy);
-});
-/* Buy buttons exist only when there is somewhere for them to go. */
-function renderCheckout(){
-  document.querySelectorAll('[data-buy]').forEach(function(b){
-    b.hidden = !CHECKOUT[b.dataset.buy];
-  });
-  var any = !!(CHECKOUT.monthly||CHECKOUT.annual);
-  document.querySelectorAll('[data-i18n="l.pr.trust"]').forEach(function(el){ el.hidden=!any; });
-  document.querySelectorAll('.plans-soon').forEach(function(el){ el.hidden=any; });
-}
 
 /* ================= trial strip ================= */
 var TRIAL_DAYS=14;
@@ -333,11 +334,18 @@ function trialDaysLeft(){
   var used=Math.floor((Date.now()-P.trialStart)/86400000);
   return Math.max(0, TRIAL_DAYS-used);
 }
+/* The strip tells the truth about the account and nothing else. With no
+   checkout configured there is no trial to count down, so it stays away rather
+   than inventing a deadline nobody can act on. */
 function renderTrial(){
-  var bar=document.getElementById('trialBar'), n=trialDaysLeft();
+  var bar=document.getElementById('trialBar');
+  var st=(typeof proState==='function') ? proState() : 'open';
+  if(st==='open'||st==='founder'||st==='pro'){ bar.classList.remove('on'); return; }
   bar.classList.add('on');
+  var n=trialDaysLeft();
   document.getElementById('trialTxt').textContent =
-    n>1 ? t('trial.left',{n:n}) : n===1 ? t('trial.last') : t('trial.over');
+    st==='free' ? t('trial.over')
+    : n>1 ? t('trial.left',{n:n}) : t('trial.last');
 }
 document.getElementById('trialCta').addEventListener('click',function(){
   document.getElementById('app').style.display='none';
