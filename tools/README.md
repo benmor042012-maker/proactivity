@@ -12,6 +12,7 @@
 | `i18n_quiz.py` | the profile the check-in produces, the micro-lessons, the achievements |
 | `i18n_qbands.py` | the check-in questions, one set per age band |
 | `i18n_chain.py` | the goal chain: areas, kinds, frequencies, obstacles, targets, and the micro-tips |
+| `i18n_pro.py` | Pro, licences, backup, calendar, install, the trend, goal lifecycle |
 | `i18n_app.py` | onboarding, paywall, app shell, toasts |
 | `i18n_content.py` | categories, stages, quotes, insights, theories |
 | `i18n_plan.py` | exercises, skincare, hygiene, goal breakdowns, suggestions |
@@ -21,6 +22,8 @@
 | `js_core.py` | i18n runtime, data tables, workout/skincare builders |
 | `js_quiz.py` | check-in engine, scoring, profile, lessons, achievements, the daily next step |
 | `js_chain.py` | the area → questions → goal → target chain, `startGoal()`, the tip engine |
+| `js_pro.py` | billing config, the licence check, who gets what, the locked states |
+| `js_data.py` | backup export/import, the calendar file, the install prompt, the worker |
 | `js_app.py` | state, storage, migrations, pricing, onboarding |
 | `js_render.py` | camera and every render function |
 | `logo.b64` | the app logo as a data URI |
@@ -50,9 +53,46 @@ Gender is chosen in onboarding and stored under its own key, `proactive_gender`
 refresh before the profile exists. It can be changed later in the profile card
 on the progress page. Switching it re-renders exactly like switching language.
 
-The app still ships as one self-contained `index.html`. `og.png`, `robots.txt`
-and `sitemap.xml` sit next to it at the repository root and are the only other
-files GitHub Pages serves.
+The app still ships as one self-contained `index.html`. Alongside it the build
+also writes `manifest.webmanifest` and `sw.js`; `og.png`, `robots.txt`,
+`sitemap.xml` and the four PNG icons are committed files it only checks for.
+Those are everything GitHub Pages serves.
+
+## Pro and payment
+
+`BILLING` at the top of `js_pro.py` is the whole switch. While its `checkout`
+URLs are empty the app is in **open mode**: nothing is locked, no upsell renders,
+and the pricing section says payment is not open yet. Filling the two URLs in
+turns the free/Pro split on. `PAYMENTS.md` at the repository root is the
+step-by-step for doing that.
+
+Unlocking is a **licence key**, not a flag: `activateLicense()` asks the provider
+over its public licence API — which needs no secret and so works from a static
+page — and `revalidateLicense()` re-asks at most weekly. A network failure keeps
+the last good answer (offline grace); only the provider actually saying no
+revokes. `LICENSE_ADAPTERS` holds one adapter per provider; adding another is
+four functions.
+
+Three things decide access, in `proState()`:
+
+| state | who |
+|---|---|
+| `open` | no checkout configured — everyone, everything |
+| `founder` | a save that predates Pro. `load()` stamps `P.founder` when the stored profile has no such field, which is why the check happens *before* the defaults are merged in |
+| `trial` / `pro` / `free` | a new account: 14 days, then a licence or the free tier |
+
+Free keeps the whole proactivity core and data export. Pro holds the Body tab,
+targets past `GOAL_FREE_MAX`, the trend chart and calendar export.
+
+## Backup, calendar, install
+
+`js_data.py`. `STORE_KEYS` is the list of every key the app owns; export writes
+them to a JSON file and import writes them back, refusing any key not on that
+list. The calendar export builds an `.ics` with a weekly `RRULE` spread across
+the chosen number of days a week. The service worker is network-first for
+`index.html` — cache-first HTML is how a PWA pins itself to a stale build — and
+cache-first for everything else, under a cache name versioned by a hash of the
+build.
 
 ## The check-in
 
@@ -146,6 +186,10 @@ backfilled by `ensureV4Fields()` / `loadQuiz()` on every load, so no bump.
 `S.streak` and `S.chDone` are dead fields kept only so an old save round-trips
 unchanged. The streak the user sees is `S.day`, a real run of calendar days
 maintained by `markActiveToday()` — the single place any action reports in.
+
+One missed day is forgiven once per run (`o.grace` in `bumpStreak`): a month of
+work should not be wiped out by a single bad Tuesday, which is exactly the
+moment people stop opening the app. A second miss does reset it.
 
 ## Themes
 

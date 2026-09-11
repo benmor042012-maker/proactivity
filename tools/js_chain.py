@@ -178,6 +178,9 @@ function commitChain(start){
   var g=goalFromChain();
   var dup=(S.goals||[]).some(function(x){ return x.title===g.title; });
   if(dup && !onbActive){ toast(t('gc.dup')); return; }
+  /* The first target of a new account is written during onboarding, before any
+     limit could sensibly apply, so the gate is only outside it. */
+  if(!onbActive && goalLimitReached()){ toast(t('pro.goalmax',{n:GOAL_FREE_MAX})); openPlans(); return; }
   if(onbActive){
     P.chainGoal={goal:g, start:!!start};
     resetChain();

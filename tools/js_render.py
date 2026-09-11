@@ -209,6 +209,17 @@ function goalPct(g){
   var done=g.actions.filter(function(a){ return a.done; }).length;
   return Math.round(done/g.actions.length*100);
 }
+/* A finished target is kept, not deleted: it is the evidence the app exists to
+   produce. It folds down to one line and can be reopened. */
+function archivedCard(g){
+  var card=document.createElement('article'); card.className='goal archived';
+  card.innerHTML='<h3>'+ic('check')+'<span>'+esc(g.title)+'</span>'+
+    '<button class="icon-btn" data-dg="'+g.id+'" aria-label="'+esc(t('c.delete'))+'">'+ic('trash')+'</button></h3>'+
+    '<span class="gstate done">'+ic('check')+esc(t('gc.done',{d:fmtDay(g.doneAt)}))+'</span>'+
+    '<div class="gtools"><button class="btn btn-ghost btn-sm" data-gback="'+g.id+'">'+ic('refresh')+
+      '<span>'+esc(t('gc.reopen'))+'</span></button></div>';
+  return card;
+}
 function renderGoals(){
   var box=document.getElementById('goalsCont'); box.innerHTML='';
   if(!S.goals.length){
@@ -216,14 +227,20 @@ function renderGoals(){
       '<p>'+esc(t('n.empty.goals'))+'</p></div>';
     return;
   }
-  S.goals.forEach(function(g){
+  /* live targets first, finished ones folded to the bottom */
+  var ordered=S.goals.slice().sort(function(a,b){ return (a.archived?1:0)-(b.archived?1:0); });
+  ordered.forEach(function(g){
+    if(g.archived){ box.appendChild(archivedCard(g)); return; }
     var done=g.actions.filter(function(a){ return a.done; }).length;
     var pct=goalPct(g);
-    var started=!!g.started;
-    var card=document.createElement('article'); card.className='goal'+(started?'':' unstarted');
+    var started=!!g.started && !g.paused;
+    var card=document.createElement('article');
+    card.className='goal'+(started?'':' unstarted')+(g.paused?' paused':'');
     /* Until "start the target" is pressed the card is a written target and
        nothing else: no percentage, no counter, no bar. */
-    var state = started
+    var state = g.paused
+      ? '<span class="gstate off">'+ic('clock')+esc(t('gc.paused'))+'</span>'
+      : started
       ? '<span class="gstate on">'+ic('play')+esc(t('gc.started',{d:fmtDay(g.startedAt)}))+'</span>'
       : '<span class="gstate">'+ic('clock')+esc(t('gc.notstarted'))+'</span>';
     card.innerHTML=
@@ -247,7 +264,17 @@ function renderGoals(){
             : '<button class="btn btn-primary btn-sm" data-gstart="'+g.id+'">'+ic('play')+'<span>'+esc(t('gc.start'))+'</span></button>')+
         '</div>'+
       '</div>'+
-      (started?'':'<p class="hint gstart-n">'+ic('shield')+'<span>'+esc(t('gc.start.n'))+'</span></p>')+
+      (started||g.paused?'':'<p class="hint gstart-n">'+ic('shield')+'<span>'+esc(t('gc.start.n'))+'</span></p>')+
+      (g.started
+        ? '<div class="gtools">'+
+            '<button class="btn btn-ghost btn-sm" data-gpause="'+g.id+'">'+ic(g.paused?'play':'clock')+
+              '<span>'+esc(t(g.paused?'gc.resume':'gc.pause'))+'</span></button>'+
+            '<button class="btn btn-ghost btn-sm" data-gdone="'+g.id+'">'+ic('check')+
+              '<span>'+esc(t('gc.finish'))+'</span></button>'+
+            '<button class="btn btn-ghost btn-sm" data-gcal="'+g.id+'">'+ic('calendar')+
+              '<span>'+esc(t('cal.add'))+'</span>'+(isPro()?'':ic('lock','mini'))+'</button>'+
+          '</div>'
+        : '')+
 
       '<div class="acts-h">'+esc(t('gl.steps'))+'</div>'+
       '<div class="acts">'+g.actions.map(function(a){
@@ -264,6 +291,35 @@ function renderGoals(){
   });
   box.querySelectorAll('[data-gstart]').forEach(function(b){
     b.addEventListener('click',function(){ startGoal(goalById(Number(b.dataset.gstart))); });
+  });
+  box.querySelectorAll('[data-gpause]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.gpause)); if(!g) return;
+      g.paused=!g.paused; save(); renderGoals(); renderDash();
+      toast(t(g.paused?'t.gpaused':'t.gresumed'));
+    });
+  });
+  box.querySelectorAll('[data-gdone]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.gdone)); if(!g) return;
+      g.archived=true; g.doneAt=dayKey();
+      S.stats.challenges=(S.stats.challenges||0)+1;
+      markActiveToday(); save(); renderGoals(); renderDash(); checkAchievements();
+      toast(t('t.gdone')); tip('goal.done');
+    });
+  });
+  box.querySelectorAll('[data-gcal]').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(!isPro()){ openPlans(); return; }
+      var g=goalById(Number(b.dataset.gcal)); if(g) downloadICS(g);
+    });
+  });
+  box.querySelectorAll('[data-gback]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.gback)); if(!g) return;
+      if(goalLimitReached()){ openPlans(); return; }
+      g.archived=false; g.doneAt=null; save(); renderGoals(); renderDash();
+    });
   });
 
   box.querySelectorAll('.cb').forEach(function(cb){
@@ -322,11 +378,13 @@ document.getElementById('nGoalIn').addEventListener('keydown',function(e){
 function addGoalFromInput(){
   var inp=document.getElementById('nGoalIn'), v=inp.value.trim();
   if(!v){ toast(t('t.writegoal')); return; }
+  if(goalLimitReached()){ toast(t('pro.goalmax',{n:GOAL_FREE_MAX})); openPlans(); return; }
   S.goals.unshift(newGoal(v));
   inp.value=''; save(); renderGoals(); renderDash(); checkAchievements();
   toast(t('t.goaladded')); tip('goal.new');
 }
 document.getElementById('newGoalBtn').addEventListener('click',function(){
+  if(goalLimitReached()){ toast(t('pro.goalmax',{n:GOAL_FREE_MAX})); openPlans(); return; }
   resetChain();
   var host=document.getElementById('goalChain'); host.hidden=false;
   document.getElementById('newGoalBtn').hidden=true;
@@ -639,6 +697,9 @@ function renderSettings(){
   if(a && document.activeElement!==a) a.value=P.age||'';
   var hint=document.getElementById('pfAgeBand');
   if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
+  var rm=document.getElementById('pfRemind');
+  if(rm && document.activeElement!==rm) rm.value=P.remind||'17:00';
+  renderLicState();
   document.querySelectorAll('#pfGender [data-pfg]').forEach(function(o){
     var on=o.dataset.pfg===P.gender;
     o.classList.toggle('on',on); o.setAttribute('aria-pressed',on?'true':'false');
@@ -655,10 +716,130 @@ function bindSettings(){
   document.querySelectorAll('#pfGender [data-pfg]').forEach(function(o){
     o.addEventListener('click',function(){ setGender(o.dataset.pfg); });
   });
+  var rm=document.getElementById('pfRemind');
+  if(rm) rm.addEventListener('change',function(){
+    P.remind=rm.value||'17:00'; save(); toast(t('gl.saved'));
+  });
 }
 function renderDash(){
   renderDashStats(); renderNextCard(); renderDashFocus();
   renderProfile('dashProfile', true);
+}
+
+
+/* ================= the Body tab gate =================
+   The mini-apps are the one large block of value that is not the proactivity
+   core, so they are where Pro sits. The tab still opens, still says what is
+   inside, and offers the way in - it never just refuses. */
+function renderBodyGate(){
+  var lock=document.getElementById('bodyLock'), wrap=document.getElementById('bodyViews');
+  if(!lock||!wrap) return;
+  var open=isPro();
+  wrap.hidden=!open; lock.hidden=open;
+  if(!open) lock.innerHTML=lockHtml('pro.f.body');
+}
+
+/* ================= the trend =================
+   One series - the proactivity score, check-in by check-in - so there is no
+   legend to read and no second axis to confuse it with. Only the first and last
+   points carry a printed number; the rest are on hover. */
+var TREND={w:320,h:130,pt:14,pb:22,pl:30,pr:12};
+function trendPoints(){
+  var h=(S.hist||[]).slice(-12);
+  var n=h.length, g=TREND;
+  var iw=g.w-g.pl-g.pr, ih=g.h-g.pt-g.pb;
+  return h.map(function(e,i){
+    var v=checkinAvg(e);
+    return { x: g.pl + (n===1 ? iw/2 : iw*i/(n-1)), y: g.pt + ih*(1-v/100), v: v, d: e.d };
+  });
+}
+function renderTrend(){
+  var box=document.getElementById('trendBox'); if(!box) return;
+  if(!isPro()){ box.innerHTML=lockHtml('pro.f.trend'); return; }
+  var h=S.hist||[];
+  if(h.length<2){
+    box.innerHTML='<div class="empty-state">'+ic('trending')+
+      '<p>'+esc(t(h.length?'tr.one':'tr.none'))+'</p>'+
+      (h.length?'<button class="btn btn-ghost btn-sm" data-retake>'+esc(t('tr.retake'))+'</button>':'')+
+      '</div>';
+    bindRetake(box); return;
+  }
+  var p=trendPoints(), g=TREND;
+  var line=p.map(function(q,i){ return (i?'L':'M')+q.x.toFixed(1)+' '+q.y.toFixed(1); }).join(' ');
+  var first=p[0], last=p[p.length-1], delta=last.v-first.v;
+  /* grid at 0/50/100 only - enough to read the height, quiet enough to ignore */
+  var grid=[0,50,100].map(function(v){
+    var y=g.pt+(g.h-g.pt-g.pb)*(1-v/100);
+    return '<line class="tg" x1="'+g.pl+'" y1="'+y.toFixed(1)+'" x2="'+(g.w-g.pr)+'" y2="'+y.toFixed(1)+'"/>'+
+           '<text class="tl" x="'+(g.pl-6)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="end">'+v+'</text>';
+  }).join('');
+  var dots=p.map(function(q,i){
+    var edge=(i===0||i===p.length-1);
+    return '<circle class="td'+(edge?' edge':'')+'" cx="'+q.x.toFixed(1)+'" cy="'+q.y.toFixed(1)+'" r="'+(edge?4.5:3.5)+'" data-i="'+i+'"/>';
+  }).join('');
+  var labs=[first,last].map(function(q,i){
+    return '<text class="tv" x="'+q.x.toFixed(1)+'" y="'+(q.y-9).toFixed(1)+'" text-anchor="'+(i?'end':'start')+'">'+q.v+'</text>';
+  }).join('');
+  box.innerHTML=
+    '<p class="trend-head">'+esc(t('tr.t'))+
+      '<span class="trend-delta '+(delta>0?'up':delta<0?'down':'')+'">'+(delta>0?'+':'')+delta+'</span></p>'+
+    '<svg class="trend" viewBox="0 0 '+g.w+' '+g.h+'" role="img" '+
+      'aria-label="'+esc(t('tr.aria',{a:first.v,b:last.v,n:p.length}))+'">'+
+      grid+'<path class="tline" d="'+line+'"/>'+dots+labs+
+      '<rect id="trendHit" x="'+g.pl+'" y="0" width="'+(g.w-g.pl-g.pr)+'" height="'+g.h+'" fill="transparent"/>'+
+    '</svg>'+
+    '<div class="trend-tip" id="trendTip" hidden></div>'+
+    '<div class="dimdelta">'+dimDeltas()+'</div>'+
+    '<p class="hint">'+esc(t('tr.since',{d:fmtDay(first.d)}))+'</p>'+
+    '<button class="btn btn-ghost btn-sm" data-retake>'+esc(t('tr.retake'))+'</button>';
+  bindTrendHover(box, p);
+  bindRetake(box);
+}
+/* The five dimensions as text rather than a second series: five lines on one
+   chart would be unreadable, and a second y-axis would be a lie. */
+function dimDeltas(){
+  var h=S.hist||[]; if(h.length<2) return '';
+  var a=h[0].s, b=h[h.length-1].s;
+  return ['init','goal','time','solve','plan'].map(function(k){
+    var d=(b[k]|0)-(a[k]|0);
+    return '<div class="dd"><span class="dd-k">'+esc(t('dim.'+k))+'</span>'+
+      '<span class="dd-v '+(d>0?'up':d<0?'down':'')+'">'+(d>0?'+':'')+d+'</span></div>';
+  }).join('');
+}
+function bindTrendHover(box, p){
+  var hit=box.querySelector('#trendHit'), tip=box.querySelector('#trendTip');
+  var svg=box.querySelector('svg.trend');
+  if(!hit||!tip||!svg) return;
+  function near(evt){
+    var r=svg.getBoundingClientRect();
+    var x=(evt.clientX-r.left)/r.width*TREND.w;
+    var best=0, bd=1e9;
+    p.forEach(function(q,i){ var d=Math.abs(q.x-x); if(d<bd){ bd=d; best=i; } });
+    return best;
+  }
+  function show(evt){
+    var i=near(evt), q=p[i]; if(!q) return;
+    var r=svg.getBoundingClientRect();
+    tip.hidden=false;
+    tip.textContent=fmtDay(q.d)+' · '+q.v;
+    tip.style.insetInlineStart=(q.x/TREND.w*r.width)+'px';
+    svg.querySelectorAll('.td').forEach(function(c){ c.classList.toggle('hot', Number(c.dataset.i)===i); });
+  }
+  hit.addEventListener('pointermove',show);
+  hit.addEventListener('pointerdown',show);
+  hit.addEventListener('pointerleave',function(){
+    tip.hidden=true; svg.querySelectorAll('.td').forEach(function(c){ c.classList.remove('hot'); });
+  });
+}
+function bindRetake(box){
+  var b=box.querySelector('[data-retake]');
+  if(b) b.addEventListener('click',function(){
+    restartQuiz();
+    document.getElementById('app').style.display='none';
+    document.getElementById('onboarding').style.display='block';
+    showStep(4);
+    renderQuiz();
+  });
 }
 
 /* ================= tabs ================= */
@@ -675,7 +856,8 @@ function goPage(name){
   });
   try{ localStorage.setItem('proactive_tab', name); }catch(e){}
   if(name==='home') renderDash();
-  if(name==='progress'){ renderProfile('profBody'); renderAchievements(); renderSettings(); }
+  if(name==='progress'){ renderProfile('profBody'); renderAchievements(); renderSettings(); renderTrend(); }
+  if(name==='body') renderBodyGate();
   window.scrollTo(0,0);
 }
 document.querySelectorAll('.tab').forEach(function(tab){
@@ -711,7 +893,8 @@ function startApp(){
   renderPlan('woGrid', wp.blocks, 'w');   // the "my weekly plan" section of the sport mini-app
   renderPlan('hyGrid', buildHygiene(), 'hy');
   renderTheories(); renderLessons(); renderAchievements(); renderSettings();
-  renderStats(); renderTrial();
+  renderStats(); renderTrial(); renderTrend(); renderBodyGate(); renderCheckout();
+  revalidateLicense(); showInstall();
   renderMini();                            // the skincare routine lives in its mini-app
   renderDash();
   checkAchievements();
@@ -727,6 +910,11 @@ bindAccentPick();
 bindGenderPick();
 bindAgeInput();
 bindSettings();
+bindLicense();
+bindBackup();
+bindInstall();
+loadLic();
+registerSW();
 loadGender();
 loadChain();
 loadLook();

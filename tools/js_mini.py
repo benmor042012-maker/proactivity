@@ -303,24 +303,44 @@ document.addEventListener('click',function(e){
 
 /* Reuses buildSkin(), so the wording and the per-step explanations stay the
    ones already translated for the routine that shipped before. */
+/* The routine stores which steps were chosen, not their wording. It used to
+   keep the resolved text, which meant a routine written in Hebrew stayed in
+   Hebrew after switching the app to English and kept the old gender besides. */
 function buildRoutine(){
   var d=skinDraft;
   var type=({normal:'normal',oily:'oily',dry:'dry',combo:'combo'})[d.feel]||'normal';
-  var blocks=buildSkin(type);
-  var am=blocks[0].items.slice(), pm=blocks[1].items.slice();
-  if(d.depth==='basic'){                  // drop the optional middle step
-    am=[am[0],am[am.length-1]];
-    pm=[pm[1],pm[2]];
-  }
-  function step(it){ return {n:it.n, d:it.d, product:''}; }
-  return {type:type, react:d.react, am:am.map(step), pm:pm.map(step)};
+  var am=[0,1,2], pm=[0,1,2];
+  if(d.depth==='basic'){ am=[0,2]; pm=[1,2]; }   // drop the optional middle step
+  function step(k){ return {k:k, product:''}; }
+  return {type:type, react:d.react, depth:d.depth, am:am.map(step), pm:pm.map(step)};
+}
+/* Resolves a stored routine against the current language and gender. */
+function routineSteps(sk, which){
+  var blocks=buildSkin((sk.routine&&sk.routine.type)||'normal');
+  var items=(which==='am'?blocks[0]:blocks[1]).items;
+  return (sk.routine[which]||[]).map(function(s){
+    var it=items[s.k|0] || items[0];
+    return {n:it.n, d:it.d, product:s.product||''};
+  });
+}
+/* Routines written before the step references existed keep their products and
+   their shape; only the wording starts following the language again. */
+function migrateRoutine(sk){
+  var r=sk && sk.routine; if(!r) return;
+  ['am','pm'].forEach(function(w){
+    var arr=r[w]; if(!arr || !arr.length || arr[0].k!==undefined) return;
+    var idx = (w==='am')
+      ? (arr.length===2 ? [0,2] : [0,1,2])
+      : (arr.length===2 ? [1,2] : [0,1,2]);
+    r[w]=arr.map(function(s,i){ return {k:(idx[i]!==undefined?idx[i]:i), product:s.product||''}; });
+  });
 }
 
 function renderSkinRoutine(){
   var sk=miniState().skin, today=dayKey();
   var log=sk.log[today]||{};
   function list(which){
-    return sk.routine[which].map(function(s,i){
+    return routineSteps(sk,which).map(function(s,i){
       return '<div class="sn-step">'+
         '<span class="sn-num">'+(i+1)+'</span>'+
         '<div class="sn-body"><div class="sn-n">'+esc(s.n)+'</div>'+

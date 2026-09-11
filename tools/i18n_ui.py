@@ -73,6 +73,14 @@ UI = {
                   'Annulable à tout moment · Sans carte pour l\'essai · Tes données restent sur ton appareil',
                   'Отмена в любой момент · Без карты для пробного периода · Данные хранятся на устройстве',
                   'إلغاء في أي وقت · بدون بطاقة للتجربة · بياناتك تبقى على جهازك'),
+'l.pr.ask':      ('שאלה, או רוצה לשלם כבר עכשיו? כתוב לי:',
+                  'A question, or want to pay already? Write to me:',
+                  'Une question, ou envie de payer déjà ? Écris-moi :',
+                  'Вопрос или хочешь оплатить уже сейчас? Напиши мне:',
+                  'سؤال، أو تريد الدفع من الآن؟ راسلني:'),
+'l.pr.ask.sub':  ('Proactivity — אני רוצה לשלם', 'Proactivity — I want to pay',
+                  'Proactivity — je veux payer', 'Proactivity — хочу оплатить',
+                  'Proactivity — أريد الدفع'),
 'l.pr.currency': ('₪', '$', '€', '₽', '$'),
 
 # ---------- landing: FAQ ----------

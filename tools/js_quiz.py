@@ -162,6 +162,7 @@ function finishQuiz(){
   S.quiz.scores=scoreQuiz();
   S.quiz.done=true;
   S.quiz.band=quizBand();
+  recordCheckin();
   applyProfileToPlan();
   saveQuiz();
   unlock('ach.quiz');
@@ -194,6 +195,31 @@ function loadQuiz(){
 }
 function restartQuiz(){
   S.quiz=emptyQuiz(); saveQuiz();
+}
+
+/* ================= check-in history =================
+   A retake used to overwrite the result and the earlier one was simply gone,
+   which threw away the only thing the app could ever show that really moves
+   someone: proof they changed. Recorded for everybody - the chart that reads it
+   may be a Pro view, but the data is the user's and is never not kept. */
+function recordCheckin(){
+  if(!S.hist) S.hist=[];
+  var sc=S.quiz.scores||{};
+  var last=S.hist[S.hist.length-1];
+  var entry={d:dayKey(), band:S.quiz.band||'a13', s:{
+    init:sc.init|0, goal:sc.goal|0, time:sc.time|0, solve:sc.solve|0, plan:sc.plan|0}};
+  /* two goes at the same check-in on one day is one data point, the later one */
+  if(last && last.d===entry.d) S.hist[S.hist.length-1]=entry;
+  else S.hist.push(entry);
+  if(S.hist.length>60) S.hist=S.hist.slice(-60);
+  save();
+}
+function checkinAvg(e){
+  var s=e.s; return Math.round((s.init+s.goal+s.time+s.solve+s.plan)/5);
+}
+function daysSinceCheckin(){
+  if(!S.hist||!S.hist.length) return 0;
+  return daysBetween(S.hist[S.hist.length-1].d, dayKey());
 }
 
 /* ================= the profile ================= */
