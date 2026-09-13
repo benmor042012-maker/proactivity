@@ -85,7 +85,7 @@ svg.ic{width:1.25em;height:1.25em;flex:none;vertical-align:-.22em;}
 .btn:active{transform:scale(.975);}
 .btn-primary{background:var(--acc);color:var(--on-acc);}
 .btn-primary:hover{background:var(--acc-hi);}
-.btn-primary:disabled{background:var(--ink-3);color:var(--fg-3);cursor:default;transform:none;}
+.btn-primary:disabled{background:var(--ink-3);color:var(--fg-2);cursor:not-allowed;transform:none;}
 .btn-ghost{background:transparent;color:var(--fg);border:1px solid var(--ink-3);}
 .btn-ghost:hover{border-color:var(--ink-4);background:var(--ink-1);}
 .btn-quiet{background:transparent;color:var(--fg-2);padding:0 var(--s3);}
@@ -957,6 +957,24 @@ td.scell.none{color:var(--fg-3);}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;}
 }
+
+/* ============ CHECK-IN: AGE + MULTI ============ */
+.qz-agefield{margin-top:var(--s4);}
+.qz-agefield input{width:100%;font-size:var(--t-h2);text-align:center;font-variant-numeric:tabular-nums;}
+.qz-multi{display:flex;align-items:center;gap:var(--s2);margin:calc(var(--s2) * -1) 0 var(--s3);color:var(--acc);}
+.qz-multi .ic{width:15px;height:15px;flex:0 0 auto;}
+/* a multi option stays lit and reads as a checkbox, so two taps look deliberate */
+.qz-opt.multi .qz-let{border-radius:var(--r-ctl);}
+.qz-opt.multi .qz-tick{opacity:.25;}
+.qz-opt.multi.on .qz-tick{opacity:1;}
+.qz-foot{display:flex;align-items:center;gap:var(--s2);}
+.qz-foot #qzNext{margin-inline-start:auto;width:auto;flex:0 0 auto;}
+/* what the check-in already told us, offered rather than imposed */
+.opt.sug{border-color:var(--acc);}
+.sug-dot{width:6px;height:6px;border-radius:var(--r-pill);background:var(--acc);
+  flex:0 0 auto;margin-inline-start:auto;}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0;}
 
 /* ============ HERO LINE ============ */
 .hero-line{font-family:var(--f-display);font-size:clamp(20px,4.4vw,28px);line-height:1.25;

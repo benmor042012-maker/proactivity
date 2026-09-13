@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 JS_APP = r"""
 /* ================= state ================= */
-var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCats:[],
+var P={name:'',age:'',email:'',goals:['study','sport','sleep','food'],customCats:[],
        diff:'mid',workout:'general',fitLevel:'beginner',time:'30',actPref:'mix',
        easy:[],hard:[],dream:'',skinType:'normal',userGoals:[],
        plan:null, trialStart:null, founder:false, remind:'17:00',
@@ -204,6 +204,7 @@ function ensureV4Fields(){
   if(!S.ach) S.ach={};
   if(!S.tips) S.tips={};
   if(!S.hist) S.hist=[];
+  if(S.quiz){ if(!S.quiz.areas) S.quiz.areas=[]; if(!S.quiz.blocks) S.quiz.blocks=[]; }
   if(S.mini && S.mini.skin && typeof migrateRoutine==='function') migrateRoutine(S.mini.skin);
   if(!S.day) S.day={streak:0,lastDay:null};
   if(!S.stats) S.stats={tasksDone:0, challenges:0, comebacks:0, bestStreak:0};
@@ -447,21 +448,6 @@ function bindGenderPick(){
     });
   });
 }
-/* min/max on a number input are only enforced by form validation, and there is
-   no <form> here, so the value has to be clamped by hand. */
-function readAge(){
-  var el=document.getElementById('oAge');
-  var n=parseInt(el.value,10);
-  P.age = (n>=13 && n<=120) ? String(n) : '';
-  var hint=document.getElementById('oAgeBand');
-  if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
-  return P.age;
-}
-function bindAgeInput(){
-  var el=document.getElementById('oAge');
-  if(!el) return;
-  el.addEventListener('input', readAge);
-}
 function bindAccentPick(){
   var box=document.getElementById('oAcc');
   if(!box) return;
@@ -479,10 +465,6 @@ function markSelected(){
     o.classList.toggle('on', on);
     o.setAttribute('aria-pressed', on?'true':'false');
   });
-  var ageEl=document.getElementById('oAge');
-  if(ageEl && P.age && !ageEl.value) ageEl.value=P.age;
-  var hint=document.getElementById('oAgeBand');
-  if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
   document.querySelectorAll('#oAcc [data-acc]').forEach(function(o){
     var on=o.dataset.acc===P.accent;
     o.classList.toggle('on', on);
@@ -510,15 +492,11 @@ function renderBuilt(){
 
 function readStep2(){
   P.name=document.getElementById('oName').value.trim();
-  readAge();
 }
 
 document.querySelectorAll('[data-next]').forEach(function(b){
   b.addEventListener('click',function(){
-    if(os===2){
-      readStep2();
-      if(!P.age){ toast(t('t.agerange')); return; }
-    }
+    if(os===2) readStep2();          /* the age is asked by the check-in itself */
     if(os===3 && !P.goals.length){ toast(t('t.pickarea')); return; }
     showStep(os+1);
   });
