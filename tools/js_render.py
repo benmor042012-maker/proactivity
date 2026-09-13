@@ -908,7 +908,7 @@ document.querySelectorAll('.langbtn').forEach(function(b){
 bindMini();
 bindAccentPick();
 bindGenderPick();
-bindAgeInput();
+bindQuizAge();
 bindSettings();
 bindLicense();
 bindBackup();

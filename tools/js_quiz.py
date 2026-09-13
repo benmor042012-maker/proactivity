@@ -34,6 +34,41 @@ var QUESTIONS=[
 ];
 var QLETTERS=['a','b','c','d'];
 
+/* Four of the ten can honestly be true in more than one way at once - "I start
+   a few days early" AND "it depends how much I care about the subject" are not
+   contradictory, and forcing one of them is asking the user to lie. The other
+   six ask for a single thing (what is your FIRST step, how tidy is your bag)
+   and stay single-choice, so eight of the twelve screens still advance on one
+   tap with no Continue to press. */
+var MULTI_Q={1:true, 2:true, 9:true, 10:true};
+
+/* Two closing questions that are multi-answer by nature and carry no score:
+   they shape what the app suggests, not where the user sits on a scale. Both
+   reuse the goal chain's own option sets, so there is nothing new to translate
+   and the answers feed straight into the chain that follows. */
+var QPROFILE=[{id:'areas', k:'qz.p.areas'}, {id:'blocks', k:'qz.p.blocks'}];
+function profileOpts(id){
+  if(id==='areas') return AREAS.map(function(a){ return {v:a.id, label:t('ga.'+a.id), icon:a.icon}; });
+  return OBSTACLES.map(function(o){ return {v:o, label:t('go.'+o), icon:null}; });
+}
+function profilePicks(id){
+  if(!S.quiz) return [];
+  if(!S.quiz[id]) S.quiz[id]=[];
+  return S.quiz[id];
+}
+
+/* Screen 0 is the age. It is asked here rather than only in setup because the
+   age is what picks the wording of every question below it, and a retake used
+   to re-ask ten questions worded for whatever age was typed months ago with no
+   way to correct it. */
+function qTotal(){ return QUESTIONS.length + QPROFILE.length; }
+function screenAt(i){
+  if(i<=0) return {kind:'age'};
+  if(i<=QUESTIONS.length) return {kind:'q', Q:QUESTIONS[i-1]};
+  return {kind:'p', P:QPROFILE[i-1-QUESTIONS.length]};
+}
+function lastScreen(){ return qTotal(); }
+
 /* Question text is looked up per age band. This probes I18N.he rather than
    t(), because t() returns the key on a miss and so cannot say "missing"; and a
    key present in I18N.he is present in all five languages, since build.py
@@ -49,17 +84,30 @@ function quizBand(){ return ageBand(P.age); }
    valid across bands - question number -> dimension -> score vector does not
    depend on wording - so a changed age never throws a profile away; it only
    offers a retake. */
-function emptyQuiz(){ return {answers:{}, scores:null, i:0, done:false, band:null}; }
+function emptyQuiz(){ return {answers:{}, areas:[], blocks:[], scores:null, i:0, done:false, band:null}; }
 
 /* ================= scoring ================= */
+/* An answer is a letter, or - on a multi question - a list of them, and a list
+   scores the mean of what was picked. One selection therefore scores exactly
+   what it scored before this existed, which is what keeps a new check-in
+   comparable with every entry already in the history. */
+function answerValue(Q, pick){
+  if(pick===undefined || pick===null) return null;
+  var list = (pick instanceof Array) ? pick : [pick];
+  var sum=0, n=0;
+  list.forEach(function(L){
+    var ix=QLETTERS.indexOf(L);
+    if(ix>=0){ sum+=Q.v[ix]; n++; }
+  });
+  return n ? sum/n : null;
+}
 function scoreQuiz(){
   var q=S.quiz||emptyQuiz(), sum={}, count={};
   DIMS.forEach(function(d){ sum[d.id]=0; count[d.id]=0; });
   QUESTIONS.forEach(function(Q){
-    var pick=q.answers[Q.n];
-    var idx=QLETTERS.indexOf(pick);
-    if(idx<0) return;
-    sum[Q.dim]+=Q.v[idx]; count[Q.dim]++;
+    var v=answerValue(Q, q.answers[Q.n]);
+    if(v===null) return;
+    sum[Q.dim]+=v; count[Q.dim]++;
   });
   var out={};
   DIMS.forEach(function(d){
@@ -69,7 +117,9 @@ function scoreQuiz(){
 }
 function quizAnswered(){
   var q=S.quiz||{}, n=0;
-  QUESTIONS.forEach(function(Q){ if(q.answers && q.answers[Q.n]) n++; });
+  QUESTIONS.forEach(function(Q){
+    if(q.answers && answerValue(Q,q.answers[Q.n])!==null) n++;
+  });
   return n;
 }
 function hasProfile(){ return !!(S.quiz && S.quiz.scores); }
@@ -103,67 +153,164 @@ function applyProfileToPlan(){
 }
 
 /* ================= the check-in screen ================= */
-function quizOptionRow(Q,letter,i){
-  var chosen = (S.quiz.answers[Q.n]===letter);
-  return '<button class="qz-opt'+(chosen?' on':'')+'" type="button" data-qa="'+letter+'" '+
-    'aria-pressed="'+(chosen?'true':'false')+'">'+
-    '<span class="qz-let" aria-hidden="true">'+letter.toUpperCase()+'</span>'+
-    '<span class="qz-tx">'+esc(t(qk(quizBand(),Q.n,letter)))+'</span>'+
+/* A single-choice option is a radio in all but name; a multi one is a checkbox
+   and must say so to a screen reader, or the only thing telling anyone they may
+   pick two is a line of small print. */
+function optRow(opts){
+  var cls='qz-opt'+(opts.multi?' multi':'')+(opts.on?' on':'');
+  var a11y = opts.multi
+    ? 'role="checkbox" aria-checked="'+(opts.on?'true':'false')+'"'
+    : 'aria-pressed="'+(opts.on?'true':'false')+'"';
+  var badge = opts.icon ? ic(opts.icon) :
+    '<span class="qz-let" aria-hidden="true">'+String(opts.letter||'').toUpperCase()+'</span>';
+  return '<button class="'+cls+'" type="button" data-qa="'+opts.v+'" '+a11y+'>'+
+    badge+'<span class="qz-tx">'+esc(opts.label)+'</span>'+
     '<span class="qz-tick" aria-hidden="true">'+ic('check')+'</span></button>';
 }
+function picksFor(Q){
+  var p=S.quiz.answers[Q.n];
+  if(p===undefined||p===null) return [];
+  return (p instanceof Array) ? p.slice() : [p];
+}
+
 function renderQuiz(){
   if(!S.quiz) S.quiz=emptyQuiz();
-  var i=Math.min(Math.max(0,S.quiz.i),QUESTIONS.length-1);
+  var i=Math.min(Math.max(0,S.quiz.i), lastScreen());
   S.quiz.i=i;
-  var Q=QUESTIONS[i], total=QUESTIONS.length;
+  var sc=screenAt(i), total=qTotal();
 
+  /* the age screen is a preamble, not question 1 of 12 */
   var count=document.getElementById('qzCount');
-  if(count) count.textContent=t('qz.count',{n:i+1,t:total});
+  if(count) count.textContent = (i===0) ? '' : t('qz.count',{n:i,t:total});
   var bar=document.getElementById('qzBar');
-  if(bar){ bar.style.width=Math.round((i+1)/total*100)+'%'; }
+  if(bar) bar.style.width=Math.round(Math.max(i,0.4)/total*100)+'%';
   /* The overlay header keeps showing where the user is in SETUP; the question
      counter lives inside the card. Printing the question count in both places
      read as two different progress bars for the same thing. */
   var top=document.getElementById('stepCount');
   if(top) top.textContent=t('o.step',{n:4,t:ONB_TOTAL});
   var onb=document.getElementById('onbBar');
-  if(onb) onb.style.width=Math.round((3+(i+1)/total)/ONB_TOTAL*100)+'%';
-  /* One question at a time means the question should be the first thing on
-     screen. The title and the "no right answers" note have done their job
-     after question one. */
+  if(onb) onb.style.width=Math.round((3+Math.max(i,0)/total)/ONB_TOTAL*100)+'%';
   var intro=document.getElementById('qzIntro');
   if(intro) intro.hidden = i>0;
 
-  var tag=document.getElementById('qzDim');
-  if(tag) tag.textContent=t(dimById(Q.dim).k);
+  var ageBox=document.getElementById('qzAge'), body=document.getElementById('qzBody');
+  if(ageBox) ageBox.hidden = (sc.kind!=='age');
+  if(body)   body.hidden   = (sc.kind==='age');
 
-  document.getElementById('qzQ').textContent=t(qk(quizBand(),Q.n,'q'));
-  var box=document.getElementById('qzOpts');
-  box.innerHTML=QLETTERS.map(function(L,ix){ return quizOptionRow(Q,L,ix); }).join('');
-  box.querySelectorAll('[data-qa]').forEach(function(b){
-    b.addEventListener('click',function(){ answerQuiz(b.dataset.qa); });
-  });
   var prev=document.getElementById('qzPrev');
   if(prev) prev.style.visibility = i===0 ? 'hidden' : 'visible';
+
+  if(sc.kind==='age'){ renderQuizAge(); return; }
+
+  var multi = (sc.kind==='p') || !!MULTI_Q[sc.Q && sc.Q.n];
+  var tag=document.getElementById('qzDim');
+  if(tag) tag.textContent = (sc.kind==='q') ? t(dimById(sc.Q.dim).k) : '';
+  var hint=document.getElementById('qzMulti');
+  if(hint) hint.hidden = !multi;
+
+  var rows, chosen;
+  if(sc.kind==='q'){
+    document.getElementById('qzQ').textContent=t(qk(quizBand(),sc.Q.n,'q'));
+    chosen=picksFor(sc.Q);
+    rows=QLETTERS.map(function(L){
+      return optRow({v:L, letter:L, label:t(qk(quizBand(),sc.Q.n,L)),
+                     multi:multi, on:chosen.indexOf(L)>=0});
+    });
+  } else {
+    document.getElementById('qzQ').textContent=t(sc.P.k);
+    chosen=profilePicks(sc.P.id);
+    rows=profileOpts(sc.P.id).map(function(o){
+      return optRow({v:o.v, label:o.label, icon:o.icon, multi:true, on:chosen.indexOf(o.v)>=0});
+    });
+  }
+  var box=document.getElementById('qzOpts');
+  box.innerHTML=rows.join('');
+  box.querySelectorAll('[data-qa]').forEach(function(b){
+    b.addEventListener('click',function(){ pickQuiz(b.dataset.qa); });
+  });
+  renderQuizNext();
 }
-function answerQuiz(letter){
-  var Q=QUESTIONS[S.quiz.i];
-  S.quiz.answers[Q.n]=letter;
+
+/* Single-choice keeps advancing on the tap itself. A multi screen cannot, so it
+   grows a Continue button - disabled until something is chosen, because an
+   empty answer is not an answer. */
+function renderQuizNext(){
+  var btn=document.getElementById('qzNext'); if(!btn) return;
+  var sc=screenAt(S.quiz.i);
+  if(sc.kind==='age'){
+    btn.hidden=false;
+    btn.disabled = !ageOK(document.getElementById('qAge'));
+    return;
+  }
+  var multi = (sc.kind==='p') || !!MULTI_Q[sc.Q && sc.Q.n];
+  btn.hidden = !multi;
+  if(!multi) return;
+  var n = (sc.kind==='p') ? profilePicks(sc.P.id).length : picksFor(sc.Q).length;
+  btn.disabled = n===0;
+}
+
+function ageOK(el){
+  var n=parseInt(el&&el.value,10);
+  return n>=13 && n<=120;
+}
+function renderQuizAge(){
+  var el=document.getElementById('qAge');
+  if(el && !el.value && P.age) el.value=P.age;
+  var hint=document.getElementById('qAgeBand');
+  if(hint) hint.textContent = ageOK(el) ? t('ab.'+ageBand(el.value)) : '';
+  renderQuizNext();
+}
+function bindQuizAge(){
+  var el=document.getElementById('qAge');
+  if(el) el.addEventListener('input', renderQuizAge);
+  var btn=document.getElementById('qzNext');
+  if(btn) btn.addEventListener('click', nextQuiz);
+}
+
+/* One tap: single-choice answers and moves on, multi toggles and waits. */
+function pickQuiz(v){
+  var sc=screenAt(S.quiz.i);
+  if(sc.kind==='p'){
+    var list=profilePicks(sc.P.id), at=list.indexOf(v);
+    if(at>=0) list.splice(at,1); else list.push(v);
+    saveQuiz(); renderQuiz(); return;
+  }
+  var Q=sc.Q;
+  if(MULTI_Q[Q.n]){
+    var picks=picksFor(Q), ix=picks.indexOf(v);
+    if(ix>=0) picks.splice(ix,1); else picks.push(v);
+    S.quiz.answers[Q.n]=picks;
+    S.quiz.band=quizBand();
+    saveQuiz(); renderQuiz(); return;
+  }
+  S.quiz.answers[Q.n]=v;
   S.quiz.band=quizBand();
   saveQuiz();
-  if(S.quiz.i < QUESTIONS.length-1){
-    S.quiz.i++;
-    renderQuiz();
-  } else {
-    finishQuiz();
-  }
+  nextQuiz();
 }
+function nextQuiz(){
+  var sc=screenAt(S.quiz.i);
+  if(sc.kind==='age'){
+    var el=document.getElementById('qAge');
+    if(!ageOK(el)){ toast(t('t.agerange')); return; }
+    P.age=String(parseInt(el.value,10));
+    save();
+  }
+  if(S.quiz.i < lastScreen()){ S.quiz.i++; saveQuiz(); renderQuiz(); }
+  else finishQuiz();
+}
+/* kept: other modules and older handlers still call answerQuiz(letter) */
+function answerQuiz(letter){ pickQuiz(letter); }
 function finishQuiz(){
   S.quiz.scores=scoreQuiz();
   S.quiz.done=true;
   S.quiz.band=quizBand();
   recordCheckin();
   applyProfileToPlan();
+  /* CH is built at boot, before any of this was known. If it is still
+     untouched, rebuild it so the chain opens on what was just said. */
+  if(typeof CH==='object' && CH && CH.step===0 && !CH.area){ CH=emptyChain(); saveChain(); }
   saveQuiz();
   unlock('ach.quiz');
   if(document.getElementById('onboarding').style.display==='block'){
@@ -187,6 +334,12 @@ function loadQuiz(){
       var q=JSON.parse(raw);
       if(q && q.answers){
         if(!q.band) q.band='a13';   // every save before bands existed was teen-worded
+        /* Before the age screen existed, index 0 WAS question 1. Shift a
+           part-finished quiz forward so it resumes on the same question rather
+           than throwing the user back to the start. */
+        if(q.areas===undefined && typeof q.i==='number') q.i=q.i+1;
+        if(!q.areas)  q.areas=[];
+        if(!q.blocks) q.blocks=[];
         S.quiz=q;
       }
     }

@@ -96,6 +96,31 @@ build.
 
 ## The check-in
 
+Twelve screens: the **age**, then ten scored questions, then two closing
+questions that carry no score.
+
+The age is asked here, not only in setup, because it decides the wording of
+every question below it — and a retake used to re-ask ten questions worded for
+an age typed months earlier with no way to correct it. `P.age` starts empty:
+there is no default, so nobody can walk past the question without answering it.
+
+Four of the ten (`MULTI_Q` = 1, 2, 9, 10) accept **more than one answer**,
+because several of their options are honestly true at once. The other six ask
+for a single thing and still advance on the tap, with no Continue to press.
+`S.quiz.answers[n]` is therefore a letter *or* a list of letters, and
+`answerValue()` scores a list as the mean of what was picked — so one selection
+scores exactly what it scored before multi-select existed, which is what keeps a
+new check-in comparable with every entry already in `S.hist`. Picking several
+does pull a question toward the middle; that is the honest cost of letting
+someone answer truthfully.
+
+The two closing questions (`QPROFILE`) ask which areas the user wants to work on
+and what gets in their way. They are unscored, both multi, and they **reuse the
+goal chain's own `AREAS` and `OBSTACLES`** with their `ga.*` / `go.*` keys — so
+they needed no new wording in any of the four bands or five languages, and their
+answers pre-fill the chain that follows: the chosen areas are marked on its first
+screen and the obstacle is already selected.
+
 Ten questions, two per dimension, defined in `js_quiz.py`. The *wording* comes
 from `i18n_qbands.py` under `qz.<band>.<n>.<part>`, where the band follows the
 user's age (`ageBand()`: `a13` 13–17, `a18` 18–29, `a30` 30–49, `a50` 50+) and

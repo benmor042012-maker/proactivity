@@ -37,7 +37,17 @@ function kindKeys(area){
 /* ================= chain state ================= */
 /* step: 0 area · 1 kind · 2 freq · 3 obstacle · 4 result */
 var CH=null;
-function emptyChain(){ return {step:0, area:null, kind:null, kindText:'', freq:null, obst:null}; }
+/* The check-in already asked which areas matter and what gets in the way, so
+   the chain starts from those answers instead of asking the same thing twice.
+   They are a starting point, not a decision - every one of them is still a
+   button the user can change. */
+function quizPick(which){
+  var q=S.quiz;
+  return (q && q[which] && q[which].length) ? q[which][0] : null;
+}
+function emptyChain(){
+  return {step:0, area:null, kind:null, kindText:'', freq:null, obst:quizPick('blocks')};
+}
 function saveChain(){ try{ localStorage.setItem('proactive_chain', JSON.stringify(CH)); }catch(e){} }
 function loadChain(){
   try{ var raw=localStorage.getItem('proactive_chain'); if(raw){ var c=JSON.parse(raw); if(c && typeof c.step==='number') CH=c; } }catch(e){}
@@ -72,9 +82,10 @@ function goalFromChain(){
 }
 
 /* ================= rendering ================= */
-function optBtn(attr,val,label,icon,on){
-  return '<button type="button" class="opt'+(on?' on':'')+'" data-'+attr+'="'+esc(val)+'" aria-pressed="'+(on?'true':'false')+'">'+
-    (icon?ic(icon):'')+'<span>'+esc(label)+'</span></button>';
+function optBtn(attr,val,label,icon,on,sug){
+  return '<button type="button" class="opt'+(on?' on':'')+(sug&&!on?' sug':'')+'" data-'+attr+'="'+esc(val)+'" aria-pressed="'+(on?'true':'false')+'">'+
+    (icon?ic(icon):'')+'<span>'+esc(label)+'</span>'+
+    (sug&&!on?'<span class="sug-dot" aria-hidden="true"></span>':'')+'</button>';
 }
 function chainHead(n){
   return '<div class="ch-head">'+
@@ -92,7 +103,9 @@ function renderChain(hostId){
   if(s===0){
     html=chainHead(0)+'<h3 class="ch-q">'+esc(t('gc.t'))+'</h3><p class="psub">'+esc(t('gc.s'))+'</p>'+
       '<div class="opts ch-areas">'+AREAS.map(function(a){
-        return optBtn('area',a.id,t('ga.'+a.id),a.icon,CH.area===a.id); }).join('')+'</div>';
+        var want=!!(S.quiz && S.quiz.areas && S.quiz.areas.indexOf(a.id)>=0);
+        return optBtn('area',a.id,t('ga.'+a.id),a.icon,CH.area===a.id,want); }).join('')+'</div>'+
+      (quizPick('areas') ? '<p class="hint">'+ic('sparkles')+'<span>'+esc(t('gc.fromquiz'))+'</span></p>' : '');
   } else if(s===1){
     html=chainHead(1)+'<h3 class="ch-q">'+esc(t('gc.kind.q'))+'</h3><p class="psub">'+esc(t('gc.kind.s'))+'</p>'+
       '<div class="opts">'+kindKeys(CH.area).map(function(k){ return optBtn('kind',k,t(k),null,CH.kind===k); }).join('')+

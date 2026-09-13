@@ -191,10 +191,6 @@ def build_body(logo):
   <h2 data-i18n="n.o.2.t"></h2><p class="sub" data-i18n="n.o.2.s"></p>
   <div class="field"><label for="oName" data-i18n="n.o.2.name"></label>
    <input type="text" id="oName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
-  <div class="field"><label for="oAge" data-i18n="n.o.2.age"></label>
-   <input type="number" id="oAge" min="13" max="120" step="1" inputmode="numeric"
-          enterkeyhint="next" autocomplete="off" data-i18n-ph="o.age.ph">
-   <p class="hint agehint" id="oAgeBand"></p></div>
   <div class="qlabel" data-i18n="n.o.2.gender"></div>
   <div class="opts" id="oGender">
    {opt("gnd","m","user","o.iam.boy")}{opt("gnd","f","user","o.iam.girl")}{opt("gnd","n","compass","o.iam.na")}
@@ -227,10 +223,27 @@ def build_body(logo):
   </div>
   <div class="qz-meta"><span class="qz-count" id="qzCount"></span><span class="qz-dim" id="qzDim"></span></div>
   <div class="bar qz-bar"><i id="qzBar" style="width:10%"></i></div>
-  <h3 class="qz-q" id="qzQ" aria-live="polite"></h3>
-  <div class="qz-opts" id="qzOpts"></div>
+
+  <div id="qzAge" hidden>
+   <h3 class="qz-q" data-i18n="qz.age.q"></h3>
+   <p class="hint" data-i18n="qz.age.s"></p>
+   <div class="field qz-agefield">
+    <label for="qAge" class="sr-only" data-i18n="n.o.2.age"></label>
+    <input type="number" id="qAge" min="13" max="120" step="1" inputmode="numeric"
+           enterkeyhint="next" autocomplete="off" data-i18n-ph="o.age.ph">
+    <p class="hint agehint" id="qAgeBand" aria-live="polite"></p>
+   </div>
+  </div>
+
+  <div id="qzBody">
+   <h3 class="qz-q" id="qzQ" aria-live="polite"></h3>
+   <p class="hint qz-multi" id="qzMulti" hidden>{i("check")}<span data-i18n="qz.multi"></span></p>
+   <div class="qz-opts" id="qzOpts"></div>
+  </div>
+
   <div class="qz-foot">
    <button class="btn btn-quiet" id="qzPrev">{i("chevron","flip")}<span data-i18n="qz.prev"></span></button>
+   <button class="btn btn-primary" id="qzNext" hidden><span data-i18n="qz.next"></span>{i("arrow")}</button>
   </div>
   <p class="hint">{i("shield")}<span data-i18n="qz.notest"></span></p>
  </section>
