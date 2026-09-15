@@ -13,6 +13,7 @@
 | `i18n_qbands.py` | the check-in questions, one set per age band |
 | `i18n_chain.py` | the goal chain: areas, kinds, frequencies, obstacles, targets, and the micro-tips |
 | `i18n_pro.py` | Pro, licences, backup, calendar, install, the trend, goal lifecycle |
+| `i18n_avatar.py` | the avatar ranks, XP copy, the friends-bring-friends programme |
 | `i18n_app.py` | onboarding, paywall, app shell, toasts |
 | `i18n_content.py` | categories, stages, quotes, insights, theories |
 | `i18n_plan.py` | exercises, skincare, hygiene, goal breakdowns, suggestions |
@@ -24,6 +25,7 @@
 | `js_chain.py` | the area → questions → goal → target chain, `startGoal()`, the tip engine |
 | `js_pro.py` | billing config, the licence check, who gets what, the locked states |
 | `js_data.py` | backup export/import, the calendar file, the install prompt, the worker |
+| `js_avatar.py` | the XP curve, the four ranks, the avatar drawings, the referral code and its check |
 | `js_app.py` | state, storage, migrations, pricing, onboarding |
 | `js_render.py` | camera and every render function |
 | `logo.b64` | the app logo as a data URI |
@@ -98,7 +100,9 @@ build.
 
 Ten questions, two per dimension, defined in `js_quiz.py`. The *wording* comes
 from `i18n_qbands.py` under `qz.<band>.<n>.<part>`, where the band follows the
-user's age (`ageBand()`: `a13` 13–17, `a18` 18–29, `a30` 30–49, `a50` 50+) and
+user's age (`ageBand()`: `a13` 10–17, `a18` 18–29, `a30` 30–49, `a50` 50+ -
+the app accepts `AGE_MIN` 10 to `AGE_MAX` 99, and the youngest band keeps its
+old key because it is stamped on every stored check-in) and
 the part is `q` or one of the answers `a`–`d`. Scoring is positional and shared
 across bands, so answer `a` of question 3 must mean the same thing in every
 band — the header of `i18n_qbands.py` says so and the build checks that every
@@ -145,11 +149,55 @@ for the two plans. While a URL is empty the plan renders without a buy button
 and the "opening soon" line shows instead — there is no fake checkout. Nothing
 is gated on a static site, and nothing pretends to be.
 
+## XP, levels and the avatar
+
+`S.points` is the XP total; every award in the app (`addPts`) lands there.
+`js_avatar.py` decides what it means. The curve is piecewise linear so that
+the four ranks fall on exactly the levels the brief asked for:
+
+| rank | level | XP | drawn as |
+|---|---|---|---|
+| L'Initié | 1 | 0 | a lean figure, basic clothing |
+| L'Aventurier | 5 | 500 | broad shoulders, hands on hips, leather belt and strap, boots |
+| Le Conquérant | 10 | 1 500 | a sturdy build, helmet, pauldrons, chest plate, greaves |
+| Le Titan | 20 | 4 000 | the Conqueror scaled up, with a crown, lit eyes and a pulsing aura |
+
+A level costs 125 XP up to rank two, 200 to rank three, 250 to rank four and
+300 after that (`levelXp`). `levelInfo()` is the one reader; `stageInfo()` is
+kept as a thin wrapper for the header. The figure is one SVG body per tier in
+`AV_BODY`, filled by CSS classes so it follows the theme and the accent; the
+metal and aura gradients live in the sprite (`assets.py`), which is why the
+sprite is a zero-size box and not `display:none` - a hidden paint server does
+not render. `addPts` announces a level or a rank a beat after the praise toast
+so the two do not overwrite each other. The header carries the small figure on
+every tab; the Home card carries the big one and the four-step ladder.
+
+## Friends bring friends
+
+A static site cannot be told by one device that another one signed up, so the
+programme is a hash the two devices can both compute. Every save gets a
+six-character code (`S.ref.code`, safe alphabet, generated lazily by
+`refCode()`); the invite link is `./?ref=<code>`. On a device with **no
+profile**, `captureRefParam()` stores the parameter under `proactive_ref` and
+strips it from the address; an existing user opening a friend's link is not a
+referral. When onboarding finishes, `applyInvite()` mints the friend's
+confirmation token: their own code plus a four-character check of
+`(inviter code, friend code)` (`refChk`), shown on their Home page with a share
+button. The inviter pastes it; `redeemInvite()` recomputes the check against
+their own code, refuses a repeat (`S.ref.redeemed`), their own code, or a
+mismatch, and awards `REF_BONUS` (100 XP). Nothing leaves the device that the
+user did not choose to send. `proactive_ref` is in `STORE_KEYS` so a backup
+taken mid-onboarding keeps the pending invite.
+
 ## Navigation
 
 One `<nav class="tabs">` serves as top tabs on a wide screen and as the fixed
 bottom bar under 760px, so there is a single set of buttons and one `goPage()`.
 The chosen tab is remembered in `proactive_tab`.
+
+The weekly tracking board (`#wkBoard`, rendered by `renderWeek()`) sits on the
+Home page directly under the next step, not on the Progress tab: it is the
+control surface the app is built around, and it has to be the first thing seen.
 
 ## Mini-apps
 

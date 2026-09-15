@@ -279,7 +279,10 @@ footer{text-align:center;color:var(--fg-3);font-size:var(--t-xs);padding:var(--s
 .apphead .greet{font-family:var(--f-display);font-weight:400;letter-spacing:-.02em;line-height:1.15;font-size:var(--t-h2);}
 .apphead .quote{font-size:var(--t-xs);color:var(--fg-2);}
 .apphead .date{font-size:var(--t-xs);color:var(--fg-3);}
-.lvl{min-width:150px;}
+.lvl{display:flex;align-items:center;gap:var(--s3);min-width:230px;}
+.av-mini{width:46px;height:56px;flex:none;}
+.lvl-txt{flex:1;min-width:0;}
+.xp-n{font-size:var(--t-xs);color:var(--fg-3);margin-top:4px;font-variant-numeric:tabular-nums;}
 .lvl .row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s2);}
 .lvl .lab{font-size:var(--t-xs);color:var(--fg-3);}
 .lvl .num{font-family:var(--f-display);font-size:var(--t-h2);color:var(--fg);margin-inline-start:4px;}
@@ -947,9 +950,9 @@ td.scell.none{color:var(--fg-3);}
   .qz-q{min-height:0;}
   .qz-opt{padding:var(--s3);font-size:var(--t-sm);}
   /* the weekly-mission composer has four controls; stacked they stay tappable */
-  #page-progress .addrow{flex-wrap:wrap;}
-  #page-progress .addrow input[type=text]{flex:1 1 100%;}
-  #page-progress .addrow select{max-width:none!important;flex:1;}
+  #wkBoard .addrow{flex-wrap:wrap;}
+  #wkBoard .addrow input[type=text]{flex:1 1 100%;}
+  #wkBoard .addrow select{max-width:none!important;flex:1;}
   .mini-ladder div{flex-direction:column;gap:2px;}
   .mini-ladder span{min-width:0;}
 }
@@ -1043,4 +1046,62 @@ svg.trend .td.hot{fill:var(--acc-hi);stroke:var(--acc-hi);r:5.5;}
   .lic-row .btn{width:100%;}
 }
 
+/* ============ AVATAR ============
+   One figure drawn four ways; the fills are classes so it follows the theme
+   and the accent. The aura is the only thing that moves. */
+:root{--av-skin:#D9B48F;--av-leather:#8B5E3C;}
+:root[data-theme="light"]{--av-skin:#C99A72;--av-leather:#7A4F31;}
+.av{display:block;width:100%;height:100%;overflow:visible;}
+.av .sk{fill:var(--av-skin);} .av .sks{stroke:var(--av-skin);fill:none;stroke-linecap:round;}
+.av .cl{fill:var(--ink-4);} .av .le{fill:var(--av-leather);} .av .les{stroke:var(--av-leather);fill:none;stroke-linecap:round;}
+.av .mt{fill:url(#av-metal);} .av .ac{fill:var(--acc);} .av .acs{stroke:var(--acc);fill:none;stroke-linecap:round;}
+.av .aura{fill:url(#av-aura);transform-origin:50px 62px;animation:avPulse 2.8s ease-in-out infinite;}
+@keyframes avPulse{0%,100%{opacity:.6;transform:scale(.94);}50%{opacity:1;transform:scale(1.06);}}
+.av-hero{display:flex;gap:var(--s4);align-items:center;margin-bottom:var(--s4);}
+.av-big{width:110px;height:132px;flex:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.28));}
+.av-big.t4{width:132px;height:156px;}
+.av-meta{flex:1;min-width:0;}
+.av-rank{font-family:var(--f-display);font-size:var(--t-h1);line-height:1.05;color:var(--acc);}
+.av-lvl{font-size:var(--t-sm);color:var(--fg-2);margin:var(--s1) 0 var(--s2);}
+.xp.big{height:8px;}
+.av-next{font-size:var(--t-xs);color:var(--fg-3);margin-top:var(--s2);font-variant-numeric:tabular-nums;}
+.av-tier-next{font-size:var(--t-xs);color:var(--fg-2);font-weight:600;margin-top:2px;}
+.av-ladder{list-style:none;display:grid;gap:var(--s1);}
+.av-step{display:flex;gap:var(--s3);align-items:center;padding:var(--s2) var(--s3);border-radius:var(--r-ctl);
+  background:var(--ink-2);opacity:.55;}
+.av-step.on{opacity:1;} .av-step.now{outline:1px solid var(--acc);}
+.av-step-fig{width:30px;height:36px;flex:none;}
+.av-step div{display:grid;line-height:1.3;flex:1;min-width:0;}
+.av-step b{font-size:var(--t-sm);}
+.av-step span{font-size:var(--t-xs);color:var(--fg-3);}
+.av-step em{font-style:normal;font-size:var(--t-xs);color:var(--fg-2);}
+.av-step-ok{color:var(--acc);flex:none;}
+
+/* ============ WEEKLY BOARD ON HOME ============ */
+.wkboard{border:1px solid var(--acc);}
+.wkboard .boxh{margin-bottom:var(--s2);}
+.wkboard .psub{margin-bottom:var(--s3);}
+
+/* ============ FRIENDS BRING FRIENDS ============ */
+.inv-link{display:flex;align-items:center;gap:var(--s2);background:var(--ink-2);border:1px dashed var(--ink-4);
+  border-radius:var(--r-ctl);padding:var(--s2) var(--s3);margin:var(--s3) 0 var(--s2);}
+.inv-link svg{color:var(--acc);flex:none;}
+.inv-url{font-size:var(--t-xs);color:var(--fg-2);word-break:break-all;direction:ltr;unicode-bidi:isolate;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+.inv-btns{display:flex;gap:var(--s2);flex-wrap:wrap;}
+.inv-how{margin:var(--s3) 0 0;}
+.inv-how .hint{margin:0 0 var(--s2);}
+.inv-redeem{margin-top:var(--s3);}
+.inv-count{display:flex;align-items:center;gap:var(--s2);font-size:var(--t-xs);color:var(--fg-3);margin-top:var(--s3);}
+.inv-count svg{color:var(--acc);}
+.inv-from{display:flex;gap:var(--s3);background:var(--acc-dim);border:1px solid var(--acc);border-radius:var(--r-card);
+  padding:var(--s3) var(--s4);margin-bottom:var(--s3);}
+.inv-from>svg{color:var(--acc);flex:none;margin-top:2px;width:20px;height:20px;}
+.inv-from-t{font-weight:700;font-size:var(--t-sm);}
+.inv-from p{font-size:var(--t-xs);color:var(--fg-2);margin:2px 0 var(--s2);}
+.inv-code{font-family:var(--f-display);font-size:26px;letter-spacing:.14em;margin-bottom:var(--s2);}
+@media(max-width:520px){
+  .av-hero{flex-direction:column;align-items:flex-start;}
+  .lvl{min-width:0;}
+}
 """

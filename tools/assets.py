@@ -49,10 +49,27 @@ ICONS = {
 'face':     '<circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01"/><path d="M8.8 14.5a4.2 4.2 0 0 0 6.4 0"/>',
 'fridge':   '<rect x="5.5" y="2.5" width="13" height="19" rx="2"/><path d="M5.5 10h13"/><path d="M8.5 6.5v1.5M8.5 12.5V15"/>',
 'chef':     '<path d="M7 21h10v-4H7z"/><path d="M7 17c-2.2 0-4-1.8-4-4a3.5 3.5 0 0 1 3-3.5A4 4 0 0 1 12 5a4 4 0 0 1 6 4.5A3.5 3.5 0 0 1 21 13c0 2.2-1.8 4-4 4"/>',
+'link':     '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5"/>',
+'share':    '<circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4.1M8.2 13.2l7.6 4.1"/>',
+'copy':     '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/>',
+'gift':     '<rect x="3.5" y="9" width="17" height="11" rx="1.5"/><path d="M3.5 13h17M12 9v11M12 9c-2-4-6-4-6-1.5S10 9 12 9zm0 0c2-4 6-4 6-1.5S14 9 12 9z"/>',
 }
 
+# Paint servers for the avatar. They live in the sprite so every avatar on the
+# page shares one definition; the aura reads the accent through the cascade.
+DEFS = (
+    '<linearGradient id="av-metal" x1="0" y1="0" x2="1" y2="1">'
+    '<stop offset="0" stop-color="#DCE2EB"/><stop offset="1" stop-color="#78838F"/></linearGradient>'
+    '<radialGradient id="av-aura">'
+    '<stop offset="0" style="stop-color:var(--acc);stop-opacity:.6"/>'
+    '<stop offset=".55" style="stop-color:var(--acc);stop-opacity:.2"/>'
+    '<stop offset="1" style="stop-color:var(--acc);stop-opacity:0"/></radialGradient>'
+)
+
 def sprite():
-    parts = ['<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">']
+    parts = ['<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" '
+             'style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">',
+             '<defs>' + DEFS + '</defs>']
     for name, body in ICONS.items():
         parts.append(
             f'<symbol id="i-{name}" viewBox="0 0 24 24" fill="none" stroke="currentColor" '

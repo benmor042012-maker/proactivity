@@ -6,7 +6,8 @@ part in q|a|b|c|d. All four bands are spelled out - none of them is "the
 default with the others as exceptions" - so build.py can check every band for
 completeness and a missing key is a build error rather than a silent fallback.
 
-    a13  13-17   school, tests, classmates, home, parents
+    a13  10-17   school, tests, classmates, home, parents (the key
+                 keeps its old name: it is stored in every save)
     a18  18-29   studies, first jobs, moving out, own money
     a30  30-49   work, family, the day being full before it starts
     a50  50+     work or after it, health, routine, personal projects

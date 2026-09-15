@@ -116,7 +116,7 @@ var ALL_CATS=[
  {id:'food',   icon:'apple',   k:'cat.food',    dk:'dt.food',    sg:['sg.food.1','sg.food.2','sg.food.3']},
  {id:'hobby',  icon:'palette', k:'cat.hobby',   dk:'dt.hobby',   sg:['sg.hobby.1','sg.hobby.2','sg.hobby.3']}
 ];
-var STAGES=[{min:0,k:'st.1'},{min:300,k:'st.2'},{min:700,k:'st.3'},{min:1200,k:'st.4'},{min:2000,k:'st.5'}];
+/* the level and rank tables live in js_avatar.py (RANKS, levelInfo) */
 var QUOTES=['q.1','q.2','q.3','q.4','q.5','q.6','q.7'];
 var PRAISE=['p.1','p.2','p.3','p.4','p.5'];
 var INSIGHTS=[{t:'in.1.t',s:'in.1.s'},{t:'in.2.t',s:'in.2.s'},{t:'in.3.t',s:'in.3.s'},{t:'in.4.t',s:'in.4.s'}];
@@ -169,10 +169,13 @@ function guessSteps(g){
    the band picks the wording. It is derived from P.age at render time and never
    cached: the user can go back from the questions, change their age, and come
    forward again, and the questions have to follow. */
+/* The app is for ages 10 to 99. The bands below are keyed by their old
+   names (a13 = the youngest band) because the key is stored in every save. */
+var AGE_MIN=10, AGE_MAX=99;
 var QBANDS=['a13','a18','a30','a50'];
 function ageBand(a){
   var n=Number(a);
-  if(!n || n<13) return 'a13';
+  if(!n || n<AGE_MIN) return 'a13';
   if(n<=17) return 'a13';
   if(n<=29) return 'a18';
   if(n<=49) return 'a30';
@@ -191,9 +194,11 @@ function mins(n){ return n+' '+t('c.min'); }
    what lets the plan serve a 70-year-old: 'young' is already the low-impact
    branch - knee push-ups, table rows, static lunges, fast squats instead of
    burpees - which is the right regression for a deconditioned older body, not
-   just for a small one. A 13-18 year old gets exactly what they got before. */
+   just for a small one. A 13-18 year old gets exactly what they got before;
+   10-12 gets the same low-impact branch, scaled down one more notch. */
 function fitProfile(age){
-  var a=Math.min(120, Math.max(13, Number(age)||15));
+  var a=Math.min(AGE_MAX, Math.max(AGE_MIN, Number(age)||15));
+  if(a<=12) return {variant:'young', x:0.60, noteKey:'wo.n.a13', bandKey:'fb.a10'};
   if(a<=14) return {variant:'young', x:0.70, noteKey:'wo.n.a13', bandKey:'fb.a13'};
   if(a<=17) return {variant:'mid',   x:0.90, noteKey:'wo.n.a15', bandKey:'fb.a15'};
   if(a<=29) return {variant:'older', x:1.00, noteKey:'wo.n.a18', bandKey:'fb.a18'};

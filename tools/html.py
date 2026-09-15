@@ -192,7 +192,7 @@ def build_body(logo):
   <div class="field"><label for="oName" data-i18n="n.o.2.name"></label>
    <input type="text" id="oName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
   <div class="field"><label for="oAge" data-i18n="n.o.2.age"></label>
-   <input type="number" id="oAge" min="13" max="120" step="1" inputmode="numeric"
+   <input type="number" id="oAge" min="10" max="99" step="1" inputmode="numeric"
           enterkeyhint="next" autocomplete="off" data-i18n-ph="o.age.ph">
    <p class="hint agehint" id="oAgeBand"></p></div>
   <div class="qlabel" data-i18n="n.o.2.gender"></div>
@@ -324,11 +324,15 @@ def build_body(logo):
    <div><p class="greet" id="greetName"></p><p class="quote" id="proQuote"></p><p class="date" id="dateStr"></p></div>
   </div>
   <div class="lvl">
-   <div class="row">
-    <span class="lab"><span data-i18n="a.level"></span><span class="num" id="lvl">1</span></span>
-    <span class="stage" id="stg"></span>
+   <div class="av-mini" id="avMini" aria-hidden="true"></div>
+   <div class="lvl-txt">
+    <div class="row">
+     <span class="lab"><span data-i18n="a.level"></span><span class="num" id="lvl">1</span></span>
+     <span class="stage" id="stg"></span>
+    </div>
+    <div class="xp"><i id="xpF" style="width:0%"></i></div>
+    <div class="xp-n" id="xpN"></div>
    </div>
-   <div class="xp"><i id="xpF" style="width:0%"></i></div>
   </div>
  </header>
 
@@ -337,6 +341,38 @@ def build_body(logo):
  <div class="page" id="page-home" role="tabpanel">
   <div class="dash-grid" id="dashStats"></div>
   <div class="nextcard" id="nextCard"></div>
+  <section class="dash-box wkboard" id="wkBoard">
+   <h2 class="boxh">{i("calendar")}<span data-i18n="n.pg.week"></span></h2>
+   <p class="psub" data-i18n="w.s"></p>
+   <div class="wkbar">
+    <div><span data-i18n="w.met"></span> <span class="numf"><b id="wMet">0</b>/<span id="wTot">0</span></span></div>
+    <button class="btn btn-ghost btn-sm" id="rWkBtn">{i("refresh")}<span data-i18n="w.reset"></span></button>
+   </div>
+   <div class="scroller"><table class="grid"><caption class="sr" data-i18n="n.pg.week"></caption>
+    <thead><tr id="wHead"></tr></thead><tbody id="wBody"></tbody></table></div>
+   <div class="addrow" style="margin-top:var(--s3)">
+    <input type="text" id="nMis" data-i18n-ph="w.new.ph" data-i18n-title="w.new.ph">
+    <select id="nMisCat" style="max-width:150px" data-i18n-title="w.col.mission"></select>
+    <input type="number" id="nMisT" min="1" max="7" value="3" data-i18n-title="w.target">
+    <button class="btn btn-primary" id="aMisBtn" data-i18n-title="c.add">{i("plus")}</button>
+   </div>
+   <div class="review">
+    <h4 data-i18n="w.rev.t"></h4><p data-i18n="w.rev.s"></p>
+    <button class="btn btn-ghost btn-sm" id="rvBtn">{i("flag")}<span data-i18n="w.rev.btn"></span></button>
+    <div class="rvout" id="rvRes"></div>
+   </div>
+  </section>
+  <div class="dash-two">
+   <section class="dash-box" id="avBox">
+    <h2 class="boxh">{i("user")}<span data-i18n="av.t"></span></h2>
+    <p class="psub" data-i18n="av.s"></p>
+    <div id="avCard"></div>
+   </section>
+   <section class="dash-box" id="invBox">
+    <h2 class="boxh">{i("users")}<span data-i18n="inv.t"></span></h2>
+    <div id="inviteCard"></div>
+   </section>
+  </div>
   <div class="dash-two">
    <section class="dash-box">
     <h2 class="boxh">{i("gauge")}<span data-i18n="d.profile"></span></h2>
@@ -409,7 +445,7 @@ def build_body(logo):
     <div class="field"><label for="pfName" data-i18n="n.o.2.name"></label>
      <input type="text" id="pfName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
     <div class="field"><label for="pfAge" data-i18n="n.o.2.age"></label>
-     <input type="number" id="pfAge" min="13" max="120" step="1" inputmode="numeric" data-i18n-ph="o.age.ph">
+     <input type="number" id="pfAge" min="10" max="99" step="1" inputmode="numeric" data-i18n-ph="o.age.ph">
      <p class="hint agehint" id="pfAgeBand"></p></div>
     <div class="field"><label for="pfRemind" data-i18n="cal.time"></label>
      <input type="time" id="pfRemind" step="300">
@@ -428,27 +464,6 @@ def build_body(logo):
    <div class="achgrid" id="acGrid"></div>
   </section>
 
-  <section class="dash-box">
-   <h3 class="boxh">{i("calendar")}<span data-i18n="n.pg.week"></span></h3>
-   <p class="psub" data-i18n="w.s"></p>
-   <div class="wkbar">
-    <div><span data-i18n="w.met"></span> <span class="numf"><b id="wMet">0</b>/<span id="wTot">0</span></span></div>
-    <button class="btn btn-ghost btn-sm" id="rWkBtn">{i("refresh")}<span data-i18n="w.reset"></span></button>
-   </div>
-   <div class="scroller"><table class="grid"><caption class="sr" data-i18n="n.pg.week"></caption>
-    <thead><tr id="wHead"></tr></thead><tbody id="wBody"></tbody></table></div>
-   <div class="addrow" style="margin-top:var(--s3)">
-    <input type="text" id="nMis" data-i18n-ph="w.new.ph" data-i18n-title="w.new.ph">
-    <select id="nMisCat" style="max-width:150px" data-i18n-title="w.col.mission"></select>
-    <input type="number" id="nMisT" min="1" max="7" value="3" data-i18n-title="w.target">
-    <button class="btn btn-primary" id="aMisBtn" data-i18n-title="c.add">{i("plus")}</button>
-   </div>
-   <div class="review">
-    <h4 data-i18n="w.rev.t"></h4><p data-i18n="w.rev.s"></p>
-    <button class="btn btn-ghost btn-sm" id="rvBtn">{i("flag")}<span data-i18n="w.rev.btn"></span></button>
-    <div class="rvout" id="rvRes"></div>
-   </div>
-  </section>
  </div>
 
  <div class="page" id="page-learn" role="tabpanel">
