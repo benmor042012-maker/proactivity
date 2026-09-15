@@ -13,7 +13,7 @@ var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCa
 /* streak and chDone are dead fields kept so an old save round-trips through
    JSON unchanged; the live values are S.day and S.next.done. */
 var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[],
-       quiz:null, lessons:{}, ach:{}, next:null, tips:{}, hist:[],
+       quiz:null, lessons:{}, ach:{}, next:null, tips:{}, hist:[], ref:null,
        day:{streak:0,lastDay:null},
        stats:{tasksDone:0,challenges:0,comebacks:0,bestStreak:0}};
 var CATS=[], uid=1;
@@ -206,6 +206,7 @@ function ensureV4Fields(){
   if(!S.hist) S.hist=[];
   if(S.mini && S.mini.skin && typeof migrateRoutine==='function') migrateRoutine(S.mini.skin);
   if(!S.day) S.day={streak:0,lastDay:null};
+  if(!S.ref) S.ref=emptyRef();          /* the referral code and what it earned */
   if(!S.stats) S.stats={tasksDone:0, challenges:0, comebacks:0, bestStreak:0};
   /* Goals made before the start gate existed were tracked from the day they
      were written, so they count as started - anything else would silently
@@ -294,11 +295,18 @@ function toast(msg){
   el.textContent=msg; el.classList.add('on');
   clearTimeout(toastT); toastT=setTimeout(function(){ el.classList.remove('on'); },2400);
 }
-function addPts(n){ S.points=Math.max(0,S.points+n); save(); }
-function stageInfo(){
-  var c=STAGES[0];
-  STAGES.forEach(function(s){ if(S.points>=s.min) c=s; });
-  return { stage:t(c.k), level:Math.floor(S.points/100)+1, progress:S.points%100 };
+/* S.points is the XP total. A level or a rank gained here is announced a beat
+   after the praise toast most awards fire right behind this call, so the two
+   do not overwrite each other. */
+function addPts(n){
+  var before=levelInfo();
+  S.points=Math.max(0,S.points+n); save();
+  var after=levelInfo();
+  if(n>0 && after.level>before.level){
+    var msg = after.tier>before.tier ? t('av.rankup',{x:t(after.rank.k)}) : t('av.lvlup',{n:after.level});
+    setTimeout(function(){ toast(msg); }, 1400);
+    if(typeof renderStats==='function' && document.getElementById('app').style.display==='block') renderStats();
+  }
 }
 function praise(){ return t(pick(PRAISE)); }
 
@@ -452,7 +460,7 @@ function bindGenderPick(){
 function readAge(){
   var el=document.getElementById('oAge');
   var n=parseInt(el.value,10);
-  P.age = (n>=13 && n<=120) ? String(n) : '';
+  P.age = (n>=AGE_MIN && n<=AGE_MAX) ? String(n) : '';
   var hint=document.getElementById('oAgeBand');
   if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
   return P.age;
@@ -585,6 +593,7 @@ function closePlans(){
 function finishOnboarding(){
   if(!P.trialStart) P.trialStart=Date.now();
   onbActive=false;
+  applyInvite();                      /* a sign-up through a friend's link */
   buildCats(); seedState();
   /* the chain parked its target on the profile; seed it now and, if the user
      pressed "start", start it - creating a goal never starts anything by itself */
