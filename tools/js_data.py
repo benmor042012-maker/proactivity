@@ -7,7 +7,8 @@ JS_DATA = r"""
    back is not a business model. */
 var STORE_KEYS=['proactive_v','proactive_p','proactive_s','proactive_uid',
                 'proactive_lang','proactive_gender','proactive_accent',
-                'proactive_theme','proactive_quiz','proactive_chain','proactive_tab'];
+                'proactive_theme','proactive_quiz','proactive_chain','proactive_tab',
+                'proactive_ref'];
 
 function exportBundle(){
   var out={app:'proactivity', v:STORE_V, at:new Date().toISOString(), keys:{}};

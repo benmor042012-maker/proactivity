@@ -26,6 +26,7 @@ from i18n_home import HOME
 from i18n_qbands import QBANDS
 from i18n_chain import CHAIN
 from i18n_pro import PRO
+from i18n_avatar import AVATAR
 from assets import sprite
 from css import CSS
 from html import build_body
@@ -37,6 +38,7 @@ from js_render import JS_RENDER
 from js_mini import JS_MINI
 from js_pro import JS_PRO
 from js_data import JS_DATA
+from js_avatar import JS_AVATAR
 
 LANGS = ['he', 'en', 'fr', 'ru', 'ar']
 OUT = os.path.join(ROOT, 'index.html')
@@ -50,7 +52,7 @@ def merged_table():
                       (MINI, 'i18n_mini'), (FOOD, 'i18n_food'),
                       (QUIZ, 'i18n_quiz'), (HOME, 'i18n_home'),
                       (QBANDS, 'i18n_qbands'), (CHAIN, 'i18n_chain'),
-                      (PRO, 'i18n_pro')):
+                      (PRO, 'i18n_pro'), (AVATAR, 'i18n_avatar')):
         for k, v in src.items():
             if k in table:
                 raise SystemExit(f'duplicate translation key {k!r} (in {name})')
@@ -176,7 +178,7 @@ SITE = 'https://benmor042012-maker.github.io/proactivity/'
 SEO_TITLE = 'Proactivity — להפסיק לדחות ולהתחיל לעשות'
 SEO_DESC = ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמותאם לגיל ומראה איפה '
             'הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, '
-            'צעדים קטנים והרגלים שנבנים. מגיל 13 ומעלה, בלי הרשמה.')
+            'צעדים קטנים והרגלים שנבנים. מגיל 10 עד 99, בלי הרשמה.')
 
 
 def structured_data(table):
@@ -192,7 +194,7 @@ def structured_data(table):
          'applicationCategory': 'LifestyleApplication',
          'operatingSystem': 'Any', 'inLanguage': ['he', 'en', 'fr', 'ru', 'ar'],
          'description': SEO_DESC,
-         'audience': {'@type': 'PeopleAudience', 'suggestedMinAge': 13},
+         'audience': {'@type': 'PeopleAudience', 'suggestedMinAge': 10, 'suggestedMaxAge': 99},
          'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'ILS'}},
         {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq},
     ]
@@ -336,7 +338,7 @@ def main():
              "}catch(e){}})();")
 
     js = '\n'.join([i18n_js(table), JS_CORE, JS_QUIZ, JS_APP, JS_PRO, JS_DATA,
-                    JS_CHAIN, JS_MINI, JS_RENDER])
+                    JS_AVATAR, JS_CHAIN, JS_MINI, JS_RENDER])
 
     html = (
         '<!DOCTYPE html>\n'

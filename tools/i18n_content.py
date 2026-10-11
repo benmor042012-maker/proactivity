@@ -5,20 +5,13 @@ theories, goal breakdowns, task suggestions. Order: he, en, fr, ru, ar"""
 CONTENT = {
 
 # ---------- categories ----------
-'cat.study':   ('לימודים', 'School', 'École', 'Учёба', 'الدراسة'),
+'cat.study':   ('לימודים', 'Study', 'Études', 'Учёба', 'الدراسة'),
 'cat.sport':   ('ספורט', 'Training', 'Sport', 'Спорт', 'الرياضة'),
 'cat.friends': ('חברים', 'Friends', 'Amis', 'Друзья', 'الأصدقاء'),
 'cat.sleep':   ('שינה', 'Sleep', 'Sommeil', 'Сон', 'النوم'),
 'cat.money':   ('כסף', 'Money', 'Argent', 'Деньги', 'المال'),
 'cat.food':    ('אוכל', 'Food', 'Alimentation', 'Питание', 'الطعام'),
 'cat.hobby':   ('תחביבים', 'Hobbies', 'Loisirs', 'Хобби', 'الهوايات'),
-
-# ---------- stages ----------
-'st.1': ('{מתחיל|מתחילה}', 'Starting out', '{Débutant|Débutante}', '{Новичок|Новенькая}', '{مبتدئ|مبتدئة}'),
-'st.2': ('{יוזם|יוזמת}', 'Initiator', 'Initiateur', 'Инициатор', '{مبادر|مبادرة}'),
-'st.3': ('{ממוקד|ממוקדת}', 'Focused', 'Concentré', '{Сосредоточенный|Сосредоточенная}', '{مركّز|مركّزة}'),
-'st.4': ('{אלוף|אלופה}', 'Champion', '{Champion|Championne}', '{Чемпион|Чемпионка}', '{بطل|بطلة}'),
-'st.5': ('אגדה', 'Legend', 'Légende', 'Легенда', 'أسطورة'),
 
 # ---------- quotes ----------
 'q.1': ('פרואקטיביות היא בחירת הכיוון.', 'Being proactive is choosing the direction.', 'Être proactif, c\'est choisir la direction.', 'Проактивность — это выбор направления.', 'الاستباقية هي اختيار الاتجاه.'),

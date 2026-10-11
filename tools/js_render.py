@@ -558,6 +558,7 @@ function renderStats(){
   document.getElementById('lvl').textContent=s.level;
   document.getElementById('stg').textContent=s.stage;
   document.getElementById('xpF').style.width=s.progress+'%';
+  renderAvatarMini(); renderAvatarCard();
   document.getElementById('skV').textContent=shownStreak();
   document.getElementById('ptV').textContent=S.points;
   document.getElementById('dnV').textContent=S.tasks.filter(function(x){return x.done;}).length;
@@ -710,7 +711,7 @@ function bindSettings(){
   if(n) n.addEventListener('change',function(){ P.name=n.value.trim(); save(); startApp(); });
   if(a) a.addEventListener('change',function(){
     var v=parseInt(a.value,10);
-    if(!(v>=13 && v<=120)){ toast(t('t.agerange')); a.value=P.age||''; return; }
+    if(!(v>=AGE_MIN && v<=AGE_MAX)){ toast(t('t.agerange')); a.value=P.age||''; return; }
     P.age=String(v); save(); startApp(); toast(t('gl.saved'));
   });
   document.querySelectorAll('#pfGender [data-pfg]').forEach(function(o){
@@ -724,6 +725,7 @@ function bindSettings(){
 function renderDash(){
   renderDashStats(); renderNextCard(); renderDashFocus();
   renderProfile('dashProfile', true);
+  renderAvatarCard(); renderInvite();
 }
 
 
@@ -928,6 +930,7 @@ renderGoalOpts();
   singleSelect(id,attr,field);
 });
 markSelected();
+captureRefParam();                 /* before load(): a ?ref= only counts on a fresh device */
 
 if(load()){
   loadLook(); loadGender(); applyTheme();     // the profile may carry an older look; the keys win

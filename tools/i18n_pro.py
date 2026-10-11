@@ -205,7 +205,7 @@ PRO = {
                    'Цель достигнута. Она сохранена.', 'اكتمل الهدف. تم حفظه.'),
 
 # ---------- streak ----------
-'d.sk.rescue':    ('פספסת יום. תעשה משהו היום והרצף של {n} נשמר.',
+'d.sk.rescue':    ('פספסת יום. {עשה|עשי} משהו היום והרצף של {n} נשמר.',
                    'You missed a day. Do one thing today and the {n}-day run holds.',
                    'Tu as manqué un jour. Fais une chose aujourd\'hui et la série de {n} tient.',
                    'Пропущен день. Сделай что-то сегодня — и серия из {n} сохранится.',

@@ -28,12 +28,12 @@ HOME = {
 'n.hero.a':      ('יותר יוזמה ופחות לצפות.', 'More doing, less watching.',
                   'Agir plus, regarder moins.', 'Больше инициативы, меньше наблюдения.',
                   'مبادرة أكثر، ومشاهدة أقل.'),
-'n.hero.sub':    ('Proactivity עוזר לך להפוך דברים שבא לך לעשות לפעולות אמיתיות — צעד אחד בכל פעם.',
+'n.hero.sub':    ('Proactivity הופך כוונות לפעולות אמיתיות — צעד אחד בכל פעם, בקצב שלך.',
                   'Proactivity helps you turn the things you want to do into things you actually do — one step at a time.',
                   'Proactivity t\'aide à transformer ce que tu veux faire en actions réelles — une étape à la fois.',
                   'Proactivity помогает превратить то, что ты хочешь сделать, в реальные действия — по шагу за раз.',
                   'يساعدك Proactivity على تحويل ما تريد فعله إلى أفعال حقيقية — خطوة واحدة في كل مرة.'),
-'n.hero.cta':    ('בוא נתחיל', 'Let us start', 'On commence', 'Начнём', 'هيا نبدأ'),
+'n.hero.cta':    ('מתחילים עכשיו', 'Start now', 'Commencer maintenant', 'Начать сейчас', 'ابدأ الآن'),
 'n.hero.cta2':   ('מה זה בכלל פרואקטיביות?',
                   'What even is being proactive?',
                   'C\'est quoi être proactif ?',
@@ -44,7 +44,7 @@ HOME = {
                   'Sans inscription · Sans e-mail · Tout reste sur ton appareil',
                   'Без регистрации · Без почты · Всё остаётся на твоём устройстве',
                   'بلا تسجيل · بلا بريد · كل شيء يبقى على جهازك'),
-'n.hero.kicker': ('מגיל 13 עד 120', 'Ages 13 to 120', 'De 13 à 120 ans', 'От 13 до 120 лет', 'من 13 إلى 120 عاماً'),
+'n.hero.kicker': ('מגיל 10 עד 99', 'Ages 10 to 99', 'De 10 à 99 ans', 'От 10 до 99 лет', 'من 10 إلى 99 عاماً'),
 
 # ================= LANDING: the one-line definition =================
 'n.def.t':       ('אז מה זה בעצם?', 'So what is it, actually?', 'Alors, c\'est quoi ?', 'Так что это, если по-простому?', 'إذاً، ما هذا فعلاً؟'),
@@ -62,7 +62,7 @@ HOME = {
                   'المواقف نفسها تماماً. استجابتان مختلفتان.'),
 
 # ---- eight real teen scenarios ----
-'n.sc.1.t':      ('מבחן בעוד שבוע', 'A test in a week', 'Un contrôle dans une semaine', 'Контрольная через неделю', 'امتحان بعد أسبوع'),
+'n.sc.1.t':      ('דדליין בעוד שבוע', 'A deadline in a week', 'Une échéance dans une semaine', 'Дедлайн через неделю', 'موعد نهائي بعد أسبوع'),
 'n.sc.1.r':      ('"יש עוד המון זמן."', '"There is loads of time."', '« J\'ai plein de temps. »', '«Времени ещё полно.»', '«ما زال هناك وقت طويل.»'),
 'n.sc.1.p':      ('"20 דקות היום, ואין לחץ בסוף."',
                   '"20 minutes today, and I am not panicking at the end."',
@@ -78,7 +78,7 @@ HOME = {
                   '«Вторник и четверг в шесть. Уже решено.»',
                   '«الثلاثاء والخميس السادسة. الأمر محسوم.»'),
 
-'n.sc.3.t':      ('פרויקט לבית הספר', 'A school project', 'Un projet scolaire', 'Школьный проект', 'مشروع مدرسي'),
+'n.sc.3.t':      ('פרויקט משותף', 'A group project', 'Un projet en équipe', 'Совместный проект', 'مشروع مشترك'),
 'n.sc.3.r':      ('"אחכה לראות מה השאר עושים."',
                   '"I will wait and see what everyone else does."',
                   '« J\'attends de voir ce que font les autres. »',
@@ -98,13 +98,13 @@ HOME = {
                   '«Одно видео сегодня, потом 10 минут практики.»',
                   '«فيديو واحد اليوم، ثم 10 دقائق تدريب.»'),
 
-'n.sc.5.t':      ('לסדר את החדר', 'Tidying your room', 'Ranger ta chambre', 'Убраться в комнате', 'ترتيب الغرفة'),
-'n.sc.5.r':      ('"אסדר כשיגידו לי."', '"I will do it when I am told."', '« Je le ferai quand on me le dira. »', '«Уберусь, когда скажут.»', '«سأرتّب حين يُطلب مني.»'),
-'n.sc.5.p':      ('"חמש דקות עכשיו, ואף אחד לא צריך לבקש."',
-                  '"Five minutes now, and nobody has to ask."',
-                  '« Cinq minutes maintenant, et personne n\'a à demander. »',
-                  '«Пять минут сейчас — и никому не надо просить.»',
-                  '«خمس دقائق الآن، ولن يحتاج أحد للطلب.»'),
+'n.sc.5.t':      ('סדר בבית', 'Order at home', 'L\'ordre à la maison', 'Порядок дома', 'النظام في البيت'),
+'n.sc.5.r':      ('"אסדר כשזה כבר יהיה בלתי נסבל."', '"I will sort it when it gets unbearable."', '« Je rangerai quand ce sera insupportable. »', '«Уберусь, когда станет невыносимо.»', '«سأرتّب حين يصبح الوضع لا يُطاق.»'),
+'n.sc.5.p':      ('"חמש דקות עכשיו, לפני שזה נערם."',
+                  '"Five minutes now, before it piles up."',
+                  '« Cinq minutes maintenant, avant que ça s\'accumule. »',
+                  '«Пять минут сейчас, пока не накопилось.»',
+                  '«خمس دقائق الآن، قبل أن يتراكم.»'),
 
 'n.sc.6.t':      ('להתחיל תחביב', 'Starting a hobby', 'Se lancer dans un hobby', 'Начать хобби', 'بدء هواية'),
 'n.sc.6.r':      ('"אין לי מספיק זמן לזה."', '"I do not have enough time for that."', '« Je n\'ai pas le temps pour ça. »', '«У меня нет на это времени.»', '«ليس لديّ وقت كافٍ لذلك.»'),
@@ -173,7 +173,7 @@ HOME = {
                   'دقيقة واحدة، ويتّضح أين تقف الأمور.'),
 
 # ================= ONBOARDING =================
-'n.o.1.t':       ('היי. טוב שבאת.', 'Hey. Good to have you.', 'Salut. Content de te voir.', 'Привет. Хорошо, что зашёл.', 'أهلاً. سعيد بوجودك.'),
+'n.o.1.t':       ('{ברוך הבא|ברוכה הבאה}. מכאן מתחילים.', 'Welcome. This is where it starts.', 'Bienvenue. C\'est ici que ça commence.', 'Добро пожаловать. Отсюда всё начинается.', '{أهلاً بك|أهلاً بكِ}. من هنا نبدأ.'),
 'n.o.1.s':       ('שלושים שניות של הסבר, ואז מתחילים.',
                   'Thirty seconds of explanation, then we start.',
                   'Trente secondes d\'explication, puis on démarre.',
@@ -184,7 +184,7 @@ HOME = {
                   'On regarde comment tu gères aujourd\'hui — dix questions courtes.',
                   'Посмотрим, как ты справляешься сейчас — десять коротких вопросов.',
                   'سنرى كيف تتصرّف اليوم — عشرة أسئلة قصيرة.'),
-'n.o.1.p2':      ('תקבל תמונת מצב אישית, בלי ציונים ובלי הטפות.',
+'n.o.1.p2':      ('{תקבל|תקבלי} תמונת מצב אישית, בלי ציונים ובלי הטפות.',
                   'You get a personal snapshot, with no grades and no lectures.',
                   'Tu obtiens un instantané perso, sans notes ni morale.',
                   'Получишь личную картину — без оценок и нравоучений.',
@@ -194,7 +194,7 @@ HOME = {
                   'Puis on commence par un petit pas. Vraiment un seul.',
                   'А потом начнём с одного маленького шага. Правда одного.',
                   'ثم نبدأ بخطوة صغيرة واحدة. واحدة فعلاً.'),
-'n.o.1.go':      ('יאללה', 'Let us go', 'C\'est parti', 'Поехали', 'يلا'),
+'n.o.1.go':      ('יוצאים לדרך', 'Let us go', 'C\'est parti', 'Поехали', 'ننطلق'),
 
 'n.o.2.t':       ('קצת עליך', 'A bit about you', 'Un peu sur toi', 'Немного о тебе', 'قليلاً عنك'),
 'n.o.2.s':       ('רק מה שבאמת עוזר להתאים לך את התוכן. אין הרשמה ואין מייל.',
@@ -213,8 +213,8 @@ HOME = {
                   'Мы не просим почту, телефон или адрес. Всё хранится только в твоём браузере.',
                   'لا نطلب بريداً ولا هاتفاً ولا عنواناً. كل شيء يبقى في متصفحك فقط.'),
 
-'n.o.3.t':       ('מה בא לך לשפר?', 'What do you want to improve?', 'Tu veux améliorer quoi ?', 'Что хочешь улучшить?', 'ما الذي تريد تحسينه؟'),
-'n.o.3.s':       ('{בחר|בחרי} כמה שבא לך. אפשר לשנות אחר כך.',
+'n.o.3.t':       ('מה {אתה רוצה|את רוצה} לקדם?', 'What do you want to move forward?', 'Qu\'est-ce que tu veux faire avancer ?', 'Что хочешь продвинуть?', 'ما الذي {تريد|تريدين} دفعه إلى الأمام؟'),
+'n.o.3.s':       ('{בחר|בחרי} כמה {שתרצה|שתרצי}. אפשר לשנות אחר כך.',
                   'Pick as many as you like. You can change this later.',
                   'Choisis-en autant que tu veux. Modifiable plus tard.',
                   'Выбери сколько хочешь. Потом можно изменить.',
@@ -241,7 +241,7 @@ HOME = {
                   'Необязательно. Можно пропустить и настроить позже во вкладке «Тело».',
                   'اختياري. يمكنك التخطي وضبطه لاحقاً في تبويب الجسم.'),
 'n.o.6.skip':    ('דלג', 'Skip', 'Passer', 'Пропустить', 'تخطّي'),
-'n.o.6.finish':  ('סיימנו — {קח|קחי} אותי פנימה', 'Done — take me in', 'Terminé — on y va', 'Готово — веди внутрь', 'انتهينا — {خذني|خذيني} للداخل'),
+'n.o.6.finish':  ('סיימנו — נכנסים', 'Done — let us go in', 'Terminé — on entre', 'Готово — заходим', 'انتهينا — ندخل'),
 
 # ================= NAV =================
 'n.tab.home':    ('בית', 'Home', 'Accueil', 'Главная', 'الرئيسية'),
@@ -251,7 +251,7 @@ HOME = {
 'n.nav.label':   ('ניווט ראשי', 'Main navigation', 'Navigation principale', 'Основная навигация', 'التنقل الرئيسي'),
 
 # ================= DASHBOARD =================
-'d.hi':          ('היי {name} 👋', 'Hey {name} 👋', 'Salut {name} 👋', 'Привет, {name} 👋', 'أهلاً {name} 👋'),
+'d.hi':          ('שלום, {name}', 'Hello, {name}', 'Bonjour, {name}', 'Здравствуй, {name}', 'مرحباً، {name}'),
 'd.progress':    ('ההתקדמות שלי', 'My progress', 'Mes progrès', 'Мой прогресс', 'تقدّمي'),
 'd.streak':      ('רצף', 'Streak', 'Série', 'Серия', 'سلسلة'),
 'd.goals':       ('מטרות פעילות', 'Active goals', 'Objectifs actifs', 'Активные цели', 'أهداف نشطة'),
@@ -279,7 +279,7 @@ HOME = {
 # ---- streak, the forgiving version ----
 'd.sk.0':        ('היום מתחיל רצף חדש.', 'Today starts a new streak.', 'Aujourd\'hui commence une nouvelle série.', 'Сегодня начинается новая серия.', 'اليوم تبدأ سلسلة جديدة.'),
 'd.sk.1':        ('יום ראשון ברצף. יפה.', 'One day in. Nice.', 'Premier jour. Bien.', 'Первый день. Хорошо.', 'اليوم الأول. جميل.'),
-'d.sk.n':        ('{n} ימים ברצף 🔥', '{n} days in a row 🔥', '{n} jours d\'affilée 🔥', '{n} дней подряд 🔥', '{n} أيام متتالية 🔥'),
+'d.sk.n':        ('{n} ימים ברצף. זו כבר תנופה.', '{n} days in a row. That is momentum.', '{n} jours d\'affilée. C\'est de l\'élan.', '{n} дней подряд. Это уже разгон.', '{n} أيام متتالية. هذا زخم حقيقي.'),
 'd.sk.miss':     ('פספסת יום. לא נורא — ממשיכים היום.',
                   'You missed a day. No big deal — we carry on today.',
                   'Tu as sauté un jour. Pas grave — on continue aujourd\'hui.',
@@ -312,7 +312,7 @@ HOME = {
                   'Pas pour impressionner. Juste pour voir que ça bouge.',
                   'Не чтобы кого-то впечатлить. Просто чтобы видеть движение.',
                   'ليس لإبهار أحد. فقط لترى أن الأمر يتحرّك.'),
-'n.pg.week':     ('הטבלה השבועית', 'Weekly grid', 'Tableau hebdo', 'Недельная таблица', 'الجدول الأسبوعي'),
+'n.pg.week':     ('לוח המעקב השבועי', 'Weekly tracking board', 'Tableau de suivi hebdo', 'Недельная доска контроля', 'لوحة المتابعة الأسبوعية'),
 
 # ================= misc =================
 'n.empty.goals': ('עוד אין מטרה. {כתוב|כתבי} אחת ונפרק אותה ביחד.',
@@ -327,16 +327,16 @@ HOME = {
                   'Proactivity — arrête de repousser, commence à faire',
                   'Proactivity — хватит откладывать, начни делать',
                   'Proactivity — توقّف عن التأجيل وابدأ بالفعل'),
-'seo.desc':      ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמותאם לגיל ומראה איפה הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, צעדים קטנים והרגלים שנבנים. מגיל 13 עד 120, בלי הרשמה.',
-                  'What does proactive mean and how do you become it? A short, age-adapted check-in shows where things stand on initiative, goals, time and planning — then a target built from what you said, small steps, and habits that stick. Ages 13 and up, no sign-up.',
-                  'Être proactif, ça veut dire quoi et comment le devenir ? Un point rapide, adapté à l\'âge, montre où en sont l\'initiative, les objectifs, le temps et l\'anticipation — puis un objectif construit à partir de tes réponses, des petits pas et des habitudes qui tiennent. À partir de 13 ans, sans inscription.',
-                  'Что такое проактивность и как ею стать? Короткий чек-ин с учётом возраста покажет, как обстоят дела с инициативой, целями, временем и планированием — затем цель, собранная из твоих ответов, небольшие шаги и привычки, которые держатся. От 13 лет, без регистрации.',
-                  'ما معنى المبادرة وكيف تصبح مبادراً؟ استبيان قصير مناسب للعمر يريك أين تقف الأمور في المبادرة والأهداف والوقت والتخطيط — ثم هدف مبني ممّا قلته، وخطوات صغيرة، وعادات تدوم. من 13 عاماً فما فوق، بلا تسجيل.'),
+'seo.desc':      ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמותאם לגיל ומראה איפה הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, צעדים קטנים והרגלים שנבנים. מגיל 10 עד 99, בלי הרשמה.',
+                  'What does proactive mean and how do you become it? A short, age-adapted check-in shows where things stand on initiative, goals, time and planning — then a target built from what you said, small steps, and habits that stick. Ages 10 to 99, no sign-up.',
+                  'Être proactif, ça veut dire quoi et comment le devenir ? Un point rapide, adapté à l\'âge, montre où en sont l\'initiative, les objectifs, le temps et l\'anticipation — puis un objectif construit à partir de tes réponses, des petits pas et des habitudes qui tiennent. De 10 à 99 ans, sans inscription.',
+                  'Что такое проактивность и как ею стать? Короткий чек-ин с учётом возраста покажет, как обстоят дела с инициативой, целями, временем и планированием — затем цель, собранная из твоих ответов, небольшие шаги и привычки, которые держатся. От 10 до 99 лет, без регистрации.',
+                  'ما معنى المبادرة وكيف تصبح مبادراً؟ استبيان قصير مناسب للعمر يريك أين تقف الأمور في المبادرة والأهداف والوقت والتخطيط — ثم هدف مبني ممّا قلته، وخطوات صغيرة، وعادات تدوم. من 10 إلى 99 عاماً، بلا تسجيل.'),
 
 # ================= age + gender =================
 # The four check-in bands. Shown under the age field so the user can see the
 # questionnaire adapting to what they typed.
-'ab.a13': ('שאלות שמתאימות לגיל 13–17', 'Questions for ages 13–17', 'Questions pour 13–17 ans', 'Вопросы для 13–17 лет', 'أسئلة لأعمار 13–17'),
+'ab.a13': ('שאלות שמתאימות לגיל 10–17', 'Questions for ages 10–17', 'Questions pour 10–17 ans', 'Вопросы для 10–17 лет', 'أسئلة لأعمار 10–17'),
 'ab.a18': ('שאלות שמתאימות לגיל 18–29', 'Questions for ages 18–29', 'Questions pour 18–29 ans', 'Вопросы для 18–29 лет', 'أسئلة لأعمار 18–29'),
 'ab.a30': ('שאלות שמתאימות לגיל 30–49', 'Questions for ages 30–49', 'Questions pour 30–49 ans', 'Вопросы для 30–49 лет', 'أسئلة لأعمار 30–49'),
 'ab.a50': ('שאלות שמתאימות לגיל 50+', 'Questions for ages 50+', 'Questions pour 50 ans et plus', 'Вопросы для 50+', 'أسئلة لأعمار 50+'),
