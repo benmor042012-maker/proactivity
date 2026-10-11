@@ -252,13 +252,14 @@ function renderQuizNext(){
 
 function ageOK(el){
   var n=parseInt(el&&el.value,10);
-  return n>=13 && n<=120;
+  return n>=AGE_MIN && n<=AGE_MAX;
 }
 function renderQuizAge(){
   var el=document.getElementById('qAge');
   if(el && !el.value && P.age) el.value=P.age;
-  var hint=document.getElementById('qAgeBand');
-  if(hint) hint.textContent = ageOK(el) ? t('ab.'+ageBand(el.value)) : '';
+  /* No band label. The age decides the wording of every question below, but
+     telling someone which bucket they landed in is the one thing the owner
+     asked the site never to say. The button turning live is the feedback. */
   renderQuizNext();
 }
 function bindQuizAge(){

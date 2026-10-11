@@ -6,7 +6,11 @@ var P={name:'',age:'',email:'',goals:['study','sport','sleep','food'],customCats
        easy:[],hard:[],dream:'',skinType:'normal',userGoals:[],
        plan:null, trialStart:null, founder:false, remind:'17:00',
        chainGoal:null, planAfter:null,
-       gender:'', accent:'mint', theme:''};   // theme '' = follow the device
+       gender:'', accent:'sage', theme:'light'};
+/* The first screen is deliberately white with a soft green, rather than
+   following the device - most phones are set to dark, so "follow the device"
+   meant almost nobody ever saw the calm version. One tap on the sun/moon
+   changes it and the choice is remembered for good. */
 /* S.streak is the count of ticks ever made and is kept only so old saves keep
    their number; the streak the user is shown is S.day, a real run of calendar
    days built with the same bumpStreak/liveStreak helpers the mini-apps use. */
@@ -19,18 +23,14 @@ var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[],
 var CATS=[], uid=1;
 
 /* ================= theme ================= */
-var ACCENTS=['flame','bloom','mint'];
+var ACCENTS=['sage','flame','bloom','mint'];
 
-function prefersLight(){
-  try{ return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches; }
-  catch(e){ return false; }
-}
-function activeTheme(){ return P.theme || (prefersLight() ? 'light' : 'dark'); }
+function activeTheme(){ return P.theme==='dark' ? 'dark' : 'light'; }
 
 function applyTheme(){
   var d=document.documentElement;
   d.setAttribute('data-theme', activeTheme());
-  d.setAttribute('data-accent', ACCENTS.indexOf(P.accent)>=0 ? P.accent : 'mint');
+  d.setAttribute('data-accent', ACCENTS.indexOf(P.accent)>=0 ? P.accent : 'sage');
   document.querySelectorAll('[data-set-accent]').forEach(function(b){
     b.classList.toggle('on', b.dataset.setAccent===P.accent);
   });
@@ -53,7 +53,7 @@ function loadLook(){
     var a=localStorage.getItem('proactive_accent');
     if(ACCENTS.indexOf(a)>=0) P.accent=a;
     var th=localStorage.getItem('proactive_theme');
-    if(th==='light'||th==='dark'||th==='') P.theme=th||'';
+    if(th==='light'||th==='dark') P.theme=th;
   }catch(e){}
 }
 /* Gender is picked during onboarding, before save() is allowed to write a

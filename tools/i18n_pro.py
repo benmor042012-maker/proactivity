@@ -17,15 +17,15 @@ PRO = {
                    'Посмотреть, что входит в Pro', 'اطّلع على ما يشمله Pro'),
 'pro.have':       ('יש לי כבר קוד', 'I already have a key', 'J\'ai déjà une clé',
                    'У меня уже есть ключ', 'لديّ مفتاح بالفعل'),
-'pro.f.body':     ('טאב הגוף — תוכנית אימונים לפי גיל ורמה, שגרת טיפוח לפי סוג עור, '
+'pro.f.body':     ('טאב הגוף — תוכנית אימונים שנבנית לפי מה שאמרת, שגרת טיפוח לפי סוג עור, '
                    'והמקרר שמציע מתכון ממה שיש בבית.',
-                   'The Body tab — a workout plan by age and level, a skincare routine by skin '
-                   'type, and the fridge that suggests a recipe from what you already have.',
-                   'L\'onglet Corps — un programme sportif selon l\'âge et le niveau, une routine '
-                   'soin selon le type de peau, et le frigo qui propose une recette avec ce que tu as.',
-                   'Вкладка «Тело» — план тренировок по возрасту и уровню, уход за кожей по её типу '
-                   'и холодильник, который предлагает рецепт из того, что уже есть дома.',
-                   'تبويب الجسم — خطة تمارين حسب العمر والمستوى، وروتين عناية حسب نوع البشرة، '
+                   'The Body tab — a workout plan built from what you told it, a skincare routine '
+                   'by skin type, and the fridge that suggests a recipe from what you already have.',
+                   'L\'onglet Corps — un programme sportif construit à partir de tes réponses, une '
+                   'routine soin selon le type de peau, et le frigo qui propose une recette avec ce que tu as.',
+                   'Вкладка «Тело» — план тренировок, собранный из твоих ответов, уход за кожей по её '
+                   'типу и холодильник, который предлагает рецепт из того, что уже есть дома.',
+                   'تبويب الجسم — خطة تمارين تُبنى ممّا قلته، وروتين عناية حسب نوع البشرة، '
                    'والثلاجة التي تقترح وصفة مما هو موجود في البيت.'),
 'pro.f.trend':    ('הגרף שמראה איך מדד הפרואקטיביות שלך זז לאורך הזמן, שאלון אחרי שאלון.',
                    'The chart that shows how your proactivity score has moved over time, '
@@ -216,11 +216,11 @@ PRO = {
                    'Quel âge as-tu ?',
                    'Сколько тебе лет?',
                    'كم عمرك؟'),
-'qz.age.s':       ('השאלות מנוסחות לפי הגיל — לבן 15 ולבן 40 זה לא אותו יום.',
-                   'The questions are worded by age — 15 and 40 are not the same day.',
-                   'Les questions sont formulées selon l\'âge — 15 ans et 40 ans, ce n\'est pas la même journée.',
-                   'Вопросы сформулированы по возрасту — в 15 и в 40 день выглядит по-разному.',
-                   'الأسئلة مصاغة حسب العمر — يوم ابن الخمسة عشر ليس يوم ابن الأربعين.'),
+'qz.age.s':       ('כדי שהשאלות יהיו על החיים שלך ולא על חיים של מישהו אחר.',
+                   'So the questions are about your life and not someone else\'s.',
+                   'Pour que les questions parlent de ta vie, pas de celle d\'un autre.',
+                   'Чтобы вопросы были о твоей жизни, а не о чьей-то другой.',
+                   'لتكون الأسئلة عن حياتك، لا عن حياة شخص آخر.'),
 'qz.next':        ('המשך', 'Continue', 'Continuer', 'Дальше', 'متابعة'),
 'qz.multi':       ('אפשר לבחור כמה', 'You can pick more than one', 'Tu peux en choisir plusieurs',
                    'Можно выбрать несколько', 'يمكنك اختيار أكثر من واحد'),

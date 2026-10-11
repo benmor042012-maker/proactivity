@@ -183,7 +183,7 @@ CHAIN = {
 'gn.what':   ('לכתוב את הצעד הראשון הכי קטן שיש.', 'Write the very smallest first step.', 'Écrire la toute plus petite première étape.', 'Записать самый маленький первый шаг.', 'كتابة أصغر خطوة أولى ممكنة.'),
 'gn.other':  ('לבחור מתי מתחילים.', 'Decide when you start.', 'Décider quand tu commences.', 'Решить, когда начинаешь.', 'اختيار موعد البدء.'),
 
-# the offered plan, per area: sport goes to the age-adapted training plan that
+# the offered plan, per area: sport goes to the training plan that
 # already exists; the rest open the lesson that fits
 'gp.sport':  ('תוכנית אימון שמתאימה לגיל שלך', 'A training plan that fits your age', 'Un programme adapté à ton âge', 'План тренировок под твой возраст', 'خطة تمرين تناسب عمرك'),
 'gp.study':  ('איך הופכים לימוד להרגל', 'How studying becomes a habit', 'Comment réviser devient une habitude', 'Как учёба становится привычкой', 'كيف تتحوّل الدراسة إلى عادة'),

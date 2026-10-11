@@ -28,7 +28,6 @@
 | `js_avatar.py` | the XP curve, the four ranks, the avatar drawings, the referral code and its check |
 | `js_app.py` | state, storage, migrations, pricing, onboarding |
 | `js_render.py` | camera and every render function |
-| `logo.b64` | the app logo as a data URI |
 
 Translation entries are `'key': (he, en, fr, ru, ar)`. The build fails on a
 duplicate key, a missing or empty language, a `{placeholder}` that does not
@@ -54,6 +53,17 @@ Gender is chosen in onboarding and stored under its own key, `proactive_gender`
 (`m` | `f` | `n`), for the same reason as the theme keys below: it must survive a
 refresh before the profile exists. It can be changed later in the profile card
 on the progress page. Switching it re-renders exactly like switching language.
+
+The logo is a real file (`icon-192.png`), not a base64 data URI. Inlining it put
+57 KB into three places in the HTML — about a fifth of the gzipped download —
+for one small image that a browser caches after the first request and that the
+service worker already lists in `SHELL`.
+
+The Google Fonts stylesheet is preloaded but deliberately still render-blocking.
+Applying it after first paint restyles the whole page: it bought 0.7s of paint
+and cost 0.19 of layout shift, which is a visible lurch under the reader. The
+`Secular-fallback` / `Heebo-fallback` `@font-face` aliases carry measured
+`size-adjust` values so the fallback occupies the same width as the real font.
 
 The app still ships as one self-contained `index.html`. Alongside it the build
 also writes `manifest.webmanifest` and `sw.js`; `og.png`, `robots.txt`,
@@ -224,6 +234,30 @@ The weekly tracking board (`#wkBoard`, rendered by `renderWeek()`) sits on the
 Home page directly under the next step, not on the Progress tab: it is the
 control surface the app is built around, and it has to be the first thing seen.
 
+## Age
+
+The app asks for an age and **never states one**. The owner's rule is that the
+site is not positioned at any age group, even though it is aimed mainly at
+teenagers — so the hero kicker, the meta description, the JSON-LD audience, the
+FAQ answer, the band label under the age question and the age half of the
+workout sub-line were all removed, and `AGE_MIN`/`AGE_MAX` in `js_core.py` are
+`1` and `120`.
+
+The age still silently decides the wording band and the training volume. What
+went is only the *telling*: nothing on screen, in the metadata or in the
+structured data names an age or a range. There is a regression test that crawls
+the landing page, every setup step and all six tabs in all five languages and
+fails if a number next to an age word reappears.
+
+## The landing page
+
+Four scenario cards, four benefits, four questions, four plan rows. It used to
+be 8 / 8 / 6 / 6 plus a 10-5-5 statistics strip, which is 34 repeated rows to
+scroll past before reaching a sign-up button. `FAQ_SHOWN` in `html.py` is the
+single source for which questions appear, and `build.py` imports it to build the
+`FAQPage` markup from the same tuple — structured data that claims a question
+the page does not show is penalised, so the two cannot drift.
+
 ## Mini-apps
 
 The Body tab is a small router (`showMini`) over four views: a hub plus the
@@ -267,8 +301,22 @@ moment people stop opening the app. A second miss does reset it.
 ## Themes
 
 Colour is layered: base tokens, then surfaces (`data-theme` = dark|light),
-then accent (`data-accent` = flame|bloom|mint). Both attributes are written to
-`<html>` by the head script before first paint, so there is no flash.
+then accent (`data-accent` = sage|flame|bloom|mint). Both attributes are written
+to `<html>` by the head script before first paint, so there is no flash.
+
+**A first visit is always white with `sage`**, regardless of what the device
+prefers. It used to follow `prefers-color-scheme`, which meant that since most
+phones are set to dark, almost nobody ever saw the calm version. `P.theme`
+therefore defaults to `'light'` rather than `''`, `activeTheme()` no longer
+consults the device, and the pre-paint script in `build.py` has to agree or the
+page flashes dark before the stylesheet lands. One tap on the sun/moon changes
+it and the choice is remembered for good.
+
+`sage` (`#3D7B5E` light, `#76B296` dark) was measured, not picked: an accent
+here has to work both as text on the page and as a button background behind its
+own label, so each step is checked against every surface it lands on. The same
+is true of anything that puts accent-coloured text on an accent tint — the plan
+badge used to, at 4.41:1, and now wears a text token instead.
 
 `tools/themegen.py` (in the scratchpad during development, inlined into
 `css.py`) generated the six surface x accent blocks. Each accent carries a

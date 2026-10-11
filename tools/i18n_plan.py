@@ -16,7 +16,7 @@ PLAN = {
 # ---------- workout: age notes ----------
 # Six fitness bands, a different split from the check-in's four (a 14-year-old
 # and a 16-year-old want the same questions but not the same training load).
-'wo.n.a13': ('משקל גוף בלבד בגיל הזה. חימום הוא לא אופציונלי.',
+'wo.n.a13': ('משקל גוף בלבד בשלב הזה. חימום הוא לא אופציונלי.',
              'Bodyweight only at this age. The warm-up is not optional.',
              'Poids du corps uniquement à cet âge. L\'échauffement n\'est pas optionnel.',
              'Только собственный вес в этом возрасте. Разминка обязательна.',
@@ -48,13 +48,6 @@ PLAN = {
              'التوازن والحركة أولاً. إذا آلمك شيء — توقّف.'),
 
 # ---------- fitness band labels (shown above the weekly plan) ----------
-'fb.a10': ('גיל 10–12', 'Age 10–12', 'Âge 10–12', 'Возраст 10–12', 'العمر 10–12'),
-'fb.a13': ('גיל 13–14', 'Age 13–14', 'Âge 13–14', 'Возраст 13–14', 'العمر 13–14'),
-'fb.a15': ('גיל 15–17', 'Age 15–17', 'Âge 15–17', 'Возраст 15–17', 'العمر 15–17'),
-'fb.a18': ('גיל 18–29', 'Age 18–29', 'Âge 18–29', 'Возраст 18–29', 'العمر 18–29'),
-'fb.a30': ('גיל 30–49', 'Age 30–49', 'Âge 30–49', 'Возраст 30–49', 'العمر 30–49'),
-'fb.a50': ('גיל 50–64', 'Age 50–64', 'Âge 50–64', 'Возраст 50–64', 'العمر 50–64'),
-'fb.a65': ('גיל 65+', 'Age 65+', 'Âge 65+', 'Возраст 65+', 'العمر 65+'),
 
 # ---------- workout: day titles ----------
 'wo.d.chest':  ('חזה וכתפיים', 'Chest and shoulders', 'Pectoraux et épaules', 'Грудь и плечи', 'الصدر والكتفان'),

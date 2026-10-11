@@ -696,8 +696,6 @@ function renderSettings(){
   var n=document.getElementById('pfName'), a=document.getElementById('pfAge');
   if(n && document.activeElement!==n) n.value=P.name||'';
   if(a && document.activeElement!==a) a.value=P.age||'';
-  var hint=document.getElementById('pfAgeBand');
-  if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
   var rm=document.getElementById('pfRemind');
   if(rm && document.activeElement!==rm) rm.value=P.remind||'17:00';
   renderLicState();
@@ -888,7 +886,7 @@ function startApp(){
 
   var wp=buildWorkout(P.age,P.workout,P.fitLevel);
   document.getElementById('woSub').textContent=
-    t(wp.ageBandKey)+' · '+t(wp.levelKey)+' · '+t('wo.'+P.workout);
+    t(wp.levelKey)+' · '+t('wo.'+P.workout);
   document.getElementById('woInfo').innerHTML=ic('sliders')+'<span>'+esc(wp.note)+'</span>';
 
   fillMissionCats(); renderInsight(); renderTasks(); renderGoals(); renderWeek();

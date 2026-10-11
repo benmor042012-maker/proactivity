@@ -208,7 +208,7 @@ function commitChain(start){
   renderGoals(); renderDash(); checkAchievements();
 }
 
-/* Sport already has an age-adapted training plan in the Body tab; every other
+/* Sport already has a built training plan in the Body tab; every other
    area has a lesson that fits. Neither is invented for this - they are the
    parts of the app that were already there. */
 function openPlanFor(area){

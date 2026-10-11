@@ -2,6 +2,11 @@
 """HTML body. LOGO is substituted at build time.
 data-i18n sets textContent, data-i18n-html sets innerHTML, data-i18n-ph sets placeholder."""
 
+# The questions the landing page shows. build.py imports this to build the
+# FAQPage markup from the same list, so the structured data can never claim a
+# question the page does not carry.
+FAQ_SHOWN = (1, 3, 4, 6)
+
 def i(name, cls=''):
     c = ('ic ' + cls).strip()
     return f'<svg class="{c}" aria-hidden="true"><use href="#i-{name}"></use></svg>'
@@ -34,7 +39,7 @@ def faq_item(n):
 def plan_card(pid, feature=False):
     tag = (f'<div class="tag"><span data-i18n="l.pr.popular"></span>'
            f'<span class="dot"></span><span data-i18n="l.pr.save"></span></div>') if feature else ''
-    feats = ''.join(f'<li>{i("check")}<span data-i18n="l.pr.f{n}"></span></li>' for n in range(1, 7))
+    feats = ''.join(f'<li>{i("check")}<span data-i18n="l.pr.f{n}"></span></li>' for n in range(1, 5))
     btn = 'btn-primary' if feature else 'btn-ghost'
     return (f'<div class="plan{" feature" if feature else ""}">{tag}'
             f'<h3 data-i18n="l.pr.{pid}"></h3>'
@@ -80,7 +85,7 @@ def build_body(logo):
     L += ('<span class="bar-sep" aria-hidden="true"></span>'
           + ''.join(f'<button class="accdot" data-set-accent="{a}" '
                     f'data-i18n-title="th.acc.{a}" aria-label="{a}"></button>'
-                    for a in ('flame', 'bloom', 'mint'))
+                    for a in ('sage', 'flame', 'bloom', 'mint'))
           + f'<button class="modebtn" id="modeBtn" data-i18n-title="th.dark">'
             f'{i("sun","ic-sun")}{i("moon","ic-moon")}</button>')
 
@@ -109,15 +114,9 @@ def build_body(logo):
    <h2 data-i18n="n.def.t"></h2>
    <p class="lede" data-i18n="n.def.b"></p>
    <p class="sc-hint" data-i18n="n.def.hint"></p>
-   <ul class="scgrid">{''.join(scenario(n) for n in range(1, 9))}</ul>
+   <ul class="scgrid">{''.join(scenario(n) for n in (1, 2, 7, 8))}</ul>
    <p class="sc-close">{i("seedling")}<span data-i18n="n.def.close"></span></p>
   </section>
-
-  <div class="proof">
-   <div><div class="n">10</div><div class="l" data-i18n="n.pf1.t"></div></div>
-   <div><div class="n">5</div><div class="l" data-i18n="n.pf2.t"></div></div>
-   <div><div class="n">5</div><div class="l" data-i18n="n.pf3.t"></div></div>
-  </div>
 
   <section class="blk" id="how">
    <h2 data-i18n="n.how.t"></h2>
@@ -127,9 +126,8 @@ def build_body(logo):
   <section class="blk">
    <h2 data-i18n="l.why.t"></h2>
    <div class="bengrid">
-    {benefit("target","l.why.1")}{benefit("rocket","l.why.2")}{benefit("refresh","l.why.3")}
-    {benefit("users","l.why.4")}{benefit("book","l.why.5")}{benefit("activity","l.why.6")}
-    {benefit("clock","l.why.7")}{benefit("compass","l.why.8")}
+    {benefit("rocket","l.why.2")}{benefit("target","l.why.1")}
+    {benefit("refresh","l.why.3")}{benefit("clock","l.why.7")}
    </div>
   </section>
 
@@ -145,7 +143,7 @@ def build_body(logo):
 
   <section class="blk faq">
    <h2 data-i18n="l.faq.t"></h2>
-   {''.join(faq_item(n) for n in range(1,7))}
+   {''.join(faq_item(n) for n in FAQ_SHOWN)}
   </section>
 
   <section class="finale">
@@ -166,7 +164,7 @@ def build_body(logo):
         f'<button type="button" class="opt swatch" data-acc="{a}" aria-pressed="false">'
         f'<span class="sw sw-{a}" aria-hidden="true"></span>'
         f'<span data-i18n="th.acc.{a}"></span></button>'
-        for a in ('mint', 'flame', 'bloom'))
+        for a in ('sage', 'mint', 'flame', 'bloom'))
 
     onb = f'''
 <div class="onb" id="onboarding" role="dialog" aria-modal="true" aria-labelledby="onbHead"><div class="onb-inner">
@@ -229,9 +227,8 @@ def build_body(logo):
    <p class="hint" data-i18n="qz.age.s"></p>
    <div class="field qz-agefield">
     <label for="qAge" class="sr-only" data-i18n="n.o.2.age"></label>
-    <input type="number" id="qAge" min="13" max="120" step="1" inputmode="numeric"
+    <input type="number" id="qAge" min="1" max="120" step="1" inputmode="numeric"
            enterkeyhint="next" autocomplete="off" data-i18n-ph="o.age.ph">
-    <p class="hint agehint" id="qAgeBand" aria-live="polite"></p>
    </div>
   </div>
 
@@ -458,8 +455,8 @@ def build_body(logo):
     <div class="field"><label for="pfName" data-i18n="n.o.2.name"></label>
      <input type="text" id="pfName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
     <div class="field"><label for="pfAge" data-i18n="n.o.2.age"></label>
-     <input type="number" id="pfAge" min="10" max="99" step="1" inputmode="numeric" data-i18n-ph="o.age.ph">
-     <p class="hint agehint" id="pfAgeBand"></p></div>
+     <input type="number" id="pfAge" min="1" max="120" step="1" inputmode="numeric" data-i18n-ph="o.age.ph">
+</div>
     <div class="field"><label for="pfRemind" data-i18n="cal.time"></label>
      <input type="time" id="pfRemind" step="300">
      <p class="hint" data-i18n="cal.time.h"></p></div>
