@@ -7,10 +7,27 @@ Order of tuple values: he, en, fr, ru, ar
 HOME = {
 
 # ================= LANDING: hero =================
-# The one word, then Ben's sentence verbatim. The sentence carries two nested
-# quoted phrases, and a straight " is direction-neutral in RTL, so it is split
-# around <q> elements and the browser supplies typographic quotes per language.
+# The first screen is the one word, two questions, the answer, and the button.
+# The questions are not a form - there is nothing to press on them. They are
+# asked in the second person plural, the way you would ask a room.
 'n.hero.word':   ('פרואקטיבי', 'Proactive', 'Proactif', 'Проактивный', 'مبادر'),
+'n.hero.ask1':   ('נמאס לכם שמה שאתם רוצים לא קורה?',
+                  'Tired of the things you want never happening?',
+                  'Marre que ce que vous voulez n\'arrive jamais ?',
+                  'Надоело, что то, чего вы хотите, так и не происходит?',
+                  'هل سئمتم من أن ما تريدونه لا يحدث؟'),
+'n.hero.ask2':   ('נמאס לכם להיות תלויים ברעיונות של אחרים?',
+                  'Tired of depending on other people\'s ideas?',
+                  'Marre de dépendre des idées des autres ?',
+                  'Надоело зависеть от чужих идей?',
+                  'هل سئمتم الاعتماد على أفكار الآخرين؟'),
+'n.hero.for':    ('האתר הזה בשבילכם.', 'This site is for you.', 'Ce site est pour vous.',
+                  'Этот сайт — для вас.', 'هذا الموقع لكم.'),
+# The quote and the definition used to sit here; they are now in the "so what
+# is it, actually?" section, where someone who scrolled for an explanation is.
+# The sentence carries two nested quoted phrases, and a straight " is
+# direction-neutral in RTL, so it is split around <q> elements and the browser
+# supplies typographic quotes per language.
 'n.hero.q1':     ('ההבדל בין הצלחה לכישלון הוא המרחק בין ',
                   'The difference between success and failure is the distance between ',
                   'La différence entre réussir et échouer, c\'est la distance entre ',
@@ -33,22 +50,12 @@ HOME = {
                   'Proactivity t\'aide à transformer ce que tu veux faire en actions réelles — une étape à la fois.',
                   'Proactivity помогает превратить то, что ты хочешь сделать, в реальные действия — по шагу за раз.',
                   'يساعدك Proactivity على تحويل ما تريد فعله إلى أفعال حقيقية — خطوة واحدة في كل مرة.'),
-'n.hero.cta':    ('מתחילים עכשיו', 'Start now', 'Commencer maintenant', 'Начать сейчас', 'ابدأ الآن'),
-'n.hero.cta2':   ('מה זה בכלל פרואקטיביות?',
-                  'What even is being proactive?',
-                  'C\'est quoi être proactif ?',
-                  'А что вообще такое проактивность?',
-                  'ما هي المبادرة أصلاً؟'),
+'n.hero.cta':    ('בוא נתחיל', 'Let\'s start', 'On commence', 'Начнём', 'لنبدأ'),
 'n.hero.note':   ('בלי הרשמה · בלי מייל · הכל נשמר אצלך במכשיר',
                   'No sign-up · No email · Everything stays on your device',
                   'Sans inscription · Sans e-mail · Tout reste sur ton appareil',
                   'Без регистрации · Без почты · Всё остаётся на твоём устройстве',
                   'بلا تسجيل · بلا بريد · كل شيء يبقى على جهازك'),
-'n.hero.kicker': ('בלי הרשמה · הנתונים נשארים אצלך',
-                  'No sign-up · your data stays with you',
-                  'Sans inscription · tes données restent chez toi',
-                  'Без регистрации · данные остаются у тебя',
-                  'بلا تسجيل · بياناتك تبقى عندك'),
 
 # ================= LANDING: the one-line definition =================
 'n.def.t':       ('אז מה זה בעצם?', 'So what is it, actually?', 'Alors, c\'est quoi ?', 'Так что это, если по-простому?', 'إذاً، ما هذا فعلاً؟'),

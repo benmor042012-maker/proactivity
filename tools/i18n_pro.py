@@ -94,6 +94,69 @@ PRO = {
 'pro.portal':     ('לנהל את המנוי', 'Manage subscription', 'Gérer l\'abonnement',
                    'Управлять подпиской', 'إدارة الاشتراك'),
 
+# ---------- the card form ----------
+# The card fields belong to Paddle and render inside their own frame. These
+# lines are everything around that frame: what it is, what is happening while
+# it loads, and what to do when it will not open.
+'pay.t':          ('תשלום מאובטח', 'Secure payment', 'Paiement sécurisé',
+                   'Безопасная оплата', 'دفع آمن'),
+'pay.close':      ('סגירה', 'Close', 'Fermer', 'Закрыть', 'إغلاق'),
+'pay.load':       ('טוען את טופס התשלום…', 'Loading the payment form…',
+                   'Chargement du formulaire de paiement…',
+                   'Загружаем форму оплаты…', 'جارٍ تحميل نموذج الدفع…'),
+'pay.err':        ('טופס התשלום לא נפתח. בדקו את החיבור ונסו שוב — ואם זה חוזר, כתבו לי ואסדר את זה.',
+                   'The payment form did not open. Check your connection and try again — '
+                   'and if it keeps happening, write to me and I will sort it out.',
+                   'Le formulaire de paiement ne s\'est pas ouvert. Vérifie ta connexion et réessaie — '
+                   'et si ça continue, écris-moi et je m\'en occupe.',
+                   'Форма оплаты не открылась. Проверь соединение и попробуй снова — '
+                   'а если повторится, напиши мне, и я разберусь.',
+                   'لم يُفتح نموذج الدفع. تحقّق من اتصالك وحاول مرة أخرى — '
+                   'وإن تكرّر ذلك فاكتب لي وسأتولّى الأمر.'),
+'pay.sec':        ('הפרטים מוקלדים אצל Paddle, ספק התשלומים. הם לא עוברים דרך האתר הזה '
+                   'ולא נשמרים אצלי — גם לא מספר הכרטיס.',
+                   'The details are typed into Paddle, the payment provider. They do not pass '
+                   'through this site and I never store them — the card number included.',
+                   'Les informations sont saisies chez Paddle, le prestataire de paiement. Elles ne '
+                   'passent pas par ce site et je ne les conserve jamais — numéro de carte compris.',
+                   'Данные вводятся в Paddle, платёжного провайдера. Они не проходят через этот '
+                   'сайт и я их не храню — номер карты в том числе.',
+                   'تُدخل البيانات لدى Paddle، مزوّد الدفع. هي لا تمرّ عبر هذا الموقع ولا أحفظها '
+                   'أبداً — ولا رقم البطاقة.'),
+'pay.done.t':     ('התשלום עבר. פרו פתוח.', 'Payment went through. Pro is open.',
+                   'Paiement effectué. Pro est ouvert.',
+                   'Оплата прошла. Pro открыт.', 'تم الدفع. Pro مفتوح.'),
+'pay.done.s':     ('תודה. הכל פתוח במכשיר הזה, והקבלה נשלחה למייל שהזנת. '
+                   'יש לך מנוי — לא התחייבות: אפשר לבטל מתי שתרצה.',
+                   'Thank you. Everything is open on this device, and the receipt was sent to the '
+                   'email you entered. It is a subscription, not a commitment: cancel whenever you want.',
+                   'Merci. Tout est ouvert sur cet appareil, et le reçu a été envoyé à l\'adresse '
+                   'que tu as saisie. C\'est un abonnement, pas un engagement : annule quand tu veux.',
+                   'Спасибо. На этом устройстве открыто всё, а чек ушёл на указанную почту. '
+                   'Это подписка, а не обязательство: отменить можно когда захочешь.',
+                   'شكراً لك. كل شيء مفتوح على هذا الجهاز، وأُرسلت الفاتورة إلى البريد الذي أدخلته. '
+                   'هذا اشتراك وليس التزاماً: يمكنك الإلغاء وقتما تريد.'),
+'pay.ok':         ('קחו אותי לאפליקציה', 'Take me to the app', 'Emmène-moi dans l\'app',
+                   'Открыть приложение', 'خذني إلى التطبيق'),
+# The honest version of the privacy promise, for when a card can be entered.
+'pay.privacy':    ('לא מבקשים מייל, טלפון או כתובת, והכל נשמר בדפדפן שלך בלבד. '
+                   'רק אם תחליט לשלם — הפרטים האלה נמסרים לספק התשלומים, לא לי.',
+                   'We do not ask for email, phone or address, and everything stays in your browser '
+                   'only. Only if you choose to pay do those details go to the payment provider — '
+                   'not to me.',
+                   'On ne demande ni e-mail, ni téléphone, ni adresse, et tout reste dans ton '
+                   'navigateur. Ce n\'est que si tu choisis de payer que ces informations vont au '
+                   'prestataire de paiement — pas à moi.',
+                   'Мы не просим почту, телефон или адрес, и всё хранится только в твоём браузере. '
+                   'Только если ты решишь заплатить, эти данные уйдут платёжному провайдеру — не мне.',
+                   'لا نطلب بريداً ولا هاتفاً ولا عنواناً، وكل شيء يبقى في متصفحك فقط. '
+                   'وفقط إن اخترت الدفع تنتقل تلك البيانات إلى مزوّد الدفع — لا إليّ.'),
+'pay.note':       ('בלי הרשמה · הכל נשמר אצלך במכשיר · מייל רק אם תבחר לשלם',
+                   'No sign-up · Everything stays on your device · Email only if you choose to pay',
+                   'Sans inscription · Tout reste sur ton appareil · E-mail seulement si tu paies',
+                   'Без регистрации · Всё остаётся на устройстве · Почта только при оплате',
+                   'بلا تسجيل · كل شيء يبقى على جهازك · البريد فقط إن اخترت الدفع'),
+
 # ---------- backup ----------
 'bk.t':           ('גיבוי ושחזור', 'Backup and restore', 'Sauvegarde et restauration',
                    'Резервная копия', 'نسخة احتياطية واستعادة'),

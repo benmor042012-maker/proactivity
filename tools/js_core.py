@@ -169,9 +169,9 @@ function guessSteps(g){
    the band picks the wording. It is derived from P.age at render time and never
    cached: the user can go back from the questions, change their age, and come
    forward again, and the questions have to follow. */
-/* The app is for ages 10 to 99. The bands below are keyed by their old
+/* The app is for ages 6 to 99. The bands below are keyed by their old
    names (a13 = the youngest band) because the key is stored in every save. */
-var AGE_MIN=1, AGE_MAX=120;
+var AGE_MIN=6, AGE_MAX=99;
 var QBANDS=['a13','a18','a30','a50'];
 function ageBand(a){
   var n=Number(a);

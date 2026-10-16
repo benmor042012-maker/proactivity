@@ -172,25 +172,38 @@ select option{background:var(--ink-2);color:var(--fg);}
 
 /* ============ LANDING ============ */
 .landing{padding-block-start:40px;}
-.hero{padding:var(--s8) 0 var(--s7);}
-.kicker{display:inline-flex;align-items:center;gap:var(--s2);font-size:var(--t-xs);font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:var(--s4);}
-.hero h1{font-size:var(--t-display);margin-bottom:var(--s4);max-width:14ch;}
-/* the one word the page is about, and the one sentence under it */
-.hero-word{font-size:clamp(56px,14vw,124px);line-height:.95;letter-spacing:-.03em;margin-bottom:var(--s4);
+.hero{padding:var(--s7) 0 var(--s7);}
+/* the one word the page is about */
+.hero-word{font-size:clamp(44px,9vw,76px);line-height:.95;letter-spacing:-.03em;margin-bottom:var(--s5);
   color:var(--acc);max-width:none;min-height:.95em;}
-.hero-quote{margin:0 0 var(--s5);padding-inline-start:var(--s4);border-inline-start:3px solid var(--acc);max-width:60ch;}
-.hero-quote p{font-family:var(--f-display);font-size:clamp(19px,3.4vw,28px);line-height:1.3;color:var(--fg);
+/* Two questions, read and answered in the reader's head. Nothing to press, so
+   nothing here looks pressable: no border, no background, no hover. The width
+   is set so each question lands on two lines rather than three - the pair has
+   to be takeable in at a glance, above the fold, with the button under it. */
+/* Four lines of space, held from the first paint, on the block rather than on
+   each question. The text arrives from the translation table and the display
+   font after that, and how many lines a question takes changes with both - so
+   the space for the worst case is reserved here once. Holding it per question
+   instead would open a hole between the two whenever the first one fits on a
+   single line; held here, the slack falls after the pair, where it reads as
+   spacing rather than as a gap. */
+.asks{margin-bottom:var(--s5);max-width:42ch;font-size:clamp(20px,3.6vw,28px);
+  min-height:calc(5em + var(--s3));}
+.asks p{font-family:var(--f-display);font-size:1em;line-height:1.25;color:var(--fg);}
+.asks p + p{margin-top:var(--s3);}
+.asks-for{font-size:clamp(17px,2.6vw,22px);font-weight:700;color:var(--acc);margin-bottom:var(--s5);
+  min-height:1.3em;}
+/* Ben's sentence and the definition, now in the explainer section */
+.pullquote{margin:var(--s5) 0;padding-inline-start:var(--s4);border-inline-start:3px solid var(--acc);max-width:60ch;}
+.pullquote p{font-family:var(--f-display);font-size:clamp(19px,3.4vw,28px);line-height:1.3;color:var(--fg);
   min-height:2.6em;}
-.hero-quote q{quotes:"\201C" "\201D";color:var(--acc);}
-.hero-quote q::before{content:open-quote;} .hero-quote q::after{content:close-quote;}
-[dir=rtl] .hero-quote q{quotes:"\201D" "\201C";}
-.hero-def{color:var(--fg);font-weight:600;}
-@media(max-width:520px){.hero-word{font-size:clamp(48px,17vw,72px);}.hero-quote p{font-size:19px;}}
-.hero h1 .dim{color:var(--fg-3);}
-.hero p.lead{font-size:clamp(15px,2.2vw,19px);color:var(--fg-2);max-width:48ch;margin-bottom:var(--s5);}
+.pullquote q{quotes:"\201C" "\201D";color:var(--acc);}
+.pullquote q::before{content:open-quote;} .pullquote q::after{content:close-quote;}
+[dir=rtl] .pullquote q{quotes:"\201D" "\201C";}
+.defline{color:var(--fg);font-weight:600;margin-bottom:var(--s4);}
+@media(max-width:520px){.hero-word{font-size:clamp(40px,13vw,64px);}.pullquote p{font-size:19px;}}
 .hero .cta-row{display:flex;gap:var(--s3);flex-wrap:wrap;align-items:center;}
-.hero .fineprint{font-size:var(--t-xs);color:var(--fg-3);margin-top:var(--s4);}
+.finale .fineprint{font-size:var(--t-xs);color:var(--fg-3);margin-top:var(--s4);}
 section.blk{padding:var(--s8) 0;}
 section.blk + section.blk{border-top:1px solid var(--ink-2);}
 section.blk>h2{font-size:var(--t-h1);margin-bottom:var(--s5);max-width:18ch;}
@@ -502,11 +515,34 @@ td.scell.none{color:var(--fg-3);}
 .modal-btns{display:flex;gap:var(--s2);flex-wrap:wrap;}
 .modal-btns .btn{flex:1;}
 .hidden-file{display:none;}
+body.no-scroll{overflow:hidden;}
+
+/* ---- the card form ----
+   Paddle's frame needs 312px of width to lay out its fields, so the dialog is
+   wider than the others and scrolls inside itself on a short phone screen
+   rather than pushing the Pay button off the bottom. */
+.modal.pay{max-width:460px;max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.pay-top{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s2);}
+.pay-top h3{margin:0;flex:1;}
+.pay-x{min-height:36px;padding:0 var(--s2);flex:none;}
+.pay-plan{font-weight:700;color:var(--fg);font-size:var(--t-sm);margin-bottom:var(--s3);}
+.pay-box{min-height:0;min-width:312px;}
+.pay-box:not(:empty){margin-bottom:var(--s3);}
+.pay-sec{display:flex;gap:var(--s2);align-items:flex-start;margin:0;}
+.pay-sec svg{width:14px;height:14px;color:var(--acc);flex:none;margin-top:2px;}
+.pay-thanks{text-align:center;padding:var(--s4) 0 var(--s3);}
+.pay-thanks svg{width:34px;height:34px;color:var(--ok);}
+.pay-thanks h4{font-size:var(--t-h2);margin:var(--s2) 0;}
+.pay-thanks p{color:var(--fg-2);font-size:var(--t-sm);margin-bottom:var(--s4);}
+@media(max-width:380px){
+  .modal-bg{padding:var(--s2);}
+  .pay-box{min-width:0;}
+}
 
 /* ============ NEW: LANDING EXPLAINER ============ */
 .btn-lg{min-height:52px;padding:0 var(--s6);font-size:var(--t-body);}
-.hero .fineprint{display:inline-flex;align-items:center;gap:var(--s2);}
-.hero .fineprint svg{width:15px;height:15px;color:var(--acc);flex:none;}
+.finale .fineprint{display:inline-flex;align-items:center;gap:var(--s2);}
+.finale .fineprint svg{width:15px;height:15px;color:var(--acc);flex:none;}
 .sc-hint{font-size:var(--t-sm);color:var(--fg-3);margin:var(--s5) 0 var(--s3);}
 
 .scgrid{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--s4);}
@@ -999,9 +1035,9 @@ td.scell.none{color:var(--fg-3);}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0 0 0 0);white-space:nowrap;border:0;}
 
-/* ============ HERO LINE ============ */
-.hero-line{font-family:var(--f-display);font-size:clamp(20px,4.4vw,28px);line-height:1.25;
-  color:var(--acc);margin:var(--s3) 0 var(--s2);letter-spacing:-.01em;}
+/* ============ THE SHORT LINE ============ */
+.punchline{font-family:var(--f-display);font-size:clamp(20px,4.4vw,28px);line-height:1.25;
+  color:var(--acc);margin:var(--s4) 0 var(--s2);letter-spacing:-.01em;min-height:1.25em;}
 
 .contact-line a{color:var(--acc);text-decoration:underline;text-underline-offset:2px;
   word-break:break-all;}

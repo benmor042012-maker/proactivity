@@ -1,47 +1,93 @@
 # Turning payment on
 
-Nothing here needs a server. The site stays a static page on GitHub Pages; the
-payment provider does the collecting and the verifying.
+The card form is already built. It is Paddle's own form, and it opens **inside
+the site** — pressing a plan opens a dialog with real card fields in it, nobody
+is sent off to another website, and no server of ours is involved.
 
-**Right now the app is in open mode:** no checkout is configured, so nothing is
-locked, no upsell appears anywhere, and the pricing section says plainly that
-payment is not open yet. Everything below is what flips that on. Until you do
-it, nobody loses anything.
+What is missing is not code. It is an account that is allowed to take money.
+**Nothing anyone writes can skip that part:** a card can only be charged by a
+registered merchant, and registering means giving a real name, address, ID and
+bank details and waiting for a human to approve it. Everything below is that
+account, and the two values you copy out of it.
+
+**Until you paste a token the app is in open mode:** nothing is locked, no
+upsell appears anywhere, `paddle.js` is never even downloaded, and the pricing
+section says plainly that payment is not open yet. Nobody loses anything while
+you take your time.
 
 ---
 
-## 1. Open an account
+## 1. Open a Paddle account
 
-You need a provider that (a) gives you a **payment link** — one URL per plan —
-and (b) issues a **licence key** to the buyer. The app is written against
-**Lemon Squeezy**, because it acts as merchant of record (you can register as a
-private individual in Israel, no company needed, and they handle VAT), and
-because its licence check works from the browser with no secret key.
+<https://paddle.com> → *Get started*. Paddle is the right one here for three
+reasons:
 
-Paddle and Stripe work too — see *Using a different provider* at the bottom.
+- It is **merchant of record**. Paddle sells to the customer, not you, so VAT in
+  every country is their problem, not yours.
+- You can register **as an individual**, without a company.
+- Its checkout can run **inside your own page** with no server. That is the
+  whole reason the app is written against it. (Stripe cannot: its no-server
+  options send the buyer to a Stripe page, and its in-page card fields need a
+  secret key on a server, which a GitHub Pages site does not have.)
 
-## 2. Create the product
+Approval is manual and takes a few days. They will ask for identification and
+for a bank account. Sandbox (step 5) works immediately, so you can test the
+whole flow while you wait.
 
-In Lemon Squeezy:
+## 2. Create the product and the two prices
 
-1. New product → **subscription**.
-2. Two variants: **monthly** and **annual**. Use the prices the app already
-   shows (₪19/month, ₪149/year — these live in `PRICES` in `tools/js_app.py` if
-   you want to change them).
-3. In the product settings, turn **Licence keys** on.
-   Set *activations per licence* to **3** or so, so one person can use their
-   phone, tablet and laptop.
-4. Publish, then copy the **Buy link** for each variant.
+In Paddle: **Catalog → Products → New product**.
 
-## 3. Paste two URLs
+1. Name it *Proactivity Pro*.
+2. Add two **prices** to it:
+   - **monthly**, recurring every 1 month
+   - **annual**, recurring every 1 year
+3. Copy the **price ID** of each. They look like `pri_01h4k...`.
 
-Open **`tools/js_pro.py`** and find the block at the top:
+> **Make the amounts match the page.** The app shows ₪19/month and ₪149/year
+> (and $4.99 / $39, €4.99 / €39, ₽399 / ₽2990). Those numbers live in `PRICES`
+> in `tools/js_app.py`. Set the Paddle prices to exactly the same amounts, or
+> change `PRICES` to match what you set. A page that advertises one price and
+> charges another is the one mistake here that is not recoverable with an
+> apology.
+
+## 3. Get the client-side token
+
+**Developer tools → Authentication → Client-side tokens → New token.**
+
+Copy it. It starts with `live_` (or `test_` in sandbox).
+
+This token is meant to be published in front-end code: it can start a checkout
+and nothing else — it cannot read your account, your customers or your money.
+That is why it can live in a public repository. The **API key** on that same
+screen is the opposite: it is a secret, it has no business being in a web page,
+and nothing in this app ever asks for it.
+
+## 4. Set the payment link and get the domain approved
+
+Two settings, both under **Checkout** in Paddle:
+
+1. **Checkout settings → Default payment link** → set it to
+   `https://benmor042012-maker.github.io/proactivity/`.
+2. **Request domain approval** → add that same domain.
+
+Paddle only opens its checkout on a domain it has approved, and the symptom when
+it has not is a dialog that opens and stays empty. On **sandbox this is
+automatic**, so step 6 works straight away; the live domain is reviewed, which
+is another reason to ask for it early rather than on launch day.
+
+## 5. Paste three values
+
+Open **`tools/js_pro.py`**. The block is at the very top:
 
 ```js
 var BILLING={
-  provider:'lemonsqueezy',
-  checkout:{monthly:'', annual:''},
-  portal:''
+  provider:'paddle',
+  token:'',
+  env:'production',
+  prices:{monthly:'', annual:''},
+  portal:'',
+  licProvider:''
 };
 ```
 
@@ -49,30 +95,55 @@ Fill it in:
 
 ```js
 var BILLING={
-  provider:'lemonsqueezy',
-  checkout:{
-    monthly:'https://yourstore.lemonsqueezy.com/buy/xxxxxxxx',
-    annual: 'https://yourstore.lemonsqueezy.com/buy/yyyyyyyy'
-  },
-  portal:'https://yourstore.lemonsqueezy.com/billing'
+  provider:'paddle',
+  token:'live_xxxxxxxxxxxxxxxxxxxxxxx',
+  env:'production',
+  prices:{monthly:'pri_01aaaaaaaaaa', annual:'pri_01bbbbbbbbbb'},
+  portal:'',
+  licProvider:''
 };
 ```
 
-`portal` is optional — it becomes a "manage my subscription" link for people who
-already pay.
-
-## 4. Rebuild and push
+Then rebuild and push:
 
 ```
 python3 tools/build.py
 git add -A && git commit -m "Turn payment on" && git push
 ```
 
-That is the whole switch. GitHub Pages redeploys in a minute or two.
+GitHub Pages redeploys in a minute or two. That is the whole switch.
+
+## 6. Test it in sandbox first
+
+Do this before the live account is even approved.
+
+1. Register at <https://sandbox-vendors.paddle.com> — a separate, free account.
+2. Repeat steps 2–4 there. The token starts with `test_`.
+3. Set `token` to that `test_...` and **`env:'sandbox'`**, then rebuild and open
+   the site locally (`python3 -m http.server` and visit
+   `http://localhost:8000`, because `file://` is not a domain Paddle can
+   approve).
+4. Press a plan. The card form should appear inside the dialog.
+5. Pay with one of Paddle's sandbox cards — any cardholder name, any future
+   expiry, any 3-digit CVC:
+
+   | Card | What it does |
+   |---|---|
+   | `4242 4242 4242 4242` | goes through, no extra step — use this one first |
+   | `4000 0038 0000 0446` | goes through after a 3-D Secure prompt |
+   | `4000 0000 0000 0002` | is declined — worth seeing once |
+
+   They work only in sandbox, and a real card does not work there. If any of
+   these ever stops working, Paddle keeps the current list in its docs under
+   *sandbox testing*.
+6. You should see: the thank-you panel, a toast, the Body tab unlocked, and the
+   plans screen saying **פרו פעיל**. Reload — still Pro.
+7. Switch `env` back to `'production'` and the token back to `live_...` before
+   you push.
 
 ---
 
-## What happens the moment you do that
+## What happens the moment payment is on
 
 | Who | What they get |
 |---|---|
@@ -84,62 +155,74 @@ That is the whole switch. GitHub Pages redeploys in a minute or two.
 A locked screen never just refuses — it says what is behind it and offers both
 "see the plans" and "I already have a key".
 
-## How someone pays and gets in
+## How someone pays
 
-1. They press a buy button → your Lemon Squeezy checkout opens in a new tab.
-2. They pay. Lemon Squeezy emails them a **licence key**.
-3. Back in the app: **plans screen → "יש לי כבר קוד"** → paste → **הפעל**.
-4. The app calls Lemon Squeezy's licence API directly and gets a real yes or no.
+1. They press a plan, on the landing page or on the plans screen.
+2. A dialog opens on **your** site with Paddle's card fields inside it.
+3. They pay. Paddle emails them a receipt.
+4. The browser receives `checkout.completed`, the app writes
+   `proactive_pay` to that device's storage, and Pro opens immediately.
 
-That last point is the one that matters: the unlock is **checked with your
-provider**, not assumed from a URL. A key that was refunded, cancelled or
-expired stops working on the next check.
+The card number is typed into Paddle's frame. It never touches this code, this
+domain or any storage here — which is what keeps a static site legally clear of
+handling card data at all. Do not ever replace that frame with your own card
+fields; that is the one change in this file that would be illegal rather than
+just unwise.
 
-- Re-checked at most **once every 7 days**.
-- If the phone is **offline**, the last good answer stands — the app does not
-  lock a paying customer out on a train.
-- If the provider actually answers "no", access is revoked immediately.
-- "Release this device" frees an activation so they can move to a new phone.
+### The honest limits of unlocking this way
 
-## Testing it before you announce it
+- **Pro opens on the device that paid.** There is no login, so another phone
+  cannot be recognised. Backup → restore carries it across, and so does a
+  licence key (below).
+- **A cancellation is not noticed.** Checking a live subscription needs a
+  server with your API key on it; this page has neither. Someone who cancels
+  keeps working access on that device. If that matters to you, turn on licence
+  keys.
+- **The flag can be forged** by someone who knows their way around developer
+  tools. That is true of every static site. What it buys is that *casual*
+  sharing does not work.
 
-1. In Lemon Squeezy, switch the store to **test mode** and make a test purchase
-   with card `4242 4242 4242 4242`.
-2. Paste the key it emails you into the app.
-3. Check the Body tab unlocks and the plans screen says "פרו פעיל".
-4. Press **שחרר את המכשיר הזה** and check it locks again.
+## Optional: licence keys, for real verification
+
+A provider that issues licence keys gives you two things the card flow alone
+cannot: a buyer can activate Pro on a **second device**, and the app can ask the
+provider **"is this subscription still live?"** and get a real yes or no.
+
+Paddle has no licence API a browser may call. **Lemon Squeezy** does — it takes
+no secret key and answers CORS — and the adapter for it is already in
+`tools/js_pro.py`. To use it, sell through Lemon Squeezy as well (or instead),
+turn licence keys on in the product, and set:
+
+```js
+licProvider:'lemonsqueezy'
+```
+
+The key box then appears on the plans screen. Behaviour: re-checked at most once
+every 7 days; offline, the last good answer stands, so nobody is locked out on a
+train; if the provider actually answers "no", access is revoked; and *release
+this device* frees an activation so they can move phones.
+
+Another provider is a second entry in `LICENSE_ADAPTERS` with the same four
+functions (`activate`, `validate`, `deactivate`, `norm`). `norm` is the only
+fiddly part: it turns that provider's reply into `{ok, exp, inst, err}`, which
+is the only shape the rest of the app knows.
+
+## Optional: the "manage my subscription" link
+
+Paddle can host a customer portal. If you set up one, put its URL in `portal`
+and the link appears for people who have actually paid.
 
 ## Turning it back off
 
-Empty the two `checkout` URLs and rebuild. The app returns to open mode and
-nobody is locked out of anything — useful if something goes wrong and you want
-to stop the bleeding in one commit.
+Empty `token` and rebuild. The app returns to open mode, nothing is locked, and
+nobody loses anything — useful if something goes wrong and you want to stop the
+bleeding in one commit.
 
----
+## If the form does not appear
 
-## Using a different provider
-
-`tools/js_pro.py` has one adapter:
-
-```js
-var LICENSE_ADAPTERS={ lemonsqueezy:{ activate, validate, deactivate, norm } };
-```
-
-Add a second one with the same four functions and set `BILLING.provider` to its
-name. `norm` is the only fiddly part: it turns that provider's response into
-`{ok, exp, inst, err}`. Everything else in the app already speaks that shape.
-
-- **Paddle** — has a licensing add-on; same pattern.
-- **Stripe Payment Links** — has no licence keys of its own. To verify a Stripe
-  subscription you need one small server endpoint holding your secret key (a
-  free Cloudflare Worker is enough). Without it, a Stripe buy button still works
-  for taking money, but the unlock cannot be verified.
-
-## The honest caveat
-
-The gate is enforced in the page, and the page runs on the user's computer.
-Someone determined can bypass it with developer tools. That is true of every
-static site, and of a good many apps with servers. What the licence check buys
-you is that **casual sharing doesn't work**: a key is tied to activations, can be
-revoked, and expires with the subscription. If you later want a hard wall, that
-needs a server holding the content — a different product, not a config change.
+| What you see | Almost always |
+|---|---|
+| Nothing happens when you press a plan | `token` or the price ID is empty. Both are needed before a buy button is even shown. |
+| The dialog opens empty | The domain is not approved (step 4), or `env` says `production` while the token is a `test_` one. |
+| "The payment form did not open" | `paddle.js` could not be fetched — an ad blocker or no connection. |
+| The price shown is not the price charged | Step 2's warning. Fix the Paddle price, not the dialog. |
