@@ -2,6 +2,11 @@
 """HTML body. LOGO is substituted at build time.
 data-i18n sets textContent, data-i18n-html sets innerHTML, data-i18n-ph sets placeholder."""
 
+# The questions the landing page shows. build.py imports this to build the
+# FAQPage markup from the same list, so the structured data can never claim a
+# question the page does not carry.
+FAQ_SHOWN = (1, 3, 4, 6)
+
 def i(name, cls=''):
     c = ('ic ' + cls).strip()
     return f'<svg class="{c}" aria-hidden="true"><use href="#i-{name}"></use></svg>'
@@ -34,7 +39,7 @@ def faq_item(n):
 def plan_card(pid, feature=False):
     tag = (f'<div class="tag"><span data-i18n="l.pr.popular"></span>'
            f'<span class="dot"></span><span data-i18n="l.pr.save"></span></div>') if feature else ''
-    feats = ''.join(f'<li>{i("check")}<span data-i18n="l.pr.f{n}"></span></li>' for n in range(1, 7))
+    feats = ''.join(f'<li>{i("check")}<span data-i18n="l.pr.f{n}"></span></li>' for n in range(1, 5))
     btn = 'btn-primary' if feature else 'btn-ghost'
     return (f'<div class="plan{" feature" if feature else ""}">{tag}'
             f'<h3 data-i18n="l.pr.{pid}"></h3>'
@@ -80,7 +85,7 @@ def build_body(logo):
     L += ('<span class="bar-sep" aria-hidden="true"></span>'
           + ''.join(f'<button class="accdot" data-set-accent="{a}" '
                     f'data-i18n-title="th.acc.{a}" aria-label="{a}"></button>'
-                    for a in ('flame', 'bloom', 'mint'))
+                    for a in ('sage', 'flame', 'bloom', 'mint'))
           + f'<button class="modebtn" id="modeBtn" data-i18n-title="th.dark">'
             f'{i("sun","ic-sun")}{i("moon","ic-moon")}</button>')
 
@@ -89,47 +94,44 @@ def build_body(logo):
 <main class="landing" id="landing">
  <div class="wrap">
 
+  <!-- The whole first screen: the word, two questions to answer in your head,
+       the answer, and one button. Nothing to press but "let's start". -->
   <section class="hero">
-   <p class="kicker">{i("sparkles")}<span data-i18n="n.hero.kicker"></span></p>
    <h1 class="hero-word" data-i18n="n.hero.word"></h1>
-   <blockquote class="hero-quote">
-    <p><span data-i18n="n.hero.q1"></span><q dir="auto" data-i18n="n.hero.q2"></q><span data-i18n="n.hero.q3"></span><q dir="auto" data-i18n="n.hero.q4"></q><span data-i18n="n.hero.q5"></span></p>
-   </blockquote>
-   <p class="lead hero-def" data-i18n="n.hero.def"></p>
-   <p class="hero-line" data-i18n="n.hero.a"></p>
-   <p class="lead" data-i18n="n.hero.sub"></p>
+   <div class="asks">
+    <p data-i18n="n.hero.ask1"></p>
+    <p data-i18n="n.hero.ask2"></p>
+   </div>
+   <p class="asks-for" data-i18n="n.hero.for"></p>
    <div class="cta-row">
     <button class="btn btn-primary btn-lg" id="ctaTop"><span data-i18n="n.hero.cta"></span>{i("arrow")}</button>
-    <a class="btn btn-ghost" href="#what"><span data-i18n="n.hero.cta2"></span></a>
    </div>
-   <p class="fineprint">{i("shield")}<span data-i18n="n.hero.note"></span></p>
   </section>
 
   <section class="blk" id="what">
    <h2 data-i18n="n.def.t"></h2>
    <p class="lede" data-i18n="n.def.b"></p>
+   <blockquote class="pullquote">
+    <p><span data-i18n="n.hero.q1"></span><q dir="auto" data-i18n="n.hero.q2"></q><span data-i18n="n.hero.q3"></span><q dir="auto" data-i18n="n.hero.q4"></q><span data-i18n="n.hero.q5"></span></p>
+   </blockquote>
+   <p class="lede defline" data-i18n="n.hero.def"></p>
+   <p class="punchline" data-i18n="n.hero.a"></p>
    <p class="sc-hint" data-i18n="n.def.hint"></p>
-   <ul class="scgrid">{''.join(scenario(n) for n in range(1, 9))}</ul>
+   <ul class="scgrid">{''.join(scenario(n) for n in (1, 2, 7, 8))}</ul>
    <p class="sc-close">{i("seedling")}<span data-i18n="n.def.close"></span></p>
   </section>
 
-  <div class="proof">
-   <div><div class="n">10</div><div class="l" data-i18n="n.pf1.t"></div></div>
-   <div><div class="n">5</div><div class="l" data-i18n="n.pf2.t"></div></div>
-   <div><div class="n">5</div><div class="l" data-i18n="n.pf3.t"></div></div>
-  </div>
-
   <section class="blk" id="how">
    <h2 data-i18n="n.how.t"></h2>
+   <p class="lede" style="margin-bottom:var(--s5)" data-i18n="n.hero.sub"></p>
    <ol class="steps">{step_block(1)}{step_block(2)}{step_block(3)}</ol>
   </section>
 
   <section class="blk">
    <h2 data-i18n="l.why.t"></h2>
    <div class="bengrid">
-    {benefit("target","l.why.1")}{benefit("rocket","l.why.2")}{benefit("refresh","l.why.3")}
-    {benefit("users","l.why.4")}{benefit("book","l.why.5")}{benefit("activity","l.why.6")}
-    {benefit("clock","l.why.7")}{benefit("compass","l.why.8")}
+    {benefit("rocket","l.why.2")}{benefit("target","l.why.1")}
+    {benefit("refresh","l.why.3")}{benefit("clock","l.why.7")}
    </div>
   </section>
 
@@ -145,13 +147,14 @@ def build_body(logo):
 
   <section class="blk faq">
    <h2 data-i18n="l.faq.t"></h2>
-   {''.join(faq_item(n) for n in range(1,7))}
+   {''.join(faq_item(n) for n in FAQ_SHOWN)}
   </section>
 
   <section class="finale">
    <h2 data-i18n="n.fin.t"></h2>
    <p data-i18n="n.fin.sub"></p>
    <button class="btn btn-primary btn-lg" id="ctaBottom"><span data-i18n="n.hero.cta"></span>{i("arrow")}</button>
+   <p class="fineprint">{i("shield")}<span data-privacy="n.hero.note" data-privacy-on="pay.note"></span></p>
   </section>
 
   <footer data-i18n="l.footer"></footer>
@@ -166,7 +169,7 @@ def build_body(logo):
         f'<button type="button" class="opt swatch" data-acc="{a}" aria-pressed="false">'
         f'<span class="sw sw-{a}" aria-hidden="true"></span>'
         f'<span data-i18n="th.acc.{a}"></span></button>'
-        for a in ('mint', 'flame', 'bloom'))
+        for a in ('sage', 'mint', 'flame', 'bloom'))
 
     onb = f'''
 <div class="onb" id="onboarding" role="dialog" aria-modal="true" aria-labelledby="onbHead"><div class="onb-inner">
@@ -183,7 +186,7 @@ def build_body(logo):
    <li>{i("gauge")}<span data-i18n="n.o.1.p2"></span></li>
    <li>{i("rocket")}<span data-i18n="n.o.1.p3"></span></li>
   </ul>
-  <div class="note">{i("shield")}<span data-i18n="n.hero.note"></span></div>
+  <div class="note">{i("shield")}<span data-privacy="n.hero.note" data-privacy-on="pay.note"></span></div>
   {nav(back=False, next_key="n.o.1.go")}
  </section>
 
@@ -191,10 +194,6 @@ def build_body(logo):
   <h2 data-i18n="n.o.2.t"></h2><p class="sub" data-i18n="n.o.2.s"></p>
   <div class="field"><label for="oName" data-i18n="n.o.2.name"></label>
    <input type="text" id="oName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
-  <div class="field"><label for="oAge" data-i18n="n.o.2.age"></label>
-   <input type="number" id="oAge" min="10" max="99" step="1" inputmode="numeric"
-          enterkeyhint="next" autocomplete="off" data-i18n-ph="o.age.ph">
-   <p class="hint agehint" id="oAgeBand"></p></div>
   <div class="qlabel" data-i18n="n.o.2.gender"></div>
   <div class="opts" id="oGender">
    {opt("gnd","m","user","o.iam.boy")}{opt("gnd","f","user","o.iam.girl")}{opt("gnd","n","compass","o.iam.na")}
@@ -203,7 +202,7 @@ def build_body(logo):
   <div class="qlabel" data-i18n="n.o.2.color"></div>
   <div class="opts" id="oAcc">{colours}</div>
   <p class="hint">{i("palette")}<span data-i18n="n.o.2.colorn"></span></p>
-  <div class="note">{i("lock")}<span data-i18n="n.o.2.privacy"></span></div>
+  <div class="note">{i("lock")}<span data-privacy="n.o.2.privacy" data-privacy-on="pay.privacy"></span></div>
   {nav()}
  </section>
 
@@ -227,10 +226,26 @@ def build_body(logo):
   </div>
   <div class="qz-meta"><span class="qz-count" id="qzCount"></span><span class="qz-dim" id="qzDim"></span></div>
   <div class="bar qz-bar"><i id="qzBar" style="width:10%"></i></div>
-  <h3 class="qz-q" id="qzQ" aria-live="polite"></h3>
-  <div class="qz-opts" id="qzOpts"></div>
+
+  <div id="qzAge" hidden>
+   <h3 class="qz-q" data-i18n="qz.age.q"></h3>
+   <p class="hint" data-i18n="qz.age.s"></p>
+   <div class="field qz-agefield">
+    <label for="qAge" class="sr-only" data-i18n="n.o.2.age"></label>
+    <input type="number" id="qAge" min="6" max="99" step="1" inputmode="numeric"
+           enterkeyhint="next" autocomplete="off" data-i18n-ph="o.age.ph">
+   </div>
+  </div>
+
+  <div id="qzBody">
+   <h3 class="qz-q" id="qzQ" aria-live="polite"></h3>
+   <p class="hint qz-multi" id="qzMulti" hidden>{i("check")}<span data-i18n="qz.multi"></span></p>
+   <div class="qz-opts" id="qzOpts"></div>
+  </div>
+
   <div class="qz-foot">
    <button class="btn btn-quiet" id="qzPrev">{i("chevron","flip")}<span data-i18n="qz.prev"></span></button>
+   <button class="btn btn-primary" id="qzNext" hidden><span data-i18n="qz.next"></span>{i("arrow")}</button>
   </div>
   <p class="hint">{i("shield")}<span data-i18n="qz.notest"></span></p>
  </section>
@@ -445,8 +460,8 @@ def build_body(logo):
     <div class="field"><label for="pfName" data-i18n="n.o.2.name"></label>
      <input type="text" id="pfName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
     <div class="field"><label for="pfAge" data-i18n="n.o.2.age"></label>
-     <input type="number" id="pfAge" min="10" max="99" step="1" inputmode="numeric" data-i18n-ph="o.age.ph">
-     <p class="hint agehint" id="pfAgeBand"></p></div>
+     <input type="number" id="pfAge" min="6" max="99" step="1" inputmode="numeric" data-i18n-ph="o.age.ph">
+</div>
     <div class="field"><label for="pfRemind" data-i18n="cal.time"></label>
      <input type="time" id="pfRemind" step="300">
      <p class="hint" data-i18n="cal.time.h"></p></div>
@@ -672,6 +687,25 @@ def build_body(logo):
  <img class="cam-p" id="camP" alt="">
  <input type="file" accept="image/*" capture="environment" class="hidden-file" id="camF">
  <div class="modal-btns" id="camBtns"></div>
+</div></div>
+
+<!-- The card form. #payBox is where Paddle mounts its own frame; the class is
+     what Paddle is given as frameTarget, so it must stay on the element. -->
+<div class="modal-bg" id="payModal"><div class="modal pay" role="dialog" aria-modal="true" aria-labelledby="payHead">
+ <div class="pay-top">
+  <h3 id="payHead" data-i18n="pay.t"></h3>
+  <button class="btn btn-quiet pay-x" id="payCloseBtn" data-i18n-title="pay.close">{i("x")}</button>
+ </div>
+ <p class="pay-plan" id="payPlan"></p>
+ <div class="pay-box" id="payBox"></div>
+ <p class="hint" id="payMsg" role="status" aria-live="polite"></p>
+ <div class="pay-thanks" id="payThanks" hidden>
+  {i("check")}
+  <h4 data-i18n="pay.done.t"></h4>
+  <p data-i18n="pay.done.s"></p>
+  <button class="btn btn-primary btn-block" id="payOk" data-i18n="pay.ok"></button>
+ </div>
+ <p class="hint pay-sec">{i("lock")}<span data-i18n="pay.sec"></span></p>
 </div></div>
 
 '''

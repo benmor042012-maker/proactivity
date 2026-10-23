@@ -29,7 +29,7 @@ from i18n_pro import PRO
 from i18n_avatar import AVATAR
 from assets import sprite
 from css import CSS
-from html import build_body
+from html import build_body, FAQ_SHOWN
 from js_core import JS_CORE
 from js_quiz import JS_QUIZ
 from js_app import JS_APP
@@ -42,7 +42,6 @@ from js_avatar import JS_AVATAR
 
 LANGS = ['he', 'en', 'fr', 'ru', 'ar']
 OUT = os.path.join(ROOT, 'index.html')
-LOGO_FILE = os.path.join(HERE, 'logo.b64')
 
 
 def merged_table():
@@ -176,9 +175,9 @@ SITE = 'https://benmor042012-maker.github.io/proactivity/'
 # switcher, so the markup carries the Hebrew default and applyLang() rewrites
 # the title and description once a language is chosen.
 SEO_TITLE = 'Proactivity — להפסיק לדחות ולהתחיל לעשות'
-SEO_DESC = ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמותאם לגיל ומראה איפה '
-            'הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, '
-            'צעדים קטנים והרגלים שנבנים. מגיל 10 עד 99, בלי הרשמה.')
+SEO_DESC = ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמראה איפה הדברים '
+            'עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, '
+            'צעדים קטנים והרגלים שנבנים. בלי הרשמה.')
 
 
 def structured_data(table):
@@ -187,14 +186,13 @@ def structured_data(table):
     faq = [{'@type': 'Question',
             'name': table[f'l.faq.q{n}'][0],
             'acceptedAnswer': {'@type': 'Answer', 'text': table[f'l.faq.a{n}'][0]}}
-           for n in range(1, 7)]
+           for n in FAQ_SHOWN]
     blocks = [
         {'@context': 'https://schema.org', '@type': 'WebApplication',
          'name': 'Proactivity', 'url': SITE,
          'applicationCategory': 'LifestyleApplication',
          'operatingSystem': 'Any', 'inLanguage': ['he', 'en', 'fr', 'ru', 'ar'],
          'description': SEO_DESC,
-         'audience': {'@type': 'PeopleAudience', 'suggestedMinAge': 10, 'suggestedMaxAge': 99},
          'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'ILS'}},
         {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq},
     ]
@@ -313,8 +311,6 @@ def main():
     check_gender(table)
     check_quiz_bands(table)
 
-    with open(LOGO_FILE, encoding='utf-8') as f:
-        logo = f.read().strip()
 
     fonts = ('https://fonts.googleapis.com/css2'
              '?family=Heebo:wght@400;500;600;700;900'
@@ -331,10 +327,10 @@ def main():
              "var d=document.documentElement;d.lang=l;"
              "d.dir=(l==='he'||l==='ar')?'rtl':'ltr';"
              "var st=localStorage.getItem('proactive_theme');"
-             "var th=st||((window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark');"
+             "var th=(st==='dark'||st==='light')?st:'light';"
              "d.setAttribute('data-theme',th);"
              "var sa=localStorage.getItem('proactive_accent');"
-             "d.setAttribute('data-accent',['flame','bloom','mint'].indexOf(sa)>=0?sa:'mint');"
+             "d.setAttribute('data-accent',['sage','flame','bloom','mint'].indexOf(sa)>=0?sa:'sage');"
              "}catch(e){}})();")
 
     js = '\n'.join([i18n_js(table), JS_CORE, JS_QUIZ, JS_APP, JS_PRO, JS_DATA,
@@ -352,8 +348,14 @@ def main():
         f'<script>{early}</script>\n'
         '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
         '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+        # Preloaded so the fetch starts at once, but still render-blocking on
+        # purpose: applying it after first paint restyled the whole page and
+        # cost 0.19 of layout shift - a visible jump under the reader - to buy
+        # 0.7s of paint. A page that does not move is worth more than a page
+        # that appears sooner and then lurches.
+        f'<link rel="preload" as="style" href="{fonts}">\n'
         f'<link rel="stylesheet" href="{fonts}">\n'
-        f'<link rel="icon" href="{logo}">\n'
+        '<link rel="icon" href="icon-192.png">\n'
         '<link rel="manifest" href="manifest.webmanifest">\n'
         '<link rel="apple-touch-icon" href="apple-touch-icon.png">\n'
         '<meta name="apple-mobile-web-app-capable" content="yes">\n'
@@ -361,7 +363,7 @@ def main():
         f'<style>{CSS}</style>\n'
         '</head>\n<body>\n'
         + sprite() + '\n'
-        + build_body(logo) + '\n'
+        + build_body('icon-192.png') + '\n'
         + '<script>' + js + '</script>\n'
         '</body>\n</html>\n'
     )
@@ -376,7 +378,7 @@ def main():
     print('  gendered strings: ' + ', '.join(f'{L}={gcounts[L]}' for L in LANGS))
     if missing_ar:
         print(f'  note: {len(missing_ar)} keys inflect in he but not yet in ar')
-    print(f'  {len(html):,} bytes ({len(html) - 3 * len(logo):,} excluding the embedded logo)')
+    print(f'  {len(html):,} bytes')
 
 
 if __name__ == '__main__':

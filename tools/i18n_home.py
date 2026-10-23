@@ -7,10 +7,27 @@ Order of tuple values: he, en, fr, ru, ar
 HOME = {
 
 # ================= LANDING: hero =================
-# The one word, then Ben's sentence verbatim. The sentence carries two nested
-# quoted phrases, and a straight " is direction-neutral in RTL, so it is split
-# around <q> elements and the browser supplies typographic quotes per language.
+# The first screen is the one word, two questions, the answer, and the button.
+# The questions are not a form - there is nothing to press on them. They are
+# asked in the second person plural, the way you would ask a room.
 'n.hero.word':   ('פרואקטיבי', 'Proactive', 'Proactif', 'Проактивный', 'مبادر'),
+'n.hero.ask1':   ('נמאס לכם שמה שאתם רוצים לא קורה?',
+                  'Tired of the things you want never happening?',
+                  'Marre que ce que vous voulez n\'arrive jamais ?',
+                  'Надоело, что то, чего вы хотите, так и не происходит?',
+                  'هل سئمتم من أن ما تريدونه لا يحدث؟'),
+'n.hero.ask2':   ('נמאס לכם להיות תלויים ברעיונות של אחרים?',
+                  'Tired of depending on other people\'s ideas?',
+                  'Marre de dépendre des idées des autres ?',
+                  'Надоело зависеть от чужих идей?',
+                  'هل سئمتم الاعتماد على أفكار الآخرين؟'),
+'n.hero.for':    ('האתר הזה בשבילכם.', 'This site is for you.', 'Ce site est pour vous.',
+                  'Этот сайт — для вас.', 'هذا الموقع لكم.'),
+# The quote and the definition used to sit here; they are now in the "so what
+# is it, actually?" section, where someone who scrolled for an explanation is.
+# The sentence carries two nested quoted phrases, and a straight " is
+# direction-neutral in RTL, so it is split around <q> elements and the browser
+# supplies typographic quotes per language.
 'n.hero.q1':     ('ההבדל בין הצלחה לכישלון הוא המרחק בין ',
                   'The difference between success and failure is the distance between ',
                   'La différence entre réussir et échouer, c\'est la distance entre ',
@@ -33,18 +50,12 @@ HOME = {
                   'Proactivity t\'aide à transformer ce que tu veux faire en actions réelles — une étape à la fois.',
                   'Proactivity помогает превратить то, что ты хочешь сделать, в реальные действия — по шагу за раз.',
                   'يساعدك Proactivity على تحويل ما تريد فعله إلى أفعال حقيقية — خطوة واحدة في كل مرة.'),
-'n.hero.cta':    ('מתחילים עכשיו', 'Start now', 'Commencer maintenant', 'Начать сейчас', 'ابدأ الآن'),
-'n.hero.cta2':   ('מה זה בכלל פרואקטיביות?',
-                  'What even is being proactive?',
-                  'C\'est quoi être proactif ?',
-                  'А что вообще такое проактивность?',
-                  'ما هي المبادرة أصلاً؟'),
+'n.hero.cta':    ('בוא נתחיל', 'Let\'s start', 'On commence', 'Начнём', 'لنبدأ'),
 'n.hero.note':   ('בלי הרשמה · בלי מייל · הכל נשמר אצלך במכשיר',
                   'No sign-up · No email · Everything stays on your device',
                   'Sans inscription · Sans e-mail · Tout reste sur ton appareil',
                   'Без регистрации · Без почты · Всё остаётся на твоём устройстве',
                   'بلا تسجيل · بلا بريد · كل شيء يبقى على جهازك'),
-'n.hero.kicker': ('מגיל 10 עד 99', 'Ages 10 to 99', 'De 10 à 99 ans', 'От 10 до 99 лет', 'من 10 إلى 99 عاماً'),
 
 # ================= LANDING: the one-line definition =================
 'n.def.t':       ('אז מה זה בעצם?', 'So what is it, actually?', 'Alors, c\'est quoi ?', 'Так что это, если по-простому?', 'إذاً، ما هذا فعلاً؟'),
@@ -78,41 +89,9 @@ HOME = {
                   '«Вторник и четверг в шесть. Уже решено.»',
                   '«الثلاثاء والخميس السادسة. الأمر محسوم.»'),
 
-'n.sc.3.t':      ('פרויקט משותף', 'A group project', 'Un projet en équipe', 'Совместный проект', 'مشروع مشترك'),
-'n.sc.3.r':      ('"אחכה לראות מה השאר עושים."',
-                  '"I will wait and see what everyone else does."',
-                  '« J\'attends de voir ce que font les autres. »',
-                  '«Подожду, посмотрю, что делают остальные.»',
-                  '«سأنتظر لأرى ما يفعله الآخرون.»'),
-'n.sc.3.p':      ('"הנושא וחלוקת החלקים — היום."',
-                  '"I am writing the topic and splitting the parts today."',
-                  '« J\'écris le sujet et je répartis les parties aujourd\'hui. »',
-                  '«Сегодня записываю тему и делю части.»',
-                  '«سأكتب الموضوع وأوزّع الأجزاء اليوم.»'),
 
-'n.sc.4.t':      ('ללמוד משהו חדש', 'Learning something new', 'Apprendre un truc nouveau', 'Учиться чему-то новому', 'تعلّم شيء جديد'),
-'n.sc.4.r':      ('"מתישהו אני אתחיל."', '"I will start at some point."', '« Je m\'y mettrai un jour. »', '«Когда-нибудь начну.»', '«سأبدأ في وقت ما.»'),
-'n.sc.4.p':      ('"סרטון אחד היום, ואז 10 דקות תרגול."',
-                  '"One video today, then 10 minutes of practice."',
-                  '« Une vidéo aujourd\'hui, puis 10 minutes de pratique. »',
-                  '«Одно видео сегодня, потом 10 минут практики.»',
-                  '«فيديو واحد اليوم، ثم 10 دقائق تدريب.»'),
 
-'n.sc.5.t':      ('סדר בבית', 'Order at home', 'L\'ordre à la maison', 'Порядок дома', 'النظام في البيت'),
-'n.sc.5.r':      ('"אסדר כשזה כבר יהיה בלתי נסבל."', '"I will sort it when it gets unbearable."', '« Je rangerai quand ce sera insupportable. »', '«Уберусь, когда станет невыносимо.»', '«سأرتّب حين يصبح الوضع لا يُطاق.»'),
-'n.sc.5.p':      ('"חמש דקות עכשיו, לפני שזה נערם."',
-                  '"Five minutes now, before it piles up."',
-                  '« Cinq minutes maintenant, avant que ça s\'accumule. »',
-                  '«Пять минут сейчас, пока не накопилось.»',
-                  '«خمس دقائق الآن، قبل أن يتراكم.»'),
 
-'n.sc.6.t':      ('להתחיל תחביב', 'Starting a hobby', 'Se lancer dans un hobby', 'Начать хобби', 'بدء هواية'),
-'n.sc.6.r':      ('"אין לי מספיק זמן לזה."', '"I do not have enough time for that."', '« Je n\'ai pas le temps pour ça. »', '«У меня нет на это времени.»', '«ليس لديّ وقت كافٍ لذلك.»'),
-'n.sc.6.p':      ('"חצי שעה בשבת. נראה אם זה מדבר אליי."',
-                  '"Half an hour on Saturday. Let us see if it clicks."',
-                  '« Une demi-heure samedi. On verra si ça me parle. »',
-                  '«Полчаса в субботу. Посмотрим, зайдёт ли.»',
-                  '«نصف ساعة يوم السبت. لنرَ إن كانت تناسبني.»'),
 
 'n.sc.7.t':      ('לדבר עם מישהו', 'Talking to someone', 'Parler à quelqu\'un', 'Поговорить с кем-то', 'التحدّث مع أحد'),
 'n.sc.7.r':      ('"אולי הוא יכתוב לי ראשון."', '"Maybe they will message me first."', '« Peut-être qu\'il m\'écrira en premier. »', '«Может, он напишет первым.»', '«ربما يراسلني هو أولاً.»'),
@@ -157,9 +136,6 @@ HOME = {
                   'Одна маленькая задача в день, подходящая тебе. Не список из двадцати дел.',
                   'مهمة صغيرة واحدة يومياً تناسبك. لا قائمة من عشرين شيئاً.'),
 
-'n.pf1.t':       ('שאלות בשאלון', 'questions in the check-in', 'questions dans le point', 'вопросов в чек-ине', 'أسئلة في الاستبيان'),
-'n.pf2.t':       ('תחומים בפרופיל שלך', 'areas in your profile', 'domaines dans ton profil', 'областей в твоём профиле', 'مجالات في ملفك'),
-'n.pf3.t':       ('שפות מלאות', 'full languages', 'langues complètes', 'полных языков', 'لغات كاملة'),
 
 'n.fin.t':       ('אז מה הצעד הראשון שלך?',
                   'So what is your first step?',
@@ -327,26 +303,22 @@ HOME = {
                   'Proactivity — arrête de repousser, commence à faire',
                   'Proactivity — хватит откладывать, начни делать',
                   'Proactivity — توقّف عن التأجيل وابدأ بالفعل'),
-'seo.desc':      ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמותאם לגיל ומראה איפה הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, צעדים קטנים והרגלים שנבנים. מגיל 10 עד 99, בלי הרשמה.',
-                  'What does proactive mean and how do you become it? A short, age-adapted check-in shows where things stand on initiative, goals, time and planning — then a target built from what you said, small steps, and habits that stick. Ages 10 to 99, no sign-up.',
-                  'Être proactif, ça veut dire quoi et comment le devenir ? Un point rapide, adapté à l\'âge, montre où en sont l\'initiative, les objectifs, le temps et l\'anticipation — puis un objectif construit à partir de tes réponses, des petits pas et des habitudes qui tiennent. De 10 à 99 ans, sans inscription.',
-                  'Что такое проактивность и как ею стать? Короткий чек-ин с учётом возраста покажет, как обстоят дела с инициативой, целями, временем и планированием — затем цель, собранная из твоих ответов, небольшие шаги и привычки, которые держатся. От 10 до 99 лет, без регистрации.',
-                  'ما معنى المبادرة وكيف تصبح مبادراً؟ استبيان قصير مناسب للعمر يريك أين تقف الأمور في المبادرة والأهداف والوقت والتخطيط — ثم هدف مبني ممّا قلته، وخطوات صغيرة، وعادات تدوم. من 10 إلى 99 عاماً، بلا تسجيل.'),
+'seo.desc':      ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמראה איפה הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, צעדים קטנים והרגלים שנבנים. בלי הרשמה.',
+                  'What does proactive mean and how do you become it? A short check-in shows where things stand on initiative, goals, time and planning — then a target built from what you said, small steps, and habits that stick. No sign-up.',
+                  'Être proactif, ça veut dire quoi et comment le devenir ? Un point rapide montre où en sont l\'initiative, les objectifs, le temps et l\'anticipation — puis un objectif construit à partir de tes réponses, des petits pas et des habitudes qui tiennent. Sans inscription.',
+                  'Что такое проактивность и как ею стать? Короткий чек-ин покажет, как обстоят дела с инициативой, целями, временем и планированием — затем цель, собранная из твоих ответов, небольшие шаги и привычки, которые держатся. Без регистрации.',
+                  'ما معنى المبادرة وكيف تصبح مبادراً؟ استبيان قصير يريك أين تقف الأمور في المبادرة والأهداف والوقت والتخطيط — ثم هدف مبني ممّا قلته، وخطوات صغيرة، وعادات تدوم. بلا تسجيل.'),
 
 # ================= age + gender =================
 # The four check-in bands. Shown under the age field so the user can see the
 # questionnaire adapting to what they typed.
-'ab.a13': ('שאלות שמתאימות לגיל 10–17', 'Questions for ages 10–17', 'Questions pour 10–17 ans', 'Вопросы для 10–17 лет', 'أسئلة لأعمار 10–17'),
-'ab.a18': ('שאלות שמתאימות לגיל 18–29', 'Questions for ages 18–29', 'Questions pour 18–29 ans', 'Вопросы для 18–29 лет', 'أسئلة لأعمار 18–29'),
-'ab.a30': ('שאלות שמתאימות לגיל 30–49', 'Questions for ages 30–49', 'Questions pour 30–49 ans', 'Вопросы для 30–49 лет', 'أسئلة لأعمار 30–49'),
-'ab.a50': ('שאלות שמתאימות לגיל 50+', 'Questions for ages 50+', 'Questions pour 50 ans et plus', 'Вопросы для 50+', 'أسئلة لأعمار 50+'),
 
 'pf.t':          ('הפרטים שלי', 'My details', 'Mes infos', 'Мои данные', 'بياناتي'),
-'pf.s':          ('הגיל קובע אילו שאלות ואילו תוכניות {תקבל|תקבלי}; הפנייה קובעת איך האתר מדבר אליך.',
-                  'Your age decides which questions and plans you get; the form of address decides how the site talks to you.',
-                  'Ton âge décide des questions et des plans que tu reçois ; la forme d\'adresse, de la façon dont le site te parle.',
-                  'Возраст определяет, какие вопросы и планы ты получаешь; обращение — как сайт с тобой говорит.',
-                  'عمرك يحدّد الأسئلة والخطط التي {تحصل|تحصلين} عليها؛ وصيغة المخاطبة تحدّد كيف يكلّمك الموقع.'),
+'pf.s':          ('מה שמופיע כאן קובע אילו שאלות ואילו תוכניות {תקבל|תקבלי}, ואיך האתר מדבר אליך.',
+                  'What you put here decides which questions and which plans you get, and how the app speaks to you.',
+                  'Ce que tu mets ici détermine les questions et les plans que tu reçois, et la façon dont le site te parle.',
+                  'То, что здесь указано, определяет, какие вопросы и какие планы ты получишь и как сайт к тебе обращается.',
+                  'ما تكتبه هنا يحدّد الأسئلة والخطط التي تحصل عليها، وكيف يخاطبك الموقع.'),
 'n.o.2.gender':  ('איך לפנות אליך?', 'How should we address you?', 'Comment s\'adresser à toi ?', 'Как к тебе обращаться?', 'كيف نخاطبك؟'),
 'n.o.2.gendern': ('זה רק קובע איך האתר מדבר אליך. אפשר לשנות מתי שבא לך.',
                   'This only sets how the site talks to you. Change it whenever you like.',

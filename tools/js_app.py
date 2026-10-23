@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 JS_APP = r"""
 /* ================= state ================= */
-var P={name:'',age:'15',email:'',goals:['study','sport','sleep','food'],customCats:[],
+var P={name:'',age:'',email:'',goals:['study','sport','sleep','food'],customCats:[],
        diff:'mid',workout:'general',fitLevel:'beginner',time:'30',actPref:'mix',
        easy:[],hard:[],dream:'',skinType:'normal',userGoals:[],
        plan:null, trialStart:null, founder:false, remind:'17:00',
        chainGoal:null, planAfter:null,
-       gender:'', accent:'mint', theme:''};   // theme '' = follow the device
+       gender:'', accent:'sage', theme:'light'};
+/* The first screen is deliberately white with a soft green, rather than
+   following the device - most phones are set to dark, so "follow the device"
+   meant almost nobody ever saw the calm version. One tap on the sun/moon
+   changes it and the choice is remembered for good. */
 /* S.streak is the count of ticks ever made and is kept only so old saves keep
    their number; the streak the user is shown is S.day, a real run of calendar
    days built with the same bumpStreak/liveStreak helpers the mini-apps use. */
@@ -19,18 +23,14 @@ var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[],
 var CATS=[], uid=1;
 
 /* ================= theme ================= */
-var ACCENTS=['flame','bloom','mint'];
+var ACCENTS=['sage','flame','bloom','mint'];
 
-function prefersLight(){
-  try{ return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches; }
-  catch(e){ return false; }
-}
-function activeTheme(){ return P.theme || (prefersLight() ? 'light' : 'dark'); }
+function activeTheme(){ return P.theme==='dark' ? 'dark' : 'light'; }
 
 function applyTheme(){
   var d=document.documentElement;
   d.setAttribute('data-theme', activeTheme());
-  d.setAttribute('data-accent', ACCENTS.indexOf(P.accent)>=0 ? P.accent : 'mint');
+  d.setAttribute('data-accent', ACCENTS.indexOf(P.accent)>=0 ? P.accent : 'sage');
   document.querySelectorAll('[data-set-accent]').forEach(function(b){
     b.classList.toggle('on', b.dataset.setAccent===P.accent);
   });
@@ -53,7 +53,7 @@ function loadLook(){
     var a=localStorage.getItem('proactive_accent');
     if(ACCENTS.indexOf(a)>=0) P.accent=a;
     var th=localStorage.getItem('proactive_theme');
-    if(th==='light'||th==='dark'||th==='') P.theme=th||'';
+    if(th==='light'||th==='dark') P.theme=th;
   }catch(e){}
 }
 /* Gender is picked during onboarding, before save() is allowed to write a
@@ -204,6 +204,7 @@ function ensureV4Fields(){
   if(!S.ach) S.ach={};
   if(!S.tips) S.tips={};
   if(!S.hist) S.hist=[];
+  if(S.quiz){ if(!S.quiz.areas) S.quiz.areas=[]; if(!S.quiz.blocks) S.quiz.blocks=[]; }
   if(S.mini && S.mini.skin && typeof migrateRoutine==='function') migrateRoutine(S.mini.skin);
   if(!S.day) S.day={streak:0,lastDay:null};
   if(!S.ref) S.ref=emptyRef();          /* the referral code and what it earned */
@@ -455,21 +456,6 @@ function bindGenderPick(){
     });
   });
 }
-/* min/max on a number input are only enforced by form validation, and there is
-   no <form> here, so the value has to be clamped by hand. */
-function readAge(){
-  var el=document.getElementById('oAge');
-  var n=parseInt(el.value,10);
-  P.age = (n>=AGE_MIN && n<=AGE_MAX) ? String(n) : '';
-  var hint=document.getElementById('oAgeBand');
-  if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
-  return P.age;
-}
-function bindAgeInput(){
-  var el=document.getElementById('oAge');
-  if(!el) return;
-  el.addEventListener('input', readAge);
-}
 function bindAccentPick(){
   var box=document.getElementById('oAcc');
   if(!box) return;
@@ -487,10 +473,6 @@ function markSelected(){
     o.classList.toggle('on', on);
     o.setAttribute('aria-pressed', on?'true':'false');
   });
-  var ageEl=document.getElementById('oAge');
-  if(ageEl && P.age && !ageEl.value) ageEl.value=P.age;
-  var hint=document.getElementById('oAgeBand');
-  if(hint) hint.textContent = P.age ? t('ab.'+ageBand(P.age)) : '';
   document.querySelectorAll('#oAcc [data-acc]').forEach(function(o){
     var on=o.dataset.acc===P.accent;
     o.classList.toggle('on', on);
@@ -518,15 +500,11 @@ function renderBuilt(){
 
 function readStep2(){
   P.name=document.getElementById('oName').value.trim();
-  readAge();
 }
 
 document.querySelectorAll('[data-next]').forEach(function(b){
   b.addEventListener('click',function(){
-    if(os===2){
-      readStep2();
-      if(!P.age){ toast(t('t.agerange')); return; }
-    }
+    if(os===2) readStep2();          /* the age is asked by the check-in itself */
     if(os===3 && !P.goals.length){ toast(t('t.pickarea')); return; }
     showStep(os+1);
   });

@@ -169,9 +169,9 @@ function guessSteps(g){
    the band picks the wording. It is derived from P.age at render time and never
    cached: the user can go back from the questions, change their age, and come
    forward again, and the questions have to follow. */
-/* The app is for ages 10 to 99. The bands below are keyed by their old
+/* The app is for ages 6 to 99. The bands below are keyed by their old
    names (a13 = the youngest band) because the key is stored in every save. */
-var AGE_MIN=10, AGE_MAX=99;
+var AGE_MIN=6, AGE_MAX=99;
 var QBANDS=['a13','a18','a30','a50'];
 function ageBand(a){
   var n=Number(a);
@@ -198,13 +198,13 @@ function mins(n){ return n+' '+t('c.min'); }
    10-12 gets the same low-impact branch, scaled down one more notch. */
 function fitProfile(age){
   var a=Math.min(AGE_MAX, Math.max(AGE_MIN, Number(age)||15));
-  if(a<=12) return {variant:'young', x:0.60, noteKey:'wo.n.a13', bandKey:'fb.a10'};
-  if(a<=14) return {variant:'young', x:0.70, noteKey:'wo.n.a13', bandKey:'fb.a13'};
-  if(a<=17) return {variant:'mid',   x:0.90, noteKey:'wo.n.a15', bandKey:'fb.a15'};
-  if(a<=29) return {variant:'older', x:1.00, noteKey:'wo.n.a18', bandKey:'fb.a18'};
-  if(a<=49) return {variant:'older', x:0.95, noteKey:'wo.n.a30', bandKey:'fb.a30'};
-  if(a<=64) return {variant:'mid',   x:0.85, noteKey:'wo.n.a50', bandKey:'fb.a50'};
-  return             {variant:'young', x:0.60, noteKey:'wo.n.a65', bandKey:'fb.a65'};
+  if(a<=12) return {variant:'young', x:0.60, noteKey:'wo.n.a13'};
+  if(a<=14) return {variant:'young', x:0.70, noteKey:'wo.n.a13'};
+  if(a<=17) return {variant:'mid',   x:0.90, noteKey:'wo.n.a15'};
+  if(a<=29) return {variant:'older', x:1.00, noteKey:'wo.n.a18'};
+  if(a<=49) return {variant:'older', x:0.95, noteKey:'wo.n.a30'};
+  if(a<=64) return {variant:'mid',   x:0.85, noteKey:'wo.n.a50'};
+  return             {variant:'young', x:0.60, noteKey:'wo.n.a65'};
 }
 function buildWorkout(age,goal,level){
   var F=fitProfile(age), band=F.variant;
@@ -315,7 +315,6 @@ function buildWorkout(age,goal,level){
   };
   return { blocks: plans[goal]||plans.general,
            levelKey:'fl.'+(level==='inter'?'inter':level==='basic'?'basic':'beginner'),
-           ageBandKey: F.bandKey,      // a translation key, not the literal "17-18"
            note: t(noteKey) };
 }
 

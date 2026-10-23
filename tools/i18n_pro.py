@@ -17,15 +17,15 @@ PRO = {
                    'Посмотреть, что входит в Pro', 'اطّلع على ما يشمله Pro'),
 'pro.have':       ('יש לי כבר קוד', 'I already have a key', 'J\'ai déjà une clé',
                    'У меня уже есть ключ', 'لديّ مفتاح بالفعل'),
-'pro.f.body':     ('טאב הגוף — תוכנית אימונים לפי גיל ורמה, שגרת טיפוח לפי סוג עור, '
+'pro.f.body':     ('טאב הגוף — תוכנית אימונים שנבנית לפי מה שאמרת, שגרת טיפוח לפי סוג עור, '
                    'והמקרר שמציע מתכון ממה שיש בבית.',
-                   'The Body tab — a workout plan by age and level, a skincare routine by skin '
-                   'type, and the fridge that suggests a recipe from what you already have.',
-                   'L\'onglet Corps — un programme sportif selon l\'âge et le niveau, une routine '
-                   'soin selon le type de peau, et le frigo qui propose une recette avec ce que tu as.',
-                   'Вкладка «Тело» — план тренировок по возрасту и уровню, уход за кожей по её типу '
-                   'и холодильник, который предлагает рецепт из того, что уже есть дома.',
-                   'تبويب الجسم — خطة تمارين حسب العمر والمستوى، وروتين عناية حسب نوع البشرة، '
+                   'The Body tab — a workout plan built from what you told it, a skincare routine '
+                   'by skin type, and the fridge that suggests a recipe from what you already have.',
+                   'L\'onglet Corps — un programme sportif construit à partir de tes réponses, une '
+                   'routine soin selon le type de peau, et le frigo qui propose une recette avec ce que tu as.',
+                   'Вкладка «Тело» — план тренировок, собранный из твоих ответов, уход за кожей по её '
+                   'типу и холодильник, который предлагает рецепт из того, что уже есть дома.',
+                   'تبويب الجسم — خطة تمارين تُبنى ممّا قلته، وروتين عناية حسب نوع البشرة، '
                    'والثلاجة التي تقترح وصفة مما هو موجود في البيت.'),
 'pro.f.trend':    ('הגרף שמראה איך מדד הפרואקטיביות שלך זז לאורך הזמן, שאלון אחרי שאלון.',
                    'The chart that shows how your proactivity score has moved over time, '
@@ -93,6 +93,69 @@ PRO = {
                    'Устройство освобождено.', 'تم تحرير الجهاز.'),
 'pro.portal':     ('לנהל את המנוי', 'Manage subscription', 'Gérer l\'abonnement',
                    'Управлять подпиской', 'إدارة الاشتراك'),
+
+# ---------- the card form ----------
+# The card fields belong to Paddle and render inside their own frame. These
+# lines are everything around that frame: what it is, what is happening while
+# it loads, and what to do when it will not open.
+'pay.t':          ('תשלום מאובטח', 'Secure payment', 'Paiement sécurisé',
+                   'Безопасная оплата', 'دفع آمن'),
+'pay.close':      ('סגירה', 'Close', 'Fermer', 'Закрыть', 'إغلاق'),
+'pay.load':       ('טוען את טופס התשלום…', 'Loading the payment form…',
+                   'Chargement du formulaire de paiement…',
+                   'Загружаем форму оплаты…', 'جارٍ تحميل نموذج الدفع…'),
+'pay.err':        ('טופס התשלום לא נפתח. בדקו את החיבור ונסו שוב — ואם זה חוזר, כתבו לי ואסדר את זה.',
+                   'The payment form did not open. Check your connection and try again — '
+                   'and if it keeps happening, write to me and I will sort it out.',
+                   'Le formulaire de paiement ne s\'est pas ouvert. Vérifie ta connexion et réessaie — '
+                   'et si ça continue, écris-moi et je m\'en occupe.',
+                   'Форма оплаты не открылась. Проверь соединение и попробуй снова — '
+                   'а если повторится, напиши мне, и я разберусь.',
+                   'لم يُفتح نموذج الدفع. تحقّق من اتصالك وحاول مرة أخرى — '
+                   'وإن تكرّر ذلك فاكتب لي وسأتولّى الأمر.'),
+'pay.sec':        ('הפרטים מוקלדים אצל Paddle, ספק התשלומים. הם לא עוברים דרך האתר הזה '
+                   'ולא נשמרים אצלי — גם לא מספר הכרטיס.',
+                   'The details are typed into Paddle, the payment provider. They do not pass '
+                   'through this site and I never store them — the card number included.',
+                   'Les informations sont saisies chez Paddle, le prestataire de paiement. Elles ne '
+                   'passent pas par ce site et je ne les conserve jamais — numéro de carte compris.',
+                   'Данные вводятся в Paddle, платёжного провайдера. Они не проходят через этот '
+                   'сайт и я их не храню — номер карты в том числе.',
+                   'تُدخل البيانات لدى Paddle، مزوّد الدفع. هي لا تمرّ عبر هذا الموقع ولا أحفظها '
+                   'أبداً — ولا رقم البطاقة.'),
+'pay.done.t':     ('התשלום עבר. פרו פתוח.', 'Payment went through. Pro is open.',
+                   'Paiement effectué. Pro est ouvert.',
+                   'Оплата прошла. Pro открыт.', 'تم الدفع. Pro مفتوح.'),
+'pay.done.s':     ('תודה. הכל פתוח במכשיר הזה, והקבלה נשלחה למייל שהזנת. '
+                   'יש לך מנוי — לא התחייבות: אפשר לבטל מתי שתרצה.',
+                   'Thank you. Everything is open on this device, and the receipt was sent to the '
+                   'email you entered. It is a subscription, not a commitment: cancel whenever you want.',
+                   'Merci. Tout est ouvert sur cet appareil, et le reçu a été envoyé à l\'adresse '
+                   'que tu as saisie. C\'est un abonnement, pas un engagement : annule quand tu veux.',
+                   'Спасибо. На этом устройстве открыто всё, а чек ушёл на указанную почту. '
+                   'Это подписка, а не обязательство: отменить можно когда захочешь.',
+                   'شكراً لك. كل شيء مفتوح على هذا الجهاز، وأُرسلت الفاتورة إلى البريد الذي أدخلته. '
+                   'هذا اشتراك وليس التزاماً: يمكنك الإلغاء وقتما تريد.'),
+'pay.ok':         ('קחו אותי לאפליקציה', 'Take me to the app', 'Emmène-moi dans l\'app',
+                   'Открыть приложение', 'خذني إلى التطبيق'),
+# The honest version of the privacy promise, for when a card can be entered.
+'pay.privacy':    ('לא מבקשים מייל, טלפון או כתובת, והכל נשמר בדפדפן שלך בלבד. '
+                   'רק אם תחליט לשלם — הפרטים האלה נמסרים לספק התשלומים, לא לי.',
+                   'We do not ask for email, phone or address, and everything stays in your browser '
+                   'only. Only if you choose to pay do those details go to the payment provider — '
+                   'not to me.',
+                   'On ne demande ni e-mail, ni téléphone, ni adresse, et tout reste dans ton '
+                   'navigateur. Ce n\'est que si tu choisis de payer que ces informations vont au '
+                   'prestataire de paiement — pas à moi.',
+                   'Мы не просим почту, телефон или адрес, и всё хранится только в твоём браузере. '
+                   'Только если ты решишь заплатить, эти данные уйдут платёжному провайдеру — не мне.',
+                   'لا نطلب بريداً ولا هاتفاً ولا عنواناً، وكل شيء يبقى في متصفحك فقط. '
+                   'وفقط إن اخترت الدفع تنتقل تلك البيانات إلى مزوّد الدفع — لا إليّ.'),
+'pay.note':       ('בלי הרשמה · הכל נשמר אצלך במכשיר · מייל רק אם תבחר לשלם',
+                   'No sign-up · Everything stays on your device · Email only if you choose to pay',
+                   'Sans inscription · Tout reste sur ton appareil · E-mail seulement si tu paies',
+                   'Без регистрации · Всё остаётся на устройстве · Почта только при оплате',
+                   'بلا تسجيل · كل شيء يبقى على جهازك · البريد فقط إن اخترت الدفع'),
 
 # ---------- backup ----------
 'bk.t':           ('גיבוי ושחזור', 'Backup and restore', 'Sauvegarde et restauration',
@@ -210,4 +273,33 @@ PRO = {
                    'Tu as manqué un jour. Fais une chose aujourd\'hui et la série de {n} tient.',
                    'Пропущен день. Сделай что-то сегодня — и серия из {n} сохранится.',
                    'فاتك يوم. افعل شيئاً اليوم وسيبقى تتابع الـ{n}.'),
+# ---------- the check-in: age, multi-select, the two closing questions ----------
+'qz.age.q':       ('בן כמה את/ה?',
+                   'How old are you?',
+                   'Quel âge as-tu ?',
+                   'Сколько тебе лет?',
+                   'كم عمرك؟'),
+'qz.age.s':       ('כדי שהשאלות יהיו על החיים שלך ולא על חיים של מישהו אחר.',
+                   'So the questions are about your life and not someone else\'s.',
+                   'Pour que les questions parlent de ta vie, pas de celle d\'un autre.',
+                   'Чтобы вопросы были о твоей жизни, а не о чьей-то другой.',
+                   'لتكون الأسئلة عن حياتك، لا عن حياة شخص آخر.'),
+'qz.next':        ('המשך', 'Continue', 'Continuer', 'Дальше', 'متابعة'),
+'qz.multi':       ('אפשר לבחור כמה', 'You can pick more than one', 'Tu peux en choisir plusieurs',
+                   'Можно выбрать несколько', 'يمكنك اختيار أكثر من واحد'),
+'qz.p.areas':     ('באילו תחומים את/ה רוצה להשתפר?',
+                   'Which areas do you want to work on?',
+                   'Sur quels domaines veux-tu progresser ?',
+                   'В каких областях ты хочешь продвинуться?',
+                   'في أي المجالات تريد أن تتحسّن؟'),
+'qz.p.blocks':    ('מה הכי מעכב אותך?',
+                   'What gets in your way most?',
+                   'Qu\'est-ce qui te freine le plus ?',
+                   'Что мешает тебе больше всего?',
+                   'ما الذي يعيقك أكثر؟'),
+'gc.fromquiz':    ('מסומן מה שאמרת בשאלון — אפשר לבחור אחרת.',
+                   'Marked from what you said in the check-in — you can pick differently.',
+                   'Marqué d\'après ton bilan — tu peux choisir autrement.',
+                   'Отмечено по твоим ответам — можно выбрать иначе.',
+                   'مُعلَّم بحسب ما قلته في المراجعة — يمكنك الاختيار بشكل مختلف.'),
 }
