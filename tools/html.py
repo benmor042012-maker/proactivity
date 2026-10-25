@@ -312,7 +312,9 @@ def build_body(logo):
  <nav class="tabs" id="tabBar" role="tablist" data-i18n-title="n.nav.label">{tabs}</nav>
 
  <div class="page" id="page-home" role="tabpanel">
+  <section class="dash-box today3" id="todayBox"></section>
   <div class="nextcard" id="nextCard"></div>
+  <section class="dash-box" id="myGoal"></section>
   <div class="dstrip" id="dashStats"></div>
   <section class="dash-box wkboard" id="wkBoard">
    <h2 class="boxh">{i("calendar")}<span data-i18n="n.pg.week"></span></h2>

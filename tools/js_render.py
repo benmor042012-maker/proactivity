@@ -657,6 +657,102 @@ function renderNextCard(overrideText){
   });
 }
 
+/* ---- my day: the same small ritual for everyone, every morning ----
+   Three things that matter today, written by the user, before the
+   personal step. A new day starts with three empty lines. */
+function today3(){
+  var d=dayKey();
+  if(!S.today3 || S.today3.day!==d)
+    S.today3={day:d, items:[0,1,2].map(function(){ return {t:'', done:false, paid:false}; })};
+  return S.today3;
+}
+function renderToday3(){
+  var box=document.getElementById('todayBox'); if(!box) return;
+  var td=today3();
+  var n=td.items.filter(function(x){ return x.done; }).length;
+  box.innerHTML='<div class="boxh-row"><h2 class="boxh">'+ic('sun')+'<span>'+esc(t('t3.t'))+'</span></h2>'+
+      '<span class="boxh-n numf">'+n+'/3</span></div>'+
+    '<p class="psub">'+esc(t('t3.s'))+'</p>'+
+    td.items.map(function(it,i){
+      var ph=t('t3.ph',{n:i+1});
+      return '<div class="t3row'+(it.done?' done':'')+'">'+
+        '<button type="button" class="t3chk" data-t3="'+i+'" aria-pressed="'+(it.done?'true':'false')+'"'+
+          ' aria-label="'+esc(t('t3.mark'))+'"'+(it.t.trim()?'':' disabled')+'>'+ic('check')+'</button>'+
+        '<input type="text" maxlength="80" data-t3in="'+i+'" value="'+esc(it.t)+'"'+
+          ' placeholder="'+esc(ph)+'" aria-label="'+esc(ph)+'"></div>';
+    }).join('');
+  box.querySelectorAll('[data-t3in]').forEach(function(inp){
+    inp.addEventListener('input',function(){
+      var i=Number(inp.dataset.t3in), it=today3().items[i];
+      it.t=inp.value; save();
+      box.querySelector('[data-t3="'+i+'"]').disabled=!inp.value.trim();
+    });
+  });
+  box.querySelectorAll('[data-t3]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var td=today3(), it=td.items[Number(b.dataset.t3)];
+      it.done=!it.done;
+      if(it.done){
+        markActiveToday();
+        if(!it.paid){ it.paid=true; addPts(10); }
+        var all=td.items.every(function(x){ return x.done; });
+        toast(all ? t('t3.all') : t('t.pts',{n:10}));
+      }
+      save(); renderToday3(); renderDashStats(); checkAchievements();
+    });
+  });
+}
+
+/* ---- my goal: what the next step is heading toward ----
+   With no goal yet it offers the areas and a free line; both go on into the
+   same chain the Goals tab uses, so a goal made here has a full ladder. */
+function openChainAt(area, kindText){
+  if(goalLimitReached()){ toast(t('pro.goalmax',{n:GOAL_FREE_MAX})); openPlans(); return; }
+  resetChain();
+  CH.area=area; CH.step=1;
+  if(kindText){ CH.kind='other'; CH.kindText=kindText; CH.step=2; }
+  saveChain();
+  goPage('goals');
+  var host=document.getElementById('goalChain'); host.hidden=false;
+  document.getElementById('newGoalBtn').hidden=true;
+  renderChain('goalChain');
+  host.scrollIntoView({block:'start',behavior:'smooth'});
+}
+function renderMyGoal(){
+  var box=document.getElementById('myGoal'); if(!box) return;
+  var g=(S.goals||[]).filter(function(x){ return !x.archived; })[0];
+  var head='<h2 class="boxh">'+ic('target')+'<span>'+esc(t('mg.t'))+'</span></h2>';
+  if(g){
+    box.innerHTML=head+
+      '<div class="mini-ladder">'+
+        '<div><span>'+esc(t('gl.goal'))+'</span><b>'+esc(g.title)+'</b></div>'+
+        (g.today?'<div><span>'+esc(t('gl.today'))+'</span><b>'+esc(g.today)+'</b></div>':'')+
+      '</div>'+
+      '<div class="row-btns">'+
+        (g.started ? '' : '<button class="btn btn-primary btn-sm" data-mg-start>'+ic('play')+'<span>'+esc(t('gc.start'))+'</span></button>')+
+        '<button class="btn btn-ghost btn-sm" data-mg-all>'+ic('target')+'<span>'+esc(t('mg.all'))+'</span></button>'+
+      '</div>';
+    var st=box.querySelector('[data-mg-start]');
+    if(st) st.addEventListener('click',function(){ startGoal(g); });
+    box.querySelector('[data-mg-all]').addEventListener('click',function(){ goPage('goals'); });
+    return;
+  }
+  box.innerHTML=head+'<p class="psub">'+esc(t('mg.s'))+'</p>'+
+    '<div class="opts mg-areas">'+AREAS.map(function(a){
+      return '<button type="button" class="opt" data-mg-area="'+a.id+'">'+ic(a.icon)+'<span>'+esc(t('ga.'+a.id))+'</span></button>';
+    }).join('')+'</div>'+
+    '<div class="addrow mg-free"><input type="text" id="mgText" maxlength="80"'+
+      ' placeholder="'+esc(t('mg.ph'))+'" aria-label="'+esc(t('gc.free'))+'">'+
+      '<button class="btn btn-primary" id="mgGo">'+esc(t('c.next'))+'</button></div>';
+  box.querySelectorAll('[data-mg-area]').forEach(function(b){
+    b.addEventListener('click',function(){ openChainAt(b.dataset.mgArea); });
+  });
+  var inp=document.getElementById('mgText');
+  function go(){ var v=inp.value.trim(); if(!v){ inp.focus(); return; } openChainAt('goals', v); }
+  document.getElementById('mgGo').addEventListener('click',go);
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
+}
+
 /* The same three facts onboarding asked for, editable later. Age feeds the
    check-in band and the training plan; gender re-renders every string. */
 function renderSettings(){
@@ -688,7 +784,7 @@ function bindSettings(){
   });
 }
 function renderDash(){
-  renderDashStats(); renderNextCard();
+  renderToday3(); renderDashStats(); renderNextCard(); renderMyGoal();
   renderAvatarCard(); renderInvite();
 }
 
