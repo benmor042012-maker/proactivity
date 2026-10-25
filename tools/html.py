@@ -12,15 +12,6 @@ def i(name, cls=''):
     return f'<svg class="{c}" aria-hidden="true"><use href="#i-{name}"></use></svg>'
 
 
-def benefit(n, key):
-    return f'<div class="ben">{i(n)}<span data-i18n="{key}"></span></div>'
-
-
-def step_block(num):
-    return (f'<li class="stp"><div class="num" aria-hidden="true">{num}</div><div>'
-            f'<h3 data-i18n="n.how.{num}.t"></h3><p data-i18n="n.how.{num}.d"></p></div></li>')
-
-
 def scenario(n):
     """One everyday situation shown twice: waiting for it, and acting on it."""
     return (f'<li class="sc">'
@@ -94,18 +85,20 @@ def build_body(logo):
 <main class="landing" id="landing">
  <div class="wrap">
 
-  <!-- The whole first screen: the word, two questions to answer in your head,
-       the answer, and one button. Nothing to press but "let's start". -->
+  <!-- The whole first screen: who you are from now on, what it takes, one
+       button. Everything below it is for whoever still wants convincing. -->
   <section class="hero">
-   <h1 class="hero-word" data-i18n="n.hero.word"></h1>
-   <div class="asks">
-    <p data-i18n="n.hero.ask1"></p>
-    <p data-i18n="n.hero.ask2"></p>
-   </div>
-   <p class="asks-for" data-i18n="n.hero.for"></p>
-   <div class="cta-row">
-    <button class="btn btn-primary btn-lg" id="ctaTop"><span data-i18n="n.hero.cta"></span>{i("arrow")}</button>
-   </div>
+   <div class="hero-brand"><img src="{logo}" alt="" width="32" height="32"><span data-i18n="b.name"></span></div>
+   <h1 class="hero-lead" data-i18n="n.hero.lead"></h1>
+   <p class="hero-sub" data-i18n="n.hero.sub2"></p>
+   <p class="hero-who" data-i18n="n.hero.who"></p>
+   <ol class="hero-steps">
+    <li>{i("gauge")}<span data-i18n="n.hero.s1"></span></li>
+    <li>{i("target")}<span data-i18n="n.hero.s2"></span></li>
+    <li>{i("rocket")}<span data-i18n="n.hero.s3"></span></li>
+   </ol>
+   <button class="btn btn-primary btn-lg" id="ctaTop"><span data-i18n="n.hero.go"></span>{i("arrow")}</button>
+   <p class="fineprint">{i("shield")}<span data-privacy="n.hero.note" data-privacy-on="pay.note"></span></p>
   </section>
 
   <section class="blk" id="what">
@@ -114,25 +107,8 @@ def build_body(logo):
    <blockquote class="pullquote">
     <p><span data-i18n="n.hero.q1"></span><q dir="auto" data-i18n="n.hero.q2"></q><span data-i18n="n.hero.q3"></span><q dir="auto" data-i18n="n.hero.q4"></q><span data-i18n="n.hero.q5"></span></p>
    </blockquote>
-   <p class="lede defline" data-i18n="n.hero.def"></p>
-   <p class="punchline" data-i18n="n.hero.a"></p>
-   <p class="sc-hint" data-i18n="n.def.hint"></p>
-   <ul class="scgrid">{''.join(scenario(n) for n in (1, 2, 7, 8))}</ul>
+   <ul class="scgrid">{scenario(1)}</ul>
    <p class="sc-close">{i("seedling")}<span data-i18n="n.def.close"></span></p>
-  </section>
-
-  <section class="blk" id="how">
-   <h2 data-i18n="n.how.t"></h2>
-   <p class="lede" style="margin-bottom:var(--s5)" data-i18n="n.hero.sub"></p>
-   <ol class="steps">{step_block(1)}{step_block(2)}{step_block(3)}</ol>
-  </section>
-
-  <section class="blk">
-   <h2 data-i18n="l.why.t"></h2>
-   <div class="bengrid">
-    {benefit("rocket","l.why.2")}{benefit("target","l.why.1")}
-    {benefit("refresh","l.why.3")}{benefit("clock","l.why.7")}
-   </div>
   </section>
 
   <section class="blk" id="pricing">

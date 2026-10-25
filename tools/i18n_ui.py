@@ -32,12 +32,6 @@ UI = {
 # ---------- landing: proof strip ----------
 
 # ---------- landing: benefits ----------
-'l.why.t':       ('מה יוצא לך מזה', 'What you get out of it', 'Ce que ça t\'apporte',
-                  'Что это тебе даёт', 'ما الذي تحصل عليه'),
-'l.why.1':       ('להוביל את עצמך למטרות', 'Lead yourself to your goals', 'Atteindre tes objectifs', 'Вести себя к своим целям', 'قُد نفسك نحو أهدافك'),
-'l.why.2':       ('לקחת יוזמה בלי שיזכירו לך', 'Take initiative without being told', 'Prendre l\'initiative sans qu\'on te le dise', 'Проявлять инициативу без напоминаний', 'بادر دون أن يُطلب منك'),
-'l.why.3':       ('לבנות הרגלים שנשארים', 'Build habits that stick', 'Créer des habitudes durables', 'Строить привычки, которые держатся', 'ابنِ عادات تدوم'),
-'l.why.7':       ('לנהל את הזמן שלך', 'Own your time', 'Gérer ton temps', 'Управлять своим временем', 'أدر وقتك'),
 
 # ---------- landing: pricing ----------
 'l.pr.t':        ('תוכניות', 'Pricing', 'Tarifs', 'Тарифы', 'الخطط'),
