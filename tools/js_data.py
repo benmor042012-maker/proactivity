@@ -130,28 +130,61 @@ function downloadICS(g){
 
 /* ================= install =================
    A habit app that lives in a browser tab gets forgotten. Offered once,
-   dismissed for good if the answer is no. */
+   dismissed for good if the answer is no. Browsers without
+   beforeinstallprompt (iOS Safari, Firefox) get the steps instead.
+   The button in the profile card stays for anyone who said no and changed
+   their mind. */
 var installEvt=null;
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault(); installEvt=e; showInstall();
 });
+window.addEventListener('appinstalled', function(){
+  installEvt=null;
+  var bar=document.getElementById('installBar'); if(bar) bar.classList.remove('on');
+  renderInstallBox();
+});
+function isStandalone(){
+  try{ if(window.matchMedia('(display-mode: standalone)').matches) return true; }catch(e){}
+  return navigator.standalone===true;
+}
+function isIOS(){
+  var ua=navigator.userAgent||'';
+  return /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints>1);
+}
 function installDismissed(){
   try{ return localStorage.getItem('proactive_install')==='no'; }catch(e){ return true; }
 }
 function showInstall(){
+  renderInstallBox();
   var bar=document.getElementById('installBar');
-  if(!bar || !installEvt || installDismissed()) return;
+  if(!bar || isStandalone() || installDismissed()) return;
   if(document.getElementById('app').style.display!=='block') return;
+  /* Chrome/Edge/Samsung hand us a real prompt; every other phone browser
+     (Safari, Firefox, ...) gets the steps for its own menu. */
+  var key=installEvt?'pwa.t':(isIOS()?'pwa.ios':'pwa.other');
+  var txt=bar.querySelector('[data-i18n]');
+  txt.setAttribute('data-i18n', key); txt.textContent=t(key);
+  document.getElementById('installGo').hidden=!installEvt;
   bar.classList.add('on');
 }
-function bindInstall(){
-  var go=document.getElementById('installGo'), no=document.getElementById('installNo');
-  if(go) go.addEventListener('click', function(){
-    if(!installEvt) return;
+function renderInstallBox(){
+  var box=document.getElementById('installBox');
+  if(box) box.hidden=isStandalone();
+}
+function runInstall(){
+  if(installEvt){
     installEvt.prompt();
     installEvt.userChoice.then(function(){ installEvt=null;
-      document.getElementById('installBar').classList.remove('on'); });
-  });
+      document.getElementById('installBar').classList.remove('on'); renderInstallBox(); });
+    return;
+  }
+  toast(t(isIOS()?'pwa.ios':'pwa.other'));
+}
+function bindInstall(){
+  var go=document.getElementById('installGo'), no=document.getElementById('installNo'),
+      any=document.getElementById('installAny');
+  if(go) go.addEventListener('click', runInstall);
+  if(any) any.addEventListener('click', runInstall);
   if(no) no.addEventListener('click', function(){
     try{ localStorage.setItem('proactive_install','no'); }catch(e){}
     document.getElementById('installBar').classList.remove('on');

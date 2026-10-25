@@ -472,6 +472,14 @@ def build_body(logo):
    </div>
   </section>
 
+  <section class="dash-box" id="installBox">
+   <h3 class="boxh">{i("rocket")}<span data-i18n="pwa.box"></span></h3>
+   <p class="psub" data-i18n="pwa.t"></p>
+   <div class="row-btns">
+    <button class="btn btn-ghost" id="installAny">{i("rocket")}<span data-i18n="pwa.go"></span></button>
+   </div>
+  </section>
+
   <section class="dash-box">
    <div class="boxh-row"><h3 class="boxh">{i("star")}<span data-i18n="ac.t"></span></h3>
     <span class="boxh-n" id="acCount"></span></div>

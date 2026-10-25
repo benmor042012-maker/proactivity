@@ -220,6 +220,18 @@ PRO = {
                    'يمكنك تثبيت هذا كتطبيق على الشاشة الرئيسية.'),
 'pwa.go':         ('התקן', 'Install', 'Installer', 'Установить', 'ثبّت'),
 'pwa.no':         ('לא צריך', 'No thanks', 'Non merci', 'Не нужно', 'لا شكراً'),
+'pwa.box':        ('הוספה למסך הבית', 'Add to home screen', 'Ajouter à l\'écran d\'accueil',
+                   'На домашний экран', 'إضافة إلى الشاشة الرئيسية'),
+'pwa.ios':        ('באייפון: לחצ{|י} על כפתור השיתוף ⬆️ בתחתית Safari, ואז "הוספה למסך הבית".',
+                   'On iPhone: tap the Share button ⬆️ at the bottom of Safari, then "Add to Home Screen".',
+                   'Sur iPhone : touche le bouton Partager ⬆️ en bas de Safari, puis « Sur l\'écran d\'accueil ».',
+                   'На iPhone: нажми кнопку «Поделиться» ⬆️ внизу Safari, затем «На экран «Домой»».',
+                   'على iPhone: اضغط زر المشاركة ⬆️ أسفل Safari، ثم "إضافة إلى الشاشة الرئيسية".'),
+'pwa.other':      ('פת{ח|חי} את תפריט הדפדפן (⋮) ובח{ר|רי} "התקנת אפליקציה" או "הוספה למסך הבית".',
+                   'Open the browser menu (⋮) and choose "Install app" or "Add to Home screen".',
+                   'Ouvre le menu du navigateur (⋮) et choisis « Installer l\'application » ou « Ajouter à l\'écran d\'accueil ».',
+                   'Открой меню браузера (⋮) и выбери «Установить приложение» или «Добавить на главный экран».',
+                   'افتح قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية".'),
 
 # ---------- the trend ----------
 'tr.sec':         ('איך זה זז', 'How it has moved', 'Comment ça a bougé',
