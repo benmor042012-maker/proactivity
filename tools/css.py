@@ -170,29 +170,25 @@ select option{background:var(--ink-2);color:var(--fg);}
   .langbtn::after{content:attr(data-short);font-size:12px;font-weight:700;}
 }
 
+body:not(.in-app) .langbar .accdot,body:not(.in-app) .langbar .modebtn,
+body:not(.in-app) .langbar .bar-sep{display:none;}
+
 /* ============ LANDING ============ */
 .landing{padding-block-start:40px;}
 .hero{padding:var(--s7) 0 var(--s7);}
-/* the one word the page is about */
-.hero-word{font-size:clamp(44px,9vw,76px);line-height:.95;letter-spacing:-.03em;margin-bottom:var(--s5);
-  color:var(--acc);max-width:none;min-height:.95em;}
-/* Two questions, read and answered in the reader's head. Nothing to press, so
-   nothing here looks pressable: no border, no background, no hover. The width
-   is set so each question lands on two lines rather than three - the pair has
-   to be takeable in at a glance, above the fold, with the button under it. */
-/* Four lines of space, held from the first paint, on the block rather than on
-   each question. The text arrives from the translation table and the display
-   font after that, and how many lines a question takes changes with both - so
-   the space for the worst case is reserved here once. Holding it per question
-   instead would open a hole between the two whenever the first one fits on a
-   single line; held here, the slack falls after the pair, where it reads as
-   spacing rather than as a gap. */
-.asks{margin-bottom:var(--s5);max-width:42ch;font-size:clamp(20px,3.6vw,28px);
-  min-height:calc(5em + var(--s3));}
-.asks p{font-family:var(--f-display);font-size:1em;line-height:1.25;color:var(--fg);}
-.asks p + p{margin-top:var(--s3);}
-.asks-for{font-size:clamp(17px,2.6vw,22px);font-weight:700;color:var(--acc);margin-bottom:var(--s5);
-  min-height:1.3em;}
+.hero-brand{display:flex;align-items:center;gap:var(--s2);font-weight:700;color:var(--fg-2);
+  margin-bottom:var(--s6);}
+.hero-brand img{border-radius:8px;}
+.hero-lead{font-size:clamp(34px,8vw,64px);line-height:1.05;letter-spacing:-.02em;color:var(--acc);
+  max-width:16ch;margin-bottom:var(--s3);}
+.hero-sub{font-family:var(--f-display);font-size:clamp(20px,3.6vw,28px);line-height:1.3;color:var(--fg);
+  max-width:28ch;margin-bottom:var(--s4);}
+.hero-who{color:var(--fg-2);font-size:var(--t-md,17px);margin-bottom:var(--s5);}
+.hero-steps{list-style:none;display:grid;gap:var(--s3);margin-bottom:var(--s6);}
+.hero-steps li{display:flex;align-items:center;gap:var(--s3);font-weight:600;color:var(--fg);}
+.hero-steps svg{width:22px;height:22px;color:var(--acc);flex:none;}
+.hero .fineprint{font-size:var(--t-xs);color:var(--fg-3);margin-top:var(--s3);display:flex;gap:var(--s2);align-items:center;}
+.hero .fineprint svg{width:14px;height:14px;flex:none;}
 /* Ben's sentence and the definition, now in the explainer section */
 .pullquote{margin:var(--s5) 0;padding-inline-start:var(--s4);border-inline-start:3px solid var(--acc);max-width:60ch;}
 .pullquote p{font-family:var(--f-display);font-size:clamp(19px,3.4vw,28px);line-height:1.3;color:var(--fg);
@@ -200,9 +196,7 @@ select option{background:var(--ink-2);color:var(--fg);}
 .pullquote q{quotes:"\201C" "\201D";color:var(--acc);}
 .pullquote q::before{content:open-quote;} .pullquote q::after{content:close-quote;}
 [dir=rtl] .pullquote q{quotes:"\201D" "\201C";}
-.defline{color:var(--fg);font-weight:600;margin-bottom:var(--s4);}
-@media(max-width:520px){.hero-word{font-size:clamp(40px,13vw,64px);}.pullquote p{font-size:19px;}}
-.hero .cta-row{display:flex;gap:var(--s3);flex-wrap:wrap;align-items:center;}
+@media(max-width:520px){.pullquote p{font-size:19px;}}
 .finale .fineprint{font-size:var(--t-xs);color:var(--fg-3);margin-top:var(--s4);}
 section.blk{padding:var(--s8) 0;}
 section.blk + section.blk{border-top:1px solid var(--ink-2);}
@@ -962,7 +956,7 @@ body.no-scroll{overflow:hidden;}
   .lvl{flex:0 0 100%;order:3;}
   .apphead .who{flex:1;}
   .tabs{gap:var(--s4);}
-  .sticky-cta{display:block;}
+  body.past-hero .sticky-cta{display:block;}
   body.has-sticky .landing{padding-bottom:76px;}
 }
 /* ---- phone: the tab strip becomes a bottom bar ---- */

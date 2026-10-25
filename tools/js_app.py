@@ -376,6 +376,13 @@ function goOnboarding(){
   document.getElementById(id).addEventListener('click',goOnboarding);
 });
 document.body.classList.add('has-sticky');
+/* The sticky button only once the hero's own button has scrolled away -
+   two "start" buttons on one screen read as two different things. */
+if('IntersectionObserver' in window){
+  new IntersectionObserver(function(es){
+    document.body.classList.toggle('past-hero', !es[0].isIntersecting);
+  }).observe(document.getElementById('ctaTop'));
+} else document.body.classList.add('past-hero');
 
 /* ================= onboarding ================= */
 /* 1 welcome · 2 you · 3 focus + time · 4 check-in · 5 profile · 6 first goal
