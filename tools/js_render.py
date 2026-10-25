@@ -243,8 +243,14 @@ function renderGoals(){
       : started
       ? '<span class="gstate on">'+ic('play')+esc(t('gc.started',{d:fmtDay(g.startedAt)}))+'</span>'
       : '<span class="gstate">'+ic('clock')+esc(t('gc.notstarted'))+'</span>';
+    if(goalEditId===g.id){
+      card.innerHTML='<h3>'+ic('target')+'<span>'+esc(t('ge.btn'))+'</span></h3>'+goalEditForm(g);
+      box.appendChild(card); bindGoalEdit(card,g);
+      return;
+    }
     card.innerHTML=
       '<h3>'+ic('target')+'<span>'+esc(g.title)+'</span>'+
+      '<button class="icon-btn" data-ge-open="'+g.id+'" aria-label="'+esc(t('ge.btn'))+'">'+ic('edit')+'</button>'+
       '<button class="icon-btn" data-dg="'+g.id+'" aria-label="'+esc(t('c.delete'))+'">'+ic('trash')+'</button></h3>'+
       state+
 
@@ -291,6 +297,9 @@ function renderGoals(){
   });
   box.querySelectorAll('[data-gstart]').forEach(function(b){
     b.addEventListener('click',function(){ startGoal(goalById(Number(b.dataset.gstart))); });
+  });
+  box.querySelectorAll('[data-ge-open]').forEach(function(b){
+    b.addEventListener('click',function(){ goalEditId=Number(b.dataset.geOpen); renderGoals(); renderMyGoal(); });
   });
   box.querySelectorAll('[data-gpause]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -619,13 +628,14 @@ function activeGoalNow(){
   var g=(S.goals||[]).filter(function(x){ return x.started && x.now; })[0];
   return g ? {text:g.now, theme:g.title} : null;
 }
+var ownStepOpen=false;
 function renderNextCard(overrideText){
   var box=document.getElementById('nextCard');
   if(!box) return;
   var step=pickNextStep();
-  var ag=activeGoalNow();
-  var theme = ag && !step.done ? ag.theme : (step.thKey ? t(step.thKey) : '');
-  var txt = overrideText || (ag && !step.done ? ag.text : t(step.key));
+  var ag=step.alt ? null : activeGoalNow();
+  var theme = step.own ? t('d.own.th') : ag && !step.done ? ag.theme : (step.thKey ? t(step.thKey) : '');
+  var txt = overrideText || step.own || (ag && !step.done ? ag.text : t(step.key));
   if(step.done && !overrideText){
     box.innerHTML='<div class="next done">'+ic('check')+
       '<div><div class="next-lab">'+esc(t('d.next'))+'</div>'+
@@ -643,9 +653,35 @@ function renderNextCard(overrideText){
       '<button class="btn btn-primary" id="fiveBtn"'+(running?' disabled':'')+'>'+ic('play')+
         '<span id="fiveTxt">'+esc(running?t('d.running',{t:'5:00'}):t('d.start5'))+'</span></button>'+
       '<button class="btn btn-ghost" id="nextDone">'+ic('check')+'<span>'+esc(t('d.mark'))+'</span></button>'+
-    '</div></div>';
+    '</div>'+
+    (ownStepOpen
+      ? '<div class="addrow next-own"><input type="text" id="ownStep" maxlength="100"'+
+          ' placeholder="'+esc(t('d.own.ph'))+'" aria-label="'+esc(t('d.own'))+'" value="'+esc(step.own||'')+'">'+
+          '<button class="btn btn-primary" id="ownSave">'+esc(t('c.save'))+'</button></div>'
+      : '<div class="next-alt">'+
+          '<button class="btn btn-quiet btn-sm" id="nextOther"'+(running?' disabled':'')+'>'+ic('refresh')+'<span>'+esc(t('d.other'))+'</span></button>'+
+          '<button class="btn btn-quiet btn-sm" id="nextOwn"'+(running?' disabled':'')+'>'+ic('edit')+'<span>'+esc(t('d.own'))+'</span></button>'+
+        '</div>')+
+    '</div>';
   var fb=document.getElementById('fiveBtn');
   if(fb) fb.addEventListener('click',function(){ startFiveMinutes(txt); });
+  var no=document.getElementById('nextOther');
+  if(no) no.addEventListener('click',otherStep);
+  var nw=document.getElementById('nextOwn');
+  if(nw) nw.addEventListener('click',function(){
+    ownStepOpen=true; renderNextCard(); document.getElementById('ownStep').focus();
+  });
+  var os_=document.getElementById('ownStep');
+  if(os_){
+    var saveOwn=function(){
+      var v=os_.value.trim();
+      ownStepOpen=false;
+      if(v){ var st=pickNextStep(); st.own=v; save(); toast(t('gl.saved')); }
+      renderNextCard();
+    };
+    document.getElementById('ownSave').addEventListener('click',saveOwn);
+    os_.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveOwn(); } });
+  }
   document.getElementById('nextDone').addEventListener('click',function(){
     clearFive();
     if(!S.next || S.next.done) return;
@@ -703,6 +739,39 @@ function renderToday3(){
   });
 }
 
+/* ---- editing a goal: the name and its ladder, in one small form ----
+   The weekly mission made when the goal started carries the goal's name,
+   so it is renamed with it. */
+var goalEditId=null;
+function goalEditForm(g){
+  function row(f,lab,ph){
+    return '<div class="field"><label for="ge-'+f+'">'+esc(t(lab))+'</label>'+
+      '<input type="text" id="ge-'+f+'" data-ge="'+f+'" maxlength="100" value="'+esc(g[f]||'')+'"'+
+      (ph?' placeholder="'+esc(t(ph))+'"':'')+'></div>';
+  }
+  return '<div class="gedit">'+
+    row('title','gl.goal')+row('week','gl.week','gl.wk.ph')+
+    row('today','gl.today','gl.td.ph')+row('now','gl.now','ge.now.ph')+
+    '<div class="row-btns">'+
+      '<button class="btn btn-primary btn-sm" data-ge-save>'+ic('check')+'<span>'+esc(t('c.save'))+'</span></button>'+
+      '<button class="btn btn-ghost btn-sm" data-ge-cancel>'+esc(t('c.cancel'))+'</button>'+
+    '</div></div>';
+}
+function bindGoalEdit(host,g){
+  host.querySelector('[data-ge-save]').addEventListener('click',function(){
+    var v={};
+    host.querySelectorAll('[data-ge]').forEach(function(i){ v[i.dataset.ge]=i.value.trim(); });
+    if(!v.title){ toast(t('t.writegoal')); host.querySelector('[data-ge="title"]').focus(); return; }
+    g.title=v.title; g.week=v.week; g.today=v.today; g.now=v.now;
+    (S.missions||[]).forEach(function(m){ if(m.goalId===g.id) m.title=g.title; });
+    goalEditId=null;
+    save(); renderGoals(); renderWeek(); renderDash(); toast(t('gl.saved'));
+  });
+  host.querySelector('[data-ge-cancel]').addEventListener('click',function(){
+    goalEditId=null; renderGoals(); renderDash();
+  });
+}
+
 /* ---- my goal: what the next step is heading toward ----
    With no goal yet it offers the areas and a free line; both go on into the
    same chain the Goals tab uses, so a goal made here has a full ladder. */
@@ -722,6 +791,11 @@ function renderMyGoal(){
   var box=document.getElementById('myGoal'); if(!box) return;
   var g=(S.goals||[]).filter(function(x){ return !x.archived; })[0];
   var head='<h2 class="boxh">'+ic('target')+'<span>'+esc(t('mg.t'))+'</span></h2>';
+  if(g && goalEditId===g.id){
+    box.innerHTML=head+goalEditForm(g);
+    bindGoalEdit(box,g);
+    return;
+  }
   if(g){
     box.innerHTML=head+
       '<div class="mini-ladder">'+
@@ -730,8 +804,10 @@ function renderMyGoal(){
       '</div>'+
       '<div class="row-btns">'+
         (g.started ? '' : '<button class="btn btn-primary btn-sm" data-mg-start>'+ic('play')+'<span>'+esc(t('gc.start'))+'</span></button>')+
+        '<button class="btn btn-ghost btn-sm" data-mg-edit>'+ic('edit')+'<span>'+esc(t('ge.btn'))+'</span></button>'+
         '<button class="btn btn-ghost btn-sm" data-mg-all>'+ic('target')+'<span>'+esc(t('mg.all'))+'</span></button>'+
       '</div>';
+    box.querySelector('[data-mg-edit]').addEventListener('click',function(){ goalEditId=g.id; renderMyGoal(); });
     var st=box.querySelector('[data-mg-start]');
     if(st) st.addEventListener('click',function(){ startGoal(g); });
     box.querySelector('[data-mg-all]').addEventListener('click',function(){ goPage('goals'); });

@@ -549,19 +549,33 @@ function pickNextStep(){
      keeping whether it was already done. */
   if(S.next && S.next.day===day && 'thKey' in S.next) return S.next;
   var wasDone = !!(S.next && S.next.day===day && S.next.done);
-  var key, thKey='';
-  if(hasProfile()){
-    var w=weakDim();
-    var seed=Math.abs(hashDay(day)) % 3 + 1;
-    key='rs.ac.'+w+'.'+seed;
-    thKey=dimById(w).k;
-  } else {
-    var c=CHALLENGES[Math.abs(hashDay(day)) % CHALLENGES.length];
-    key=c.t; thKey=c.th;
-  }
-  S.next={day:day, key:key, thKey:thKey, done:wasDone};
+  var x=stepFor(day,0);
+  S.next={day:day, n:0, key:x.key, thKey:x.thKey, own:'', alt:false, done:wasDone};
   save();
   return S.next;
+}
+/* The n-th suggestion of the day. n=0 is the day's pick; "another step"
+   walks on from there - first the other actions for the weakest area, then
+   the next-weakest area - so it never repeats until it has gone round. */
+function stepFor(day,n){
+  var h=Math.abs(hashDay(day));
+  if(hasProfile()){
+    var dims=DIMS.map(function(d){ return d.id; }).sort(function(a,b){
+      return (S.quiz.scores[a]||0)-(S.quiz.scores[b]||0); });
+    var w=dims[Math.floor(n/3) % dims.length];
+    return {key:'rs.ac.'+w+'.'+((h+n) % 3 + 1), thKey:dimById(w).k};
+  }
+  var c=CHALLENGES[(h+n) % CHALLENGES.length];
+  return {key:c.t, thKey:c.th};
+}
+/* "Another step": drop a step of the user's own first, then the goal's
+   step, then move through the suggestions. */
+function otherStep(){
+  var s=pickNextStep();
+  if(s.own) s.own='';
+  else if(activeGoalNow() && !s.alt) s.alt=true;
+  else { s.n=(s.n||0)+1; var x=stepFor(s.day,s.n); s.key=x.key; s.thKey=x.thKey; }
+  save(); renderNextCard();
 }
 /* A tiny string hash so the suggestion is stable for a given day instead of
    changing on every repaint. */
