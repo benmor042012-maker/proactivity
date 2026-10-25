@@ -239,8 +239,8 @@ MANIFEST = {
     'scope': './',
     'display': 'standalone',
     'orientation': 'portrait',
-    'background_color': '#14161C',
-    'theme_color': '#14161C',
+    'background_color': '#FBF9F5',
+    'theme_color': '#FBF9F5',
     'dir': 'rtl',
     'lang': 'he',
     'icons': [
@@ -341,7 +341,7 @@ def main():
         '<html lang="he" dir="rtl">\n<head>\n'
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
-        '<meta name="theme-color" content="#14161C">\n'
+        '<meta name="theme-color" content="#FBF9F5">\n'
         '<meta name="color-scheme" content="dark light">\n'
         f'<title>{SEO_TITLE}</title>\n'
         + head_meta(table) + '\n'
