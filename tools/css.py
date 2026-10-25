@@ -627,6 +627,11 @@ body.no-scroll{overflow:hidden;}
   font-size:var(--t-sm);width:auto;}
 .mg-areas .opt svg{width:15px;height:15px;margin:0;}
 .mg-free{margin-top:var(--s3);}
+.next-alt{display:flex;gap:var(--s2);flex-wrap:wrap;margin-top:var(--s2);}
+.next-alt .btn{color:var(--fg-3);}
+.next-alt svg{width:15px;height:15px;}
+.gedit{display:grid;gap:var(--s1);}
+.gedit .row-btns{margin-top:var(--s2);}
 .lookrow{display:flex;align-items:center;gap:var(--s2);}
 
 .nextcard{margin-bottom:var(--s3);}

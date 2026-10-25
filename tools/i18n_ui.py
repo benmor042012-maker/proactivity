@@ -8,6 +8,7 @@ UI = {
 'c.next':        ('הבא', 'Next', 'Suivant', 'Далее', 'التالي'),
 'c.back':        ('חזרה', 'Back', 'Retour', 'Назад', 'رجوع'),
 'c.add':         ('הוספה', 'Add', 'Ajouter', 'Добавить', 'إضافة'),
+'c.save':        ('שמירה', 'Save', 'Enregistrer', 'Сохранить', 'حفظ'),
 'c.cancel':      ('ביטול', 'Cancel', 'Annuler', 'Отмена', 'إلغاء'),
 'c.retake':      ('שוב', 'Retake', 'Reprendre', 'Заново', 'إعادة'),
 'c.use':         ('אישור', 'Use photo', 'Valider', 'Готово', 'تأكيد'),
