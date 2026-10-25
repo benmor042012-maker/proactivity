@@ -117,7 +117,6 @@ var ALL_CATS=[
  {id:'hobby',  icon:'palette', k:'cat.hobby',   dk:'dt.hobby',   sg:['sg.hobby.1','sg.hobby.2','sg.hobby.3']}
 ];
 /* the level and rank tables live in js_avatar.py (RANKS, levelInfo) */
-var QUOTES=['q.1','q.2','q.3','q.4','q.5','q.6','q.7'];
 var PRAISE=['p.1','p.2','p.3','p.4','p.5'];
 var INSIGHTS=[{t:'in.1.t',s:'in.1.s'},{t:'in.2.t',s:'in.2.s'},{t:'in.3.t',s:'in.3.s'},{t:'in.4.t',s:'in.4.s'}];
 var CHALLENGES=[

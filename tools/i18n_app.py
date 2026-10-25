@@ -78,7 +78,8 @@ APP = {
 'trial.cta':     ('שדרג', 'Upgrade', 'Passer au payant', 'Улучшить', 'ترقية'),
 
 # ---------- app shell ----------
-'a.greet':       ('טוב לראות אותך, {name}', 'Good to see you, {name}', 'Content de te revoir, {name}', 'Рад видеть, {name}', 'سعيد برؤيتك، {name}'),
+'a.greet':       ('היי {name}', 'Hi {name}', 'Salut {name}', 'Привет, {name}', 'أهلاً {name}'),
+'pf.look':       ('צבע ומצב תצוגה', 'Colour and display', 'Couleur et affichage', 'Цвет и тема', 'اللون والعرض'),
 'a.greet.anon':  ('{שותף|שותפה} למסע', 'partner', 'partenaire', '{напарник|напарница}', '{شريك|شريكة} الرحلة'),
 'a.level':       ('רמה', 'Level', 'Niveau', 'Уровень', 'المستوى'),
 'a.tab.goals':   ('מטרות', 'Goals', 'Objectifs', 'Цели', 'الأهداف'),

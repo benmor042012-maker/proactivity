@@ -554,11 +554,7 @@ function renderTheories(){
 
 /* ================= stats + insight ================= */
 function renderStats(){
-  var s=stageInfo();
-  document.getElementById('lvl').textContent=s.level;
-  document.getElementById('stg').textContent=s.stage;
-  document.getElementById('xpF').style.width=s.progress+'%';
-  renderAvatarMini(); renderAvatarCard();
+  renderDashStats(); renderAvatarCard();
   document.getElementById('skV').textContent=shownStreak();
   document.getElementById('ptV').textContent=S.points;
   document.getElementById('dnV').textContent=S.tasks.filter(function(x){return x.done;}).length;
@@ -574,25 +570,25 @@ function renderInsight(){
 }
 
 /* ================= the dashboard ================= */
-/* Deliberately narrow: four numbers, one next step, one profile summary. The
-   full task list lives on its own tab so the first screen never turns into a
-   wall of twenty things. */
+/* Deliberately narrow: the next step first, then one quiet line of numbers.
+   Big tiles full of zeros told a beginner nothing but "zero". The full task
+   list, the avatar and the profile live on their own tabs. */
 function renderDashStats(){
   var box=document.getElementById('dashStats');
   if(!box) return;
+  var s=stageInfo(), li=levelInfo();
   var cells=[
-    {ic:'flame',    v:shownStreak(),                                 k:'d.streak'},
-    {ic:'target',   v:(S.goals||[]).length,                          k:'d.goals'},
-    {ic:'check',    v:(S.stats.tasksDone||0),                        k:'d.done'},
-    {ic:'gauge',    v:hasProfile()? profileIndex()+'%' : '—',        k:'d.index'}
+    {ic:'star',   v:t('a.level')+' '+s.level, k:s.stage},
+    {ic:'flame',  v:shownStreak(),            k:t('d.streak')},
+    {ic:'target', v:(S.goals||[]).length,     k:t('d.goals')}
   ];
   box.innerHTML='<h2 class="sr">'+esc(t('d.progress'))+'</h2>'+
-    cells.map(function(c){
-      return '<div class="dstat">'+ic(c.ic)+
-        '<div class="dv numf">'+esc(String(c.v))+'</div>'+
-        '<div class="dk">'+esc(t(c.k))+'</div></div>';
-    }).join('')+
-    '<p class="dstreak">'+esc(streakLine())+'</p>';
+    '<div class="dstrip-row">'+cells.map(function(c){
+      return '<div class="dchip">'+ic(c.ic)+'<b class="numf">'+esc(String(c.v))+'</b>'+
+        '<span>'+esc(c.k)+'</span></div>';
+    }).join('')+'</div>'+
+    '<div class="xp"><i style="width:'+s.progress+'%"></i></div>'+
+    '<p class="xp-n">'+esc(t('av.next',{n:li.need, l:li.level+1}))+'</p>';
 }
 
 /* ---- the single next step, and the five-minute starter ---- */
@@ -628,20 +624,21 @@ function renderNextCard(overrideText){
   if(!box) return;
   var step=pickNextStep();
   var ag=activeGoalNow();
-  if(ag && !step.done){ step.theme=ag.theme; }
+  var theme = ag && !step.done ? ag.theme : (step.thKey ? t(step.thKey) : '');
   var txt = overrideText || (ag && !step.done ? ag.text : t(step.key));
   if(step.done && !overrideText){
     box.innerHTML='<div class="next done">'+ic('check')+
       '<div><div class="next-lab">'+esc(t('d.next'))+'</div>'+
-      '<p class="next-tx">'+esc(t('d.allclear'))+'</p></div></div>';
+      '<p class="next-tx">'+esc(t('d.allclear'))+'</p>'+
+      '<p class="next-sub">'+esc(streakLine())+'</p></div></div>';
     return;
   }
   var running = !!fiveTimer;
   box.innerHTML='<div class="next">'+
     '<div class="next-lab">'+ic('rocket')+'<span>'+esc(t('d.next'))+'</span>'+
-      (step.theme?'<span class="next-th">'+esc(step.theme)+'</span>':'')+'</div>'+
+      (theme?'<span class="next-th">'+esc(theme)+'</span>':'')+'</div>'+
     '<p class="next-tx">'+esc(txt)+'</p>'+
-    '<p class="next-sub">'+esc(t('d.next.s'))+'</p>'+
+    '<p class="next-sub">'+esc(t('d.next.s'))+' · '+esc(streakLine())+'</p>'+
     '<div class="next-btns">'+
       '<button class="btn btn-primary" id="fiveBtn"'+(running?' disabled':'')+'>'+ic('play')+
         '<span id="fiveTxt">'+esc(running?t('d.running',{t:'5:00'}):t('d.start5'))+'</span></button>'+
@@ -660,36 +657,6 @@ function renderNextCard(overrideText){
   });
 }
 
-/* The areas the user chose during setup, shown back to them so the dashboard
-   answers "what am I even aiming at" without opening another tab. */
-function renderDashFocus(){
-  var box=document.getElementById('dashFocus');
-  if(!box) return;
-  var goal=(S.goals||[])[0];
-  var chips=CATS.map(function(c){
-    return '<span class="fchip">'+ic(c.icon)+esc(catName(c))+'</span>';
-  }).join('');
-  var ladder='';
-  if(goal){
-    ladder='<div class="mini-ladder">'+
-      '<div><span>'+esc(t('gl.goal'))+'</span><b>'+esc(goal.title)+'</b></div>'+
-      (goal.week?'<div><span>'+esc(t('gl.week'))+'</span><b>'+esc(goal.week)+'</b></div>':'')+
-      (goal.today?'<div><span>'+esc(t('gl.today'))+'</span><b>'+esc(goal.today)+'</b></div>':'')+
-      '</div>'+
-      (goal.started ? '' :
-        '<button class="btn btn-primary btn-sm" data-gstart="'+goal.id+'">'+ic('play')+'<span>'+esc(t('gc.start'))+'</span></button>');
-  }
-  box.innerHTML=ladder+'<div class="fchips">'+chips+'</div>'+
-    '<button class="btn btn-ghost btn-sm" data-goto="goals">'+ic('target')+
-    '<span>'+esc(t('a.tab.goals'))+'</span></button>'+
-    '<button class="btn btn-quiet btn-sm" data-goto="tasks">'+esc(t('d.seeall'))+'</button>';
-  box.querySelectorAll('[data-goto]').forEach(function(b){
-    b.addEventListener('click',function(){ goPage(b.dataset.goto); });
-  });
-  box.querySelectorAll('[data-gstart]').forEach(function(b){
-    b.addEventListener('click',function(){ startGoal(goalById(Number(b.dataset.gstart))); });
-  });
-}
 /* The same three facts onboarding asked for, editable later. Age feeds the
    check-in band and the training plan; gender re-renders every string. */
 function renderSettings(){
@@ -721,8 +688,7 @@ function bindSettings(){
   });
 }
 function renderDash(){
-  renderDashStats(); renderNextCard(); renderDashFocus();
-  renderProfile('dashProfile', true);
+  renderDashStats(); renderNextCard();
   renderAvatarCard(); renderInvite();
 }
 
@@ -878,11 +844,6 @@ function renderHome(){ renderTasks(); }   // kept: other modules still call it
 function startApp(){
   var name=P.name || t('a.greet.anon');
   document.getElementById('greetName').textContent=t('a.greet',{name:name});
-  document.getElementById('proQuote').textContent=t(pick(QUOTES));
-  try{
-    document.getElementById('dateStr').textContent=
-      new Date().toLocaleDateString(cur,{weekday:'long',day:'numeric',month:'long'});
-  }catch(e){ document.getElementById('dateStr').textContent=''; }
 
   var wp=buildWorkout(P.age,P.workout,P.fitLevel);
   document.getElementById('woSub').textContent=

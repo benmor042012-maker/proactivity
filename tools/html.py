@@ -73,12 +73,6 @@ LANGS = [('he', 'עברית', 'עב'), ('en', 'English', 'EN'), ('fr', 'Françai
 def build_body(logo):
     L = ''.join(f'<button class="langbtn" data-lang="{c}" data-short="{sh}" lang="{c}">{n}</button>'
                 for c, n, sh in LANGS)
-    L += ('<span class="bar-sep" aria-hidden="true"></span>'
-          + ''.join(f'<button class="accdot" data-set-accent="{a}" '
-                    f'data-i18n-title="th.acc.{a}" aria-label="{a}"></button>'
-                    for a in ('sage', 'flame', 'bloom', 'mint'))
-          + f'<button class="modebtn" id="modeBtn" data-i18n-title="th.dark">'
-            f'{i("sun","ic-sun")}{i("moon","ic-moon")}</button>')
 
     # ---------- landing ----------
     landing = f'''
@@ -312,26 +306,14 @@ def build_body(logo):
 
  <header class="apphead">
   <div class="who"><img src="{logo}" alt="" width="40" height="40">
-   <div><p class="greet" id="greetName"></p><p class="quote" id="proQuote"></p><p class="date" id="dateStr"></p></div>
-  </div>
-  <div class="lvl">
-   <div class="av-mini" id="avMini" aria-hidden="true"></div>
-   <div class="lvl-txt">
-    <div class="row">
-     <span class="lab"><span data-i18n="a.level"></span><span class="num" id="lvl">1</span></span>
-     <span class="stage" id="stg"></span>
-    </div>
-    <div class="xp"><i id="xpF" style="width:0%"></i></div>
-    <div class="xp-n" id="xpN"></div>
-   </div>
-  </div>
+   <p class="greet" id="greetName"></p></div>
  </header>
 
  <nav class="tabs" id="tabBar" role="tablist" data-i18n-title="n.nav.label">{tabs}</nav>
 
  <div class="page" id="page-home" role="tabpanel">
-  <div class="dash-grid" id="dashStats"></div>
   <div class="nextcard" id="nextCard"></div>
+  <div class="dstrip" id="dashStats"></div>
   <section class="dash-box wkboard" id="wkBoard">
    <h2 class="boxh">{i("calendar")}<span data-i18n="n.pg.week"></span></h2>
    <p class="psub" data-i18n="w.s"></p>
@@ -353,28 +335,6 @@ def build_body(logo):
     <div class="rvout" id="rvRes"></div>
    </div>
   </section>
-  <div class="dash-two">
-   <section class="dash-box" id="avBox">
-    <h2 class="boxh">{i("user")}<span data-i18n="av.t"></span></h2>
-    <p class="psub" data-i18n="av.s"></p>
-    <div id="avCard"></div>
-   </section>
-   <section class="dash-box" id="invBox">
-    <h2 class="boxh">{i("users")}<span data-i18n="inv.t"></span></h2>
-    <div id="inviteCard"></div>
-   </section>
-  </div>
-  <div class="dash-two">
-   <section class="dash-box">
-    <h2 class="boxh">{i("gauge")}<span data-i18n="d.profile"></span></h2>
-    <div id="dashProfile"></div>
-   </section>
-   <section class="dash-box">
-    <h2 class="boxh">{i("compass")}<span data-i18n="d.focus"></span></h2>
-    <div id="dashFocus"></div>
-   </section>
-  </div>
-  <div id="dIns"></div>
  </div>
 
  <div class="page" id="page-tasks" role="tabpanel">
@@ -413,6 +373,19 @@ def build_body(logo):
    <div class="profile" id="profBody"></div>
   </section>
 
+  <section class="dash-box" id="avBox">
+   <h3 class="boxh">{i("user")}<span data-i18n="av.t"></span></h3>
+   <p class="psub" data-i18n="av.s"></p>
+   <div id="avCard"></div>
+  </section>
+
+  <section class="dash-box" id="invBox">
+   <h3 class="boxh">{i("users")}<span data-i18n="inv.t"></span></h3>
+   <div id="inviteCard"></div>
+  </section>
+
+  <div id="dIns"></div>
+
   <section class="dash-box" id="trendSection">
    <h3 class="boxh">{i("trending")}<span data-i18n="tr.sec"></span></h3>
    <div class="trendbox" id="trendBox"></div>
@@ -445,6 +418,10 @@ def build_body(logo):
    <div class="qlabel" data-i18n="n.o.2.gender"></div>
    <div class="opts" id="pfGender">
     {opt("pfg","m","user","o.iam.boy")}{opt("pfg","f","user","o.iam.girl")}{opt("pfg","n","compass","o.iam.na")}
+   </div>
+   <div class="qlabel" data-i18n="pf.look"></div>
+   <div class="lookrow">{''.join(f'<button class="accdot" data-set-accent="{a}" data-i18n-title="th.acc.{a}" aria-label="{a}"></button>' for a in ('sage', 'flame', 'bloom', 'mint'))}
+    <button class="modebtn" id="modeBtn" data-i18n-title="th.dark">{i("sun","ic-sun")}{i("moon","ic-moon")}</button>
    </div>
   </section>
 
