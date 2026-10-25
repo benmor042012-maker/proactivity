@@ -92,14 +92,6 @@ function avatarSvg(tier, label){
 }
 function avatarLabel(i){ return t('av.aria',{x:t(i.rank.k), n:i.level}); }
 
-/* the header: the small figure next to the level, on every tab */
-function renderAvatarMini(){
-  var box=document.getElementById('avMini'); if(!box) return;
-  var i=levelInfo();
-  box.innerHTML=avatarSvg(i.tier);
-  var n=document.getElementById('xpN');
-  if(n) n.textContent=t('av.next',{n:i.need, l:i.level+1});
-}
 /* the Home card: the big figure, where it stands, and the four steps */
 function renderAvatarCard(){
   var box=document.getElementById('avCard'); if(!box) return;

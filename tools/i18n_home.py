@@ -203,8 +203,6 @@ HOME = {
 'd.progress':    ('ההתקדמות שלי', 'My progress', 'Mes progrès', 'Мой прогресс', 'تقدّمي'),
 'd.streak':      ('רצף', 'Streak', 'Série', 'Серия', 'سلسلة'),
 'd.goals':       ('מטרות פעילות', 'Active goals', 'Objectifs actifs', 'Активные цели', 'أهداف نشطة'),
-'d.done':        ('משימות שהושלמו', 'Tasks completed', 'Tâches terminées', 'Задач выполнено', 'مهام مكتملة'),
-'d.index':       ('מדד פרואקטיביות', 'Proactivity score', 'Indice de proactivité', 'Индекс проактивности', 'مؤشر المبادرة'),
 'd.next':        ('הצעד הבא שלך', 'Your next step', 'Ton prochain pas', 'Твой следующий шаг', 'خطوتك التالية'),
 'd.next.s':      ('דבר אחד. לא רשימה.', 'One thing. Not a list.', 'Une chose. Pas une liste.', 'Одно дело. Не список.', 'شيء واحد. لا قائمة.'),
 'd.start5':      ('אני {מתחיל|מתחילה} 5 דקות עכשיו', 'I am starting 5 minutes now', 'Je commence 5 minutes maintenant', 'Начинаю 5 минут прямо сейчас', 'سأبدأ 5 دقائق الآن'),
@@ -220,9 +218,6 @@ HOME = {
                   'Tu as bouclé ton pas du jour. À demain.',
                   'Ты закрыл сегодняшний шаг. До завтра.',
                   'أنهيت خطوة اليوم. أراك غداً.'),
-'d.profile':     ('הפרופיל שלי', 'My profile', 'Mon profil', 'Мой профиль', 'ملفي'),
-'d.seeall':      ('לכל המשימות', 'All tasks', 'Toutes les tâches', 'Все задачи', 'كل المهام'),
-'d.focus':       ('מה שאתה מכוון אליו', 'What you are aiming at', 'Ce que tu vises', 'К чему ты идёшь', 'ما تسعى إليه'),
 
 # ---- streak, the forgiving version ----
 'd.sk.0':        ('היום מתחיל רצף חדש.', 'Today starts a new streak.', 'Aujourd\'hui commence une nouvelle série.', 'Сегодня начинается новая серия.', 'اليوم تبدأ سلسلة جديدة.'),

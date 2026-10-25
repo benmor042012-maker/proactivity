@@ -544,18 +544,22 @@ function renderAchievements(){
    back to the generic challenge list. */
 function pickNextStep(){
   var day=dayKey();
-  if(S.next && S.next.day===day) return S.next;
-  var key, theme='';
+  /* thKey, not the translated theme: a string saved in French stayed French
+     after switching to Hebrew. A day saved before thKey existed is re-picked,
+     keeping whether it was already done. */
+  if(S.next && S.next.day===day && 'thKey' in S.next) return S.next;
+  var wasDone = !!(S.next && S.next.day===day && S.next.done);
+  var key, thKey='';
   if(hasProfile()){
     var w=weakDim();
     var seed=Math.abs(hashDay(day)) % 3 + 1;
     key='rs.ac.'+w+'.'+seed;
-    theme=t(dimById(w).k);
+    thKey=dimById(w).k;
   } else {
     var c=CHALLENGES[Math.abs(hashDay(day)) % CHALLENGES.length];
-    key=c.t; theme=t(c.th);
+    key=c.t; thKey=c.th;
   }
-  S.next={day:day, key:key, theme:theme, done:false};
+  S.next={day:day, key:key, thKey:thKey, done:wasDone};
   save();
   return S.next;
 }

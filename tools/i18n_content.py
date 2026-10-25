@@ -14,13 +14,6 @@ CONTENT = {
 'cat.hobby':   ('תחביבים', 'Hobbies', 'Loisirs', 'Хобби', 'الهوايات'),
 
 # ---------- quotes ----------
-'q.1': ('פרואקטיביות היא בחירת הכיוון.', 'Being proactive is choosing the direction.', 'Être proactif, c\'est choisir la direction.', 'Проактивность — это выбор направления.', 'الاستباقية هي اختيار الاتجاه.'),
-'q.2': ('היום שלך מתחיל ברגע שהחלטת.', 'Your day starts the moment you decide.', 'Ta journée commence quand tu décides.', 'Твой день начинается в момент решения.', 'يومك يبدأ لحظة أن تقرر.'),
-'q.3': ('אל תחכה. תגרום לזה לקרות.', 'Do not wait. Make it happen.', 'N\'attends pas. Fais-le arriver.', 'Не жди. Сделай так, чтобы случилось.', 'لا تنتظر. اجعله يحدث.'),
-'q.4': ('הצעד הכי קטן עדיין נחשב.', 'The smallest step still counts.', 'Le plus petit pas compte quand même.', 'Даже самый маленький шаг засчитывается.', 'أصغر خطوة تُحتسب أيضاً.'),
-'q.5': ('לא מושלם. בתנועה.', 'Not perfect. Moving.', 'Pas parfait. En mouvement.', 'Не идеально. Но в движении.', 'ليس مثالياً. لكنه يتحرك.'),
-'q.6': ('מי שמתכנן, מוביל.', 'Whoever plans, leads.', 'Celui qui planifie mène.', 'Кто планирует — тот ведёт.', 'من يخطط، يقود.'),
-'q.7': ('כל בוקר הוא הזדמנות חדשה.', 'Every morning is a fresh opening.', 'Chaque matin est une nouvelle chance.', 'Каждое утро — новая возможность.', 'كل صباح فرصة جديدة.'),
 
 # ---------- insights ----------
 'in.1.t': ('כל הוכחה ש{אתה|את} מעלה מחזקת את האמונה ש{אתה מסוגל|את מסוגלת}.',
