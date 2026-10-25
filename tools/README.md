@@ -54,8 +54,8 @@ Gender is chosen in onboarding and stored under its own key, `proactive_gender`
 refresh before the profile exists. It can be changed later in the profile card
 on the progress page. Switching it re-renders exactly like switching language.
 
-The icons are drawn from `tools/logo.svg` (the P with the arrow, in the app's
-sage-to-mint accent on the light background). Re-render the four PNGs from it
+The icons are drawn from `tools/logo.svg`: the P is a road from dark to light,
+the arrow climbs from its foot into the light, and a figure stands there. Re-render the four PNGs from it
 when it changes. The logo is a real file (`icon-192.png`), not a base64 data URI. Inlining it put
 57 KB into three places in the HTML — about a fifth of the gzipped download —
 for one small image that a browser caches after the first request and that the

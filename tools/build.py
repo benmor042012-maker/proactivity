@@ -239,7 +239,7 @@ MANIFEST = {
     'scope': './',
     'display': 'standalone',
     'orientation': 'portrait',
-    'background_color': '#FBF9F5',
+    'background_color': '#0F2A1C',
     'theme_color': '#FBF9F5',
     'dir': 'rtl',
     'lang': 'he',
