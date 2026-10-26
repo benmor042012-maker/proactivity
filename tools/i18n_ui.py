@@ -28,7 +28,7 @@ UI = {
 'c.proof':       ('הוכחה', 'Proof', 'Preuve', 'Подтверждение', 'إثبات'),
 
 # ---------- brand ----------
-'b.name':        ('פרואקטיב', 'Proactive', 'Proactive', 'Proactive', 'بروأكتيف'),
+'b.name':        ('פרואקטי', 'Proacty', 'Proacty', 'Proacty', 'بروأكتي'),
 
 # ---------- landing: proof strip ----------
 
@@ -80,9 +80,9 @@ UI = {
                   'Une question, ou envie de payer déjà ? Écris-moi :',
                   'Вопрос или хочешь оплатить уже сейчас? Напиши мне:',
                   'سؤال، أو تريد الدفع من الآن؟ راسلني:'),
-'l.pr.ask.sub':  ('Proactivity — אני רוצה לשלם', 'Proactivity — I want to pay',
-                  'Proactivity — je veux payer', 'Proactivity — хочу оплатить',
-                  'Proactivity — أريد الدفع'),
+'l.pr.ask.sub':  ('Proacty — אני רוצה לשלם', 'Proacty — I want to pay',
+                  'Proacty — je veux payer', 'Proacty — хочу оплатить',
+                  'Proacty — أريد الدفع'),
 'l.pr.currency': ('₪', '$', '€', '₽', '$'),
 
 # ---------- landing: FAQ ----------
@@ -114,9 +114,9 @@ UI = {
                   'نعم. الاستبيان والأهداف وأحمال التمرين تُبنى ممّا قلته عن نفسك، فلا يحصل شخصان مختلفان على الأسئلة نفسها ولا التمارين نفسها.'),
 
 # ---------- landing: final ----------
-'l.footer':      ('פרואקטיב · יוזמים. בוחרים. יוצרים מציאות.',
-                  'Proactive · Take initiative. Make the call. Build the life.',
-                  'Proactive · Prends l\'initiative. Décide. Construis ta vie.',
-                  'Proactive · Проявляй инициативу. Выбирай. Создавай.',
-                  'بروأكتيف · بادر. اختر. اصنع واقعك.'),
+'l.footer':      ('פרואקטי · יוזמים. בוחרים. יוצרים מציאות.',
+                  'Proacty · Take initiative. Make the call. Build the life.',
+                  'Proacty · Prends l\'initiative. Décide. Construis ta vie.',
+                  'Proacty · Проявляй инициативу. Выбирай. Создавай.',
+                  'بروأكتي · بادر. اختر. اصنع واقعك.'),
 }

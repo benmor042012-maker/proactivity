@@ -55,7 +55,9 @@ refresh before the profile exists. It can be changed later in the profile card
 on the progress page. Switching it re-renders exactly like switching language.
 
 The icons are drawn from `tools/logo.svg`: the P is a road from dark to light,
-the arrow climbs from its foot into the light, and a figure stands there. Re-render the four PNGs from it
+and a y climbs it - its tail is the body, one arm is the arrow reaching into
+the light, the gold dot is the head. The same y ends the Proacty wordmark.
+`og.png` (1200x630) is the icon and the wordmark on the same green. Re-render the four PNGs from it
 when it changes. The logo is a real file (`icon-192.png`), not a base64 data URI. Inlining it put
 57 KB into three places in the HTML — about a fifth of the gzipped download —
 for one small image that a browser caches after the first request and that the

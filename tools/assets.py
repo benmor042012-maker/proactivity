@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""SVG icon sprite + CSS for the Proactive app."""
+"""SVG icon sprite + CSS for the Proacty app."""
 
 # Line icons, 24x24, stroke-based, currentColor. Replaces every emoji.
 ICONS = {

@@ -174,7 +174,7 @@ SITE = 'https://benmor042012-maker.github.io/proactivity/'
 # Static <head> metadata. The page is a single document with a JS language
 # switcher, so the markup carries the Hebrew default and applyLang() rewrites
 # the title and description once a language is chosen.
-SEO_TITLE = 'Proactivity — להפסיק לדחות ולהתחיל לעשות'
+SEO_TITLE = 'Proacty — להפסיק לדחות ולהתחיל לעשות'
 SEO_DESC = ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמראה איפה הדברים '
             'עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, '
             'צעדים קטנים והרגלים שנבנים. בלי הרשמה.')
@@ -189,7 +189,7 @@ def structured_data(table):
            for n in FAQ_SHOWN]
     blocks = [
         {'@context': 'https://schema.org', '@type': 'WebApplication',
-         'name': 'Proactivity', 'url': SITE,
+         'name': 'Proacty', 'url': SITE,
          'applicationCategory': 'LifestyleApplication',
          'operatingSystem': 'Any', 'inLanguage': ['he', 'en', 'fr', 'ru', 'ar'],
          'description': SEO_DESC,
@@ -206,10 +206,10 @@ def head_meta(table):
     tags = [
         '<meta name="description" content="' + SEO_DESC + '">',
         '<meta name="robots" content="index,follow,max-image-preview:large">',
-        '<meta name="author" content="Proactivity">',
+        '<meta name="author" content="Proacty">',
         f'<link rel="canonical" href="{SITE}">',
         '<meta property="og:type" content="website">',
-        '<meta property="og:site_name" content="Proactivity">',
+        '<meta property="og:site_name" content="Proacty">',
         f'<meta property="og:url" content="{SITE}">',
         f'<meta property="og:title" content="{SEO_TITLE}">',
         f'<meta property="og:description" content="{SEO_DESC}">',
@@ -222,7 +222,7 @@ def head_meta(table):
         f'<meta name="twitter:description" content="{SEO_DESC}">',
         f'<meta name="twitter:image" content="{SITE}og.png">',
         '<meta name="apple-mobile-web-app-capable" content="yes">',
-        '<meta name="apple-mobile-web-app-title" content="Proactivity">',
+        '<meta name="apple-mobile-web-app-title" content="Proacty">',
     ]
     return '\n'.join(tags) + '\n' + structured_data(table)
 
@@ -232,8 +232,8 @@ def head_meta(table):
 # scope are both relative. An absolute "/" would silently disable the install
 # prompt and register a worker that controls nothing.
 MANIFEST = {
-    'name': 'Proactivity',
-    'short_name': 'Proactivity',
+    'name': 'Proacty',
+    'short_name': 'Proacty',
     'id': './',
     'start_url': './',
     'scope': './',
@@ -315,7 +315,7 @@ def main():
     fonts = ('https://fonts.googleapis.com/css2'
              '?family=Heebo:wght@400;500;600;700;900'
              '&family=Secular+One'
-             '&family=Inter:wght@400;600;700'
+             '&family=Inter:wght@400;600;700;800'
              '&family=Noto+Sans+Arabic:wght@400;600;700'
              '&display=swap')
 
@@ -359,7 +359,7 @@ def main():
         '<link rel="manifest" href="manifest.webmanifest">\n'
         '<link rel="apple-touch-icon" href="apple-touch-icon.png">\n'
         '<meta name="apple-mobile-web-app-capable" content="yes">\n'
-        '<meta name="apple-mobile-web-app-title" content="Proactivity">\n'
+        '<meta name="apple-mobile-web-app-title" content="Proacty">\n'
         f'<style>{CSS}</style>\n'
         '</head>\n<body>\n'
         + sprite() + '\n'
