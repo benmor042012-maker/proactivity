@@ -295,11 +295,11 @@ HOME = {
                   'لا هدف بعد. {اكتب|اكتبي} واحداً ولنقسّمه معاً.'),
 
 # ================= SEO (title + meta description per language) =================
-'seo.title':     ('Proactivity — להפסיק לדחות ולהתחיל לעשות',
-                  'Proactivity — stop putting things off and start doing',
-                  'Proactivity — arrête de repousser, commence à faire',
-                  'Proactivity — хватит откладывать, начни делать',
-                  'Proactivity — توقّف عن التأجيل وابدأ بالفعل'),
+'seo.title':     ('Proacty — להפסיק לדחות ולהתחיל לעשות',
+                  'Proacty — stop putting things off and start doing',
+                  'Proacty — arrête de repousser, commence à faire',
+                  'Proacty — хватит откладывать, начни делать',
+                  'Proacty — توقّف عن التأجيل وابدأ بالفعل'),
 'seo.desc':      ('מה זה פרואקטיביות ואיך נהיים פרואקטיביים? שאלון קצר שמראה איפה הדברים עומדים ביוזמה, במטרות, בניהול זמן ובתכנון — ואז יעד שנבנה ממה שאמרת, צעדים קטנים והרגלים שנבנים. בלי הרשמה.',
                   'What does proactive mean and how do you become it? A short check-in shows where things stand on initiative, goals, time and planning — then a target built from what you said, small steps, and habits that stick. No sign-up.',
                   'Être proactif, ça veut dire quoi et comment le devenir ? Un point rapide montre où en sont l\'initiative, les objectifs, le temps et l\'anticipation — puis un objectif construit à partir de tes réponses, des petits pas et des habitudes qui tiennent. Sans inscription.',

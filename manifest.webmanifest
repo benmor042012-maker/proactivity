@@ -1,13 +1,13 @@
 {
- "name": "Proactivity",
- "short_name": "Proactivity",
+ "name": "Proacty",
+ "short_name": "Proacty",
  "id": "./",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
  "orientation": "portrait",
- "background_color": "#14161C",
- "theme_color": "#14161C",
+ "background_color": "#FBF8F1",
+ "theme_color": "#FBF9F5",
  "dir": "rtl",
  "lang": "he",
  "icons": [

@@ -176,10 +176,10 @@ PRO = {
                    'Восстановить из файла', 'استعد من ملف'),
 'bk.done':        ('הגיבוי ירד למכשיר.', 'The backup was downloaded.', 'La sauvegarde a été téléchargée.',
                    'Копия загружена.', 'تم تنزيل النسخة الاحتياطية.'),
-'bk.bad':         ('זה לא קובץ גיבוי של Proactivity.', 'That is not a Proactivity backup file.',
-                   'Ce n\'est pas un fichier de sauvegarde Proactivity.',
-                   'Это не файл резервной копии Proactivity.',
-                   'هذا ليس ملف نسخة احتياطية لـ Proactivity.'),
+'bk.bad':         ('זה לא קובץ גיבוי של Proacty.', 'That is not a Proacty backup file.',
+                   'Ce n\'est pas un fichier de sauvegarde Proacty.',
+                   'Это не файл резервной копии Proacty.',
+                   'هذا ليس ملف نسخة احتياطية لـ Proacty.'),
 'bk.confirm':     ('לשחזר את הגיבוי הזה?\n\nשם: {name}\nנקודות: {pts}\nרצף: {sk}\nיעדים: {g}\n\n'
                    'כל מה שיש עכשיו במכשיר יוחלף.',
                    'Restore this backup?\n\nName: {name}\nPoints: {pts}\nStreak: {sk}\nTargets: {g}\n\n'

@@ -82,7 +82,8 @@ def build_body(logo):
   <!-- The whole first screen: who you are from now on, what it takes, one
        button. Everything below it is for whoever still wants convincing. -->
   <section class="hero">
-   <div class="hero-brand"><img src="{logo}" alt="" width="32" height="32"><span data-i18n="b.name"></span></div>
+   <div class="hero-brand" role="img" aria-label="Proacty"><img src="{logo}" alt="" width="40" height="40">
+    <span class="wordmark" dir="ltr" aria-hidden="true">Proact<svg viewBox="0 0 96 150" class="wm-y"><path d="M8 50 L40 100 M14 140 L70 30" stroke="currentColor" stroke-width="19" stroke-linecap="round"/><path d="M54 30 L84 4 L88 44 Z" fill="currentColor" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/><circle cx="34" cy="40" r="11" fill="#D99A26"/></svg></span></div>
    <h1 class="hero-lead" data-i18n="n.hero.lead"></h1>
    <p class="hero-sub" data-i18n="n.hero.sub2"></p>
    <p class="hero-who" data-i18n="n.hero.who"></p>

@@ -173,7 +173,9 @@ select option{background:var(--ink-2);color:var(--fg);}
 .hero{padding:var(--s7) 0 var(--s7);}
 .hero-brand{display:flex;align-items:center;gap:var(--s2);font-weight:700;color:var(--fg-2);
   margin-bottom:var(--s6);}
-.hero-brand img{border-radius:8px;}
+.hero-brand img{border-radius:10px;}
+.wordmark{display:inline-flex;align-items:flex-end;font:800 30px/1 Inter,sans-serif;letter-spacing:-.04em;color:var(--fg);}
+.wm-y{width:.62em;height:.97em;margin-bottom:-.22em;margin-inline-start:.14em;overflow:visible;}
 .hero-lead{font-size:clamp(34px,8vw,64px);line-height:1.05;letter-spacing:-.02em;color:var(--acc);
   max-width:16ch;margin-bottom:var(--s3);}
 .hero-sub{font-family:var(--f-display);font-size:clamp(20px,3.6vw,28px);line-height:1.3;color:var(--fg);

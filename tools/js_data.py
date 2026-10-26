@@ -25,7 +25,7 @@ function downloadJSON(obj, name){
 }
 function doExport(){
   var d=new Date(), pad=function(n){ return (n<10?'0':'')+n; };
-  downloadJSON(exportBundle(), 'proactivity-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json');
+  downloadJSON(exportBundle(), 'proacty-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json');
   if(typeof toast==='function') toast(t('bk.done'));
 }
 
@@ -105,7 +105,7 @@ function goalICS(g, hour, minute){
   var title=g.title||t('g.one');
   var body=[g.week||'', g.today||'', g.now||''].filter(Boolean).join('\n');
   return [
-    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Proactivity//HE','CALSCALE:GREGORIAN',
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Proacty//HE','CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
     'UID:proactivity-'+(g.id||0)+'-'+Date.now()+'@proactivity',
     'DTSTAMP:'+icsStamp(new Date()),
@@ -123,7 +123,7 @@ function downloadICS(g){
   var text=goalICS(g, Number(parts[0])||17, Number(parts[1])||0);
   var blob=new Blob([text],{type:'text/calendar;charset=utf-8'});
   var url=URL.createObjectURL(blob), a=document.createElement('a');
-  a.href=url; a.download='proactivity.ics'; document.body.appendChild(a); a.click();
+  a.href=url; a.download='proacty.ics'; document.body.appendChild(a); a.click();
   setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },0);
   if(typeof toast==='function') toast(t('cal.done'));
 }
