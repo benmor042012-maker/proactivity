@@ -624,9 +624,13 @@ function startFiveMinutes(labelText){
 /* If the user has started a target, its "right now" rung IS the next step -
    that is the whole point of the chain. Only without one does the app fall
    back to the profile-driven suggestion. */
+/* The user's own goal comes before any suggestion: a started one first, but
+   one written and not yet started still beats a generic step. Its right-now
+   rung if it has one, else today's, else the week's. */
 function activeGoalNow(){
-  var g=(S.goals||[]).filter(function(x){ return x.started && x.now; })[0];
-  return g ? {text:g.now, theme:g.title} : null;
+  var live=(S.goals||[]).filter(function(x){ return !x.archived && !x.paused && (x.now||x.today||x.week); });
+  var g=live.filter(function(x){ return x.started; })[0] || live[0];
+  return g ? {text:g.now||g.today||g.week, theme:g.title} : null;
 }
 var ownStepOpen=false;
 function renderNextCard(overrideText){
