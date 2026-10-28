@@ -15,7 +15,8 @@ var P={name:'',age:'',email:'',goals:['study','sport','sleep','food'],customCats
    their number; the streak the user is shown is S.day, a real run of calendar
    days built with the same bumpStreak/liveStreak helpers the mini-apps use. */
 /* streak and chDone are dead fields kept so an old save round-trips through
-   JSON unchanged; the live values are S.day and S.next.done. */
+   JSON unchanged; the live value is S.day. S.next, the old daily suggestion, is
+   kept the same way. */
 var S={points:0,streak:0,chDone:false,tasks:[],missions:[],plan:{},goals:[],
        quiz:null, lessons:{}, ach:{}, next:null, tips:{}, hist:[], ref:null,
        day:{streak:0,lastDay:null},

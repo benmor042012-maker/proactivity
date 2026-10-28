@@ -315,7 +315,6 @@ def build_body(logo):
  <div class="page" id="page-home" role="tabpanel">
   <section class="dash-box today3" id="todayBox"></section>
   <section class="dash-box" id="myGoal"></section>
-  <div class="nextcard" id="nextCard"></div>
   <div class="dstrip" id="dashStats"></div>
   <section class="dash-box wkboard" id="wkBoard">
    <h2 class="boxh">{i("calendar")}<span data-i18n="n.pg.week"></span></h2>

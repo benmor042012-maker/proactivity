@@ -42,14 +42,6 @@ CONTENT = {
 'in.4.s': ('לוק והאת׳אם', 'Locke & Latham', 'Locke et Latham', 'Локк и Латэм', 'لوك ولاثام'),
 
 # ---------- daily challenges ----------
-'ch.1': ('שתה כוס מים גדולה עכשיו', 'Drink a big glass of water now', 'Bois un grand verre d\'eau maintenant', 'Выпей большой стакан воды сейчас', 'اشرب كوب ماء كبيراً الآن'),
-'ch.2': ('{כתוב|כתבי} את שלוש המשימות החשובות של היום', 'Write the three tasks that matter today', 'Écris les trois tâches qui comptent aujourd\'hui', 'Запиши три главные задачи на сегодня', '{اكتب|اكتبي} المهام الثلاث المهمة لليوم'),
-'ch.3': ('{צא|צאי} להליכה של 10 דקות בלי הטלפון', 'Take a 10-minute walk without your phone', 'Marche 10 minutes sans ton téléphone', 'Пройдись 10 минут без телефона', '{اخرج|اخرجي} لمشي 10 دقائق بلا هاتف'),
-'ch.4': ('{שלח|שלחי} הודעה לחבר שלא דיברת איתו', 'Message a friend you have not spoken to', 'Écris à un ami que tu n\'as pas contacté', 'Напиши другу, с которым давно не говорил', '{أرسل|أرسلي} رسالة لصديق لم تتحدث معه'),
-'ch.5': ('{רשום|רשמי} שלושה דברים שהצלחת בהם היום', 'Write three things that went right today', 'Note trois choses réussies aujourd\'hui', 'Запиши три вещи, которые сегодня удались', '{اكتب|اكتبي} ثلاثة أشياء نجحت فيها اليوم'),
-'ch.th.reg':  ('ויסות עצמי', 'Self-regulation', 'Autorégulation', 'Саморегуляция', 'التنظيم الذاتي'),
-'ch.th.goal': ('הגדרת מטרות', 'Goal setting', 'Fixation d\'objectifs', 'Постановка целей', 'تحديد الأهداف'),
-'ch.th.broad':('הרחבה ובנייה', 'Broaden and build', 'Élargir et construire', 'Расширение и построение', 'التوسيع والبناء'),
 
 # ---------- easy/hard traits ----------
 'tr.wake':   ('לקום בזמן', 'Waking up on time', 'Se lever à l\'heure', 'Вставать вовремя', 'الاستيقاظ في الوقت'),

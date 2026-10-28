@@ -600,7 +600,7 @@ function renderDashStats(){
     '<p class="xp-n">'+esc(t('av.next',{n:li.need, l:li.level+1}))+'</p>';
 }
 
-/* ---- the single next step, and the five-minute starter ---- */
+/* ---- the five-minute starter, on the goal card's step ---- */
 var fiveTimer=null, fiveLeft=0;
 function clearFive(){
   if(fiveTimer){ clearInterval(fiveTimer); fiveTimer=null; }
@@ -610,7 +610,7 @@ function startFiveMinutes(labelText){
   fiveLeft=5*60;
   markActiveToday(); tip('task.skip');
   goPage('home');
-  renderNextCard(labelText);
+  renderMyGoal();
   fiveTimer=setInterval(function(){
     fiveLeft--;
     var el=document.getElementById('fiveTxt');
@@ -618,83 +618,8 @@ function startFiveMinutes(labelText){
       var m=Math.floor(fiveLeft/60), sec=String(fiveLeft%60).padStart(2,'0');
       el.textContent=t('d.running',{t:m+':'+sec});
     }
-    if(fiveLeft<=0){ clearFive(); toast(t('d.timeup')); renderNextCard(); }
+    if(fiveLeft<=0){ clearFive(); toast(t('d.timeup')); renderMyGoal(); }
   },1000);
-}
-/* If the user has started a target, its "right now" rung IS the next step -
-   that is the whole point of the chain. Only without one does the app fall
-   back to the profile-driven suggestion. */
-/* The user's own goal comes before any suggestion: a started one first, but
-   one written and not yet started still beats a generic step. Its right-now
-   rung if it has one, else today's, else the week's. */
-function activeGoalNow(){
-  var live=(S.goals||[]).filter(function(x){ return !x.archived && !x.paused && (x.now||x.today||x.week); });
-  var g=live.filter(function(x){ return x.started; })[0] || live[0];
-  return g ? {text:g.now||g.today||g.week, theme:g.title} : null;
-}
-var ownStepOpen=false;
-function renderNextCard(overrideText){
-  var box=document.getElementById('nextCard');
-  if(!box) return;
-  var step=pickNextStep();
-  var ag=step.alt ? null : activeGoalNow();
-  var theme = step.own ? t('d.own.th') : ag && !step.done ? ag.theme : (step.thKey ? t(step.thKey) : '');
-  var txt = overrideText || step.own || (ag && !step.done ? ag.text : t(step.key));
-  if(step.done && !overrideText){
-    box.innerHTML='<div class="next done">'+ic('check')+
-      '<div><div class="next-lab">'+esc(t('d.next'))+'</div>'+
-      '<p class="next-tx">'+esc(t('d.allclear'))+'</p>'+
-      '<p class="next-sub">'+esc(streakLine())+'</p></div></div>';
-    return;
-  }
-  var running = !!fiveTimer;
-  box.innerHTML='<div class="next">'+
-    '<div class="next-lab">'+ic('rocket')+'<span>'+esc(t('d.next'))+'</span>'+
-      (theme?'<span class="next-th">'+esc(theme)+'</span>':'')+'</div>'+
-    '<p class="next-tx">'+esc(txt)+'</p>'+
-    '<p class="next-sub">'+esc(t('d.next.s'))+' · '+esc(streakLine())+'</p>'+
-    '<div class="next-btns">'+
-      '<button class="btn btn-primary" id="fiveBtn"'+(running?' disabled':'')+'>'+ic('play')+
-        '<span id="fiveTxt">'+esc(running?t('d.running',{t:'5:00'}):t('d.start5'))+'</span></button>'+
-      '<button class="btn btn-ghost" id="nextDone">'+ic('check')+'<span>'+esc(t('d.mark'))+'</span></button>'+
-    '</div>'+
-    (ownStepOpen
-      ? '<div class="addrow next-own"><input type="text" id="ownStep" maxlength="100"'+
-          ' placeholder="'+esc(t('d.own.ph'))+'" aria-label="'+esc(t('d.own'))+'" value="'+esc(step.own||'')+'">'+
-          '<button class="btn btn-primary" id="ownSave">'+esc(t('c.save'))+'</button></div>'
-      : '<div class="next-alt">'+
-          '<button class="btn btn-quiet btn-sm" id="nextOther"'+(running?' disabled':'')+'>'+ic('refresh')+'<span>'+esc(t('d.other'))+'</span></button>'+
-          '<button class="btn btn-quiet btn-sm" id="nextOwn"'+(running?' disabled':'')+'>'+ic('edit')+'<span>'+esc(t('d.own'))+'</span></button>'+
-        '</div>')+
-    '</div>';
-  var fb=document.getElementById('fiveBtn');
-  if(fb) fb.addEventListener('click',function(){ startFiveMinutes(txt); });
-  var no=document.getElementById('nextOther');
-  if(no) no.addEventListener('click',otherStep);
-  var nw=document.getElementById('nextOwn');
-  if(nw) nw.addEventListener('click',function(){
-    ownStepOpen=true; renderNextCard(); document.getElementById('ownStep').focus();
-  });
-  var os_=document.getElementById('ownStep');
-  if(os_){
-    var saveOwn=function(){
-      var v=os_.value.trim();
-      ownStepOpen=false;
-      if(v){ var st=pickNextStep(); st.own=v; save(); toast(t('gl.saved')); }
-      renderNextCard();
-    };
-    document.getElementById('ownSave').addEventListener('click',saveOwn);
-    os_.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveOwn(); } });
-  }
-  document.getElementById('nextDone').addEventListener('click',function(){
-    clearFive();
-    if(!S.next || S.next.done) return;
-    S.next.done=true;
-    S.stats.challenges=(S.stats.challenges||0)+1;
-    addPts(25); markActiveToday();
-    toast(t('t.pts',{n:25}));
-    save(); renderNextCard(); renderDashStats(); renderStats(); checkAchievements();
-  });
 }
 
 /* ---- my day: the same small ritual for everyone, every morning ----
@@ -776,9 +701,12 @@ function bindGoalEdit(host,g){
   });
 }
 
-/* ---- my goal: what the next step is heading toward ----
-   With no goal yet it offers the areas and a free line; both go on into the
-   same chain the Goals tab uses, so a goal made here has a full ladder. */
+/* ---- my goal, and today's step toward it ----
+   One card: the goal, the step for today taken from its own ladder (right
+   now, else today, else this week), and the two ways to act on it. A
+   separate "next step" card used to repeat the same line under it. With no
+   goal yet it offers the areas and a free line; both go on into the same
+   chain the Goals tab uses, so a goal made here has a full ladder. */
 function openChainAt(area, kindText){
   if(goalLimitReached()){ toast(t('pro.goalmax',{n:GOAL_FREE_MAX})); openPlans(); return; }
   resetChain();
@@ -801,13 +729,24 @@ function renderMyGoal(){
     return;
   }
   if(g){
+    var step=g.now||g.today||g.week||'';
+    var doneToday=g.doneDay===dayKey(), running=!!fiveTimer;
+    var act = !step
+      ? '<p class="next-sub">'+esc(t('mg.nostep'))+'</p>'
+      : doneToday
+      ? '<p class="mg-done">'+ic('check')+'<span>'+esc(t('mg.done'))+'</span></p>'
+      : '<div class="next-btns">'+
+          '<button class="btn btn-primary" id="fiveBtn"'+(running?' disabled':'')+'>'+ic('play')+
+            '<span id="fiveTxt">'+esc(running?t('d.running',{t:'5:00'}):t('d.start5'))+'</span></button>'+
+          '<button class="btn btn-ghost" data-mg-done>'+ic('check')+'<span>'+esc(t('d.mark'))+'</span></button>'+
+        '</div>';
     box.innerHTML=head+
-      '<div class="mini-ladder">'+
-        '<div><span>'+esc(t('gl.goal'))+'</span><b>'+esc(g.title)+'</b></div>'+
-        (g.today?'<div><span>'+esc(t('gl.today'))+'</span><b>'+esc(g.today)+'</b></div>':'')+
-      '</div>'+
-      '<div class="row-btns">'+
-        (g.started ? '' : '<button class="btn btn-primary btn-sm" data-mg-start>'+ic('play')+'<span>'+esc(t('gc.start'))+'</span></button>')+
+      '<p class="mg-title">'+esc(g.title)+'</p>'+
+      (step?'<div class="mg-lab">'+esc(t('mg.today'))+'</div><p class="next-tx">'+esc(step)+'</p>':'')+
+      act+
+      '<p class="next-sub">'+esc(streakLine())+'</p>'+
+      '<div class="row-btns mg-tools">'+
+        (g.started ? '' : '<button class="btn btn-ghost btn-sm" data-mg-start>'+ic('flag')+'<span>'+esc(t('gc.start'))+'</span></button>')+
         '<button class="btn btn-ghost btn-sm" data-mg-edit>'+ic('edit')+'<span>'+esc(t('ge.btn'))+'</span></button>'+
         '<button class="btn btn-ghost btn-sm" data-mg-all>'+ic('target')+'<span>'+esc(t('mg.all'))+'</span></button>'+
       '</div>';
@@ -815,6 +754,17 @@ function renderMyGoal(){
     var st=box.querySelector('[data-mg-start]');
     if(st) st.addEventListener('click',function(){ startGoal(g); });
     box.querySelector('[data-mg-all]').addEventListener('click',function(){ goPage('goals'); });
+    var fb=document.getElementById('fiveBtn');
+    if(fb) fb.addEventListener('click',function(){ startFiveMinutes(step); });
+    var dn=box.querySelector('[data-mg-done]');
+    if(dn) dn.addEventListener('click',function(){
+      clearFive();
+      g.doneDay=dayKey();
+      S.stats.challenges=(S.stats.challenges||0)+1;
+      addPts(25); markActiveToday();
+      toast(t('t.pts',{n:25}));
+      save(); renderMyGoal(); renderDashStats(); renderStats(); checkAchievements();
+    });
     return;
   }
   box.innerHTML=head+'<p class="psub">'+esc(t('mg.s'))+'</p>'+
@@ -864,7 +814,7 @@ function bindSettings(){
   });
 }
 function renderDash(){
-  renderToday3(); renderDashStats(); renderNextCard(); renderMyGoal();
+  renderToday3(); renderMyGoal(); renderDashStats();
   renderAvatarCard(); renderInvite();
 }
 
