@@ -629,26 +629,19 @@ body.no-scroll{overflow:hidden;}
   font-size:var(--t-sm);width:auto;}
 .mg-areas .opt svg{width:15px;height:15px;margin:0;}
 .mg-free{margin-top:var(--s3);}
-.next-alt{display:flex;gap:var(--s2);flex-wrap:wrap;margin-top:var(--s2);}
-.next-alt .btn{color:var(--fg-3);}
-.next-alt svg{width:15px;height:15px;}
 .gedit{display:grid;gap:var(--s1);}
 .gedit .row-btns{margin-top:var(--s2);}
 .lookrow{display:flex;align-items:center;gap:var(--s2);}
 
-.nextcard{margin-bottom:var(--s3);}
-.next{background:var(--ink-1);border:1px solid var(--acc);border-radius:var(--r-card);padding:var(--s5);}
-.next-lab{display:flex;align-items:center;gap:var(--s2);font-size:10px;font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--acc);}
-.next-lab svg{width:15px;height:15px;}
-.next-th{margin-inline-start:auto;color:var(--fg-3);letter-spacing:.04em;}
-.next-tx{font-family:var(--f-display);font-size:clamp(19px,3.4vw,26px);line-height:1.2;margin-top:var(--s3);}
+.mg-title{font-weight:700;color:var(--fg-2);margin-bottom:var(--s3);}
+.mg-lab{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);}
+.mg-done{display:flex;align-items:center;gap:var(--s2);margin-top:var(--s4);font-weight:600;color:var(--acc);}
+.mg-done svg{width:22px;height:22px;}
+.mg-tools{margin-top:var(--s4);}
+.next-tx{font-family:var(--f-display);font-size:clamp(19px,3.4vw,26px);line-height:1.2;margin-top:var(--s1);}
 .next-sub{font-size:var(--t-xs);color:var(--fg-3);margin-top:var(--s2);}
 .next-btns{display:flex;gap:var(--s2);flex-wrap:wrap;margin-top:var(--s4);}
 .next-btns .btn{flex:1;min-width:150px;}
-.next.done{display:flex;gap:var(--s3);align-items:center;border-color:var(--ink-2);}
-.next.done svg{color:var(--acc);flex:none;width:26px;height:26px;}
-.next.done .next-tx{font-family:var(--f-ui);font-size:var(--t-body);margin-top:2px;}
 
 .dash-box{background:var(--ink-1);border-radius:var(--r-card);padding:var(--s4);margin-bottom:var(--s3);}
 .boxh{display:flex;align-items:center;gap:var(--s2);font-family:var(--f-ui);font-weight:700;

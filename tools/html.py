@@ -314,7 +314,6 @@ def build_body(logo):
 
  <div class="page" id="page-home" role="tabpanel">
   <section class="dash-box today3" id="todayBox"></section>
-  <div class="nextcard" id="nextCard"></div>
   <section class="dash-box" id="myGoal"></section>
   <div class="dstrip" id="dashStats"></div>
   <section class="dash-box wkboard" id="wkBoard">

@@ -119,9 +119,6 @@ var ALL_CATS=[
 /* the level and rank tables live in js_avatar.py (RANKS, levelInfo) */
 var PRAISE=['p.1','p.2','p.3','p.4','p.5'];
 var INSIGHTS=[{t:'in.1.t',s:'in.1.s'},{t:'in.2.t',s:'in.2.s'},{t:'in.3.t',s:'in.3.s'},{t:'in.4.t',s:'in.4.s'}];
-var CHALLENGES=[
- {t:'ch.1',th:'ch.th.reg'},{t:'ch.2',th:'ch.th.goal'},{t:'ch.3',th:'ch.th.reg'},
- {t:'ch.4',th:'ch.th.broad'},{t:'ch.5',th:'ch.th.broad'}];
 var TRAITS=['tr.wake','tr.hw','tr.eat','tr.train','tr.social','tr.sleep','tr.save','tr.read','tr.time','tr.init','tr.groom','tr.water'];
 var THEORIES=[
  {icon:'shield',  n:'th.1.n',a:'th.1.a',p:'th.1.p',h:'th.1.h',f:'th.1.f'},
