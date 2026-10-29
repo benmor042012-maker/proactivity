@@ -290,6 +290,7 @@ function renderGoals(){
       }).join('')+'</div>'+
       '<div class="addrow"><input type="text" class="na" data-gid="'+g.id+'" placeholder="'+esc(t('g.step.ph'))+'" aria-label="'+esc(t('g.step.ph'))+'">'+
       '<button class="btn btn-ghost" data-na="'+g.id+'" aria-label="'+esc(t('c.add'))+'">'+ic('plus')+'</button></div>'+
+      resHtml(g)+
       (started
         ? '<div class="gmeta"><span class="numf">'+done+'/'+g.actions.length+'</span><span class="numf">'+pct+'%</span></div>'+
           '<div class="gbar"><i style="width:'+pct+'%"></i></div>'
@@ -299,6 +300,7 @@ function renderGoals(){
   box.querySelectorAll('[data-gstart]').forEach(function(b){
     b.addEventListener('click',function(){ startGoal(goalById(Number(b.dataset.gstart))); });
   });
+  bindRes(box, renderGoals);
   box.querySelectorAll('[data-ge-open]').forEach(function(b){
     b.addEventListener('click',function(){ goalEditId=Number(b.dataset.geOpen); renderGoals(); renderMyGoal(); });
   });
@@ -1104,6 +1106,87 @@ function similarGoals(){
   return null;
 }
 
+/* ---- materials: videos and links that help a goal ----
+   Only links are kept - the video stays on YouTube, so the phone's small
+   store is not filled. A YouTube link shows its thumbnail and plays in a
+   player inside the app; anything else opens in a new tab. The search
+   button opens YouTube with the goal's name and a few words for its area. */
+var resOpen={};
+function ytId(url){
+  var m=String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/);
+  return m ? m[1] : null;
+}
+function firstVideo(g){ return (g.res||[]).filter(function(r){ return r.yt; })[0] || null; }
+function resHtml(g){
+  var list=g.res||[];
+  var items=list.map(function(r){
+    var thumb=r.yt ? '<img src="https://i.ytimg.com/vi/'+r.yt+'/mqdefault.jpg" alt="" loading="lazy">' : ic('link');
+    return '<div class="res-item">'+
+      '<button type="button" class="res-open" data-res-open="'+g.id+':'+r.id+'">'+thumb+'<span>'+esc(r.title)+'</span></button>'+
+      '<button type="button" class="icon-btn" data-res-del="'+g.id+':'+r.id+'" aria-label="'+esc(t('c.delete'))+'">'+ic('x')+'</button></div>';
+  }).join('');
+  return '<details class="res"'+(resOpen[g.id]?' open':'')+' data-res-box="'+g.id+'"><summary>'+ic('link')+'<span>'+esc(t('res.t'))+
+      (list.length?' · '+list.length:'')+'</span></summary>'+
+    (items ? '<div class="res-list">'+items+'</div>' : '<p class="hint">'+esc(t('res.empty'))+'</p>')+
+    '<div class="res-add"><input type="url" inputmode="url" data-res-url="'+g.id+'" placeholder="'+esc(t('res.url.ph'))+'" aria-label="'+esc(t('res.url.ph'))+'">'+
+      '<input type="text" maxlength="60" data-res-title="'+g.id+'" placeholder="'+esc(t('res.title.ph'))+'" aria-label="'+esc(t('res.title.ph'))+'">'+
+      '<button class="btn btn-primary btn-sm" data-res-add="'+g.id+'">'+ic('plus')+'<span>'+esc(t('c.add'))+'</span></button></div>'+
+    '<button class="btn btn-ghost btn-sm res-yt" data-res-yt="'+g.id+'">'+ic('play')+'<span>'+esc(t('res.yt'))+'</span></button>'+
+    '<p class="hint">'+esc(t('res.yt.h'))+'</p>'+
+  '</details>';
+}
+function bindRes(host, rerender){
+  function pair(v){ var a=v.split(':'); return {g:goalById(Number(a[0])), id:Number(a[1])}; }
+  host.querySelectorAll('[data-res-box]').forEach(function(d){
+    d.addEventListener('toggle',function(){ resOpen[d.dataset.resBox]=d.open; });
+  });
+  host.querySelectorAll('[data-res-add]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.resAdd));
+      var u=host.querySelector('[data-res-url="'+g.id+'"]'), tt=host.querySelector('[data-res-title="'+g.id+'"]');
+      var url=u.value.trim();
+      if(url && !/^https?:\/\//i.test(url) && /^[\w-]+(\.[\w-]+)+/.test(url)) url='https://'+url;
+      if(!/^https?:\/\/\S+\.\S+/i.test(url)){ toast(t('res.bad')); u.focus(); return; }
+      var yt=ytId(url), name=tt.value.trim();
+      if(!name){ try{ name = yt ? t('res.ytname') : new URL(url).hostname.replace(/^www\./,''); }catch(e){ name=url; } }
+      if(!g.res) g.res=[];
+      g.res.push({id:uid++, url:url, title:name, yt:yt});
+      resOpen[g.id]=true; save(); rerender(); toast(t('gl.saved'));
+    });
+  });
+  host.querySelectorAll('[data-res-del]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var x=pair(b.dataset.resDel); if(!x.g) return;
+      x.g.res=(x.g.res||[]).filter(function(r){ return r.id!==x.id; }); save(); rerender();
+    });
+  });
+  host.querySelectorAll('[data-res-open]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var x=pair(b.dataset.resOpen); if(!x.g) return;
+      var r=(x.g.res||[]).filter(function(z){ return z.id===x.id; })[0];
+      if(r) openRes(r);
+    });
+  });
+  host.querySelectorAll('[data-res-yt]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.resYt)), extra=g.area ? t('yt.q.'+g.area) : '';
+      window.open('https://www.youtube.com/results?search_query='+encodeURIComponent((g.title+' '+(extra.indexOf('yt.q.')===0?'':extra)).trim()),'_blank','noopener');
+    });
+  });
+}
+function openRes(r){
+  if(!r.yt){ window.open(r.url,'_blank','noopener'); return; }
+  var m=document.getElementById('vidModal');
+  document.getElementById('vidTitle').textContent=r.title;
+  document.getElementById('vidFrame').src='https://www.youtube-nocookie.com/embed/'+r.yt+'?autoplay=1&rel=0&playsinline=1';
+  document.getElementById('vidOut').href=r.url;
+  m.classList.add('on');
+}
+function closeVid(){
+  var m=document.getElementById('vidModal'); m.classList.remove('on');
+  document.getElementById('vidFrame').src='about:blank';   // stops the sound
+}
+
 /* ---- my goal, and today's step toward it ----
    One card: the goal, the step for today taken from its own ladder (right
    now, else today, else this week), and the two ways to act on it. A
@@ -1139,6 +1222,7 @@ function renderMyGoal(){
           '<button class="btn btn-primary" data-mg-five="'+g.id+'"'+(running?' disabled':'')+'>'+ic('play')+
             '<span'+(fiveGid===g.id?' id="fiveTxt"':'')+'>'+esc(running&&fiveGid===g.id?t('d.running',{t:'5:00'}):t('d.start5'))+'</span></button>'+
           '<button class="btn btn-ghost" data-mg-done="'+g.id+'">'+ic('check')+'<span>'+esc(t('d.mark'))+'</span></button>'+
+          (firstVideo(g)?'<button class="btn btn-ghost" data-mg-vid="'+g.id+'">'+ic('play')+'<span>'+esc(t('res.video'))+'</span></button>':'')+
         '</div>';
     return '<div class="mg-goal" data-gblock="'+g.id+'">'+
       '<h3 class="mg-title">'+esc(g.title)+(g.freq?'<span class="mg-freq">'+esc(t('gf.'+g.freq))+'</span>':'')+'</h3>'+
@@ -1147,7 +1231,7 @@ function renderMyGoal(){
       '<div class="row-btns mg-tools">'+
         (g.started ? '' : '<button class="btn btn-quiet btn-sm" data-mg-start="'+g.id+'">'+ic('flag')+'<span>'+esc(t('gc.start'))+'</span></button>')+
         '<button class="btn btn-quiet btn-sm" data-mg-edit="'+g.id+'">'+ic('edit')+'<span>'+esc(t('ge.btn'))+'</span></button>'+
-      '</div></div>';
+      '</div>'+resHtml(g)+'</div>';
   }).join('');
   var sim=goalEditId?null:similarGoals();
   var simHtml = sim ? '<div class="mg-sim">'+ic('link')+'<span>'+esc(t('mg.sim',{a:sim.a.title, b:sim.b.title}))+'</span>'+
@@ -1186,6 +1270,10 @@ function renderMyGoal(){
     });
   });
   box.querySelector('[data-mg-add]').addEventListener('click',function(){ renderGoalPicker(box,head,true); });
+  bindRes(box, renderMyGoal);
+  box.querySelectorAll('[data-mg-vid]').forEach(function(b){
+    b.addEventListener('click',function(){ openRes(firstVideo(goalById(Number(b.dataset.mgVid)))); });
+  });
   if(sim){
     box.querySelector('[data-sim-yes]').addEventListener('click',function(){
       if(confirm(t('ge.merge.q',{a:sim.a.title, b:sim.b.title}))) mergeGoals(sim.a.id, sim.b.id);
@@ -1406,6 +1494,9 @@ function bindRetake(box){
     renderQuiz();
   });
 }
+
+document.getElementById('vidClose').addEventListener('click',closeVid);
+document.getElementById('vidModal').addEventListener('click',function(e){ if(e.target.id==='vidModal') closeVid(); });
 
 /* ================= tabs ================= */
 /* One <nav> serves as top tabs on a wide screen and as the bottom bar on a

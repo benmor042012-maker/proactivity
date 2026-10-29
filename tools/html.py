@@ -661,6 +661,13 @@ def build_body(logo):
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="tipcard" id="tipCard" role="status" aria-live="polite"></div>
 
+<div class="modal-bg" id="vidModal"><div class="modal vid-modal" role="dialog" aria-modal="true" aria-labelledby="vidTitle">
+ <h3 id="vidTitle"></h3>
+ <div class="vid-wrap"><iframe id="vidFrame" src="about:blank" title="video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+ <div class="modal-btns"><a class="btn btn-ghost" id="vidOut" target="_blank" rel="noopener"><span data-i18n="res.out"></span></a>
+  <button class="btn btn-primary" id="vidClose" data-i18n="res.close"></button></div>
+</div></div>
+
 <div class="modal-bg" id="camModal"><div class="modal" role="dialog" aria-modal="true">
  <h3 data-i18n="cam.t"></h3><p id="camTN"></p>
  <video class="cam-v" id="camV" autoplay playsinline muted></video>
