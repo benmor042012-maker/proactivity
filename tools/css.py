@@ -656,6 +656,26 @@ table.wk3 tbody th{white-space:nowrap;font-weight:600;color:var(--fg-2);}
 .wk3sum{font-weight:700;color:var(--fg);}
 .wk3idea{display:flex;gap:var(--s2);align-items:flex-start;color:var(--fg);}
 .wk3idea svg{width:16px;height:16px;color:var(--acc);flex:none;margin-top:2px;}
+.eve .boxh svg{color:var(--acc);}
+.eve-feels{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s2);margin-bottom:var(--s3);}
+.eve-feels .opt{min-height:64px;padding:var(--s2);font-size:var(--t-xs);}
+.eve-e{font-size:20px;line-height:1;}
+.eve-saved{font-weight:600;color:var(--fg);display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.eve-saved q{font-weight:400;color:var(--fg-2);}
+.eve-week{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3);padding:var(--s3);
+  border-radius:var(--r-card);background:var(--acc-dim);font-size:var(--t-sm);color:var(--fg);}
+.eve-week svg{width:18px;height:18px;color:var(--acc);flex:none;}
+.eve-week span{flex:1;min-width:150px;}
+.wk3note{font-size:var(--t-xs);color:var(--fg-2);margin-top:4px;font-style:italic;}
+.wk3refl{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--ink-2);}
+.wk3refl h4{display:flex;align-items:center;gap:var(--s2);margin-bottom:var(--s3);}
+.wk3refl h4 svg{width:18px;height:18px;color:var(--acc);}
+.wk3refl textarea{width:100%;resize:vertical;font:inherit;}
+.wr-past{margin-top:var(--s4);font-size:var(--t-sm);}
+.wr-past summary{cursor:pointer;color:var(--acc);font-weight:600;}
+.wr-item{padding:var(--s3) 0;border-bottom:1px solid var(--ink-2);}
+.wr-item p{color:var(--fg-2);margin-top:4px;}
+.wr-item p span{color:var(--fg-3);}
 .lookrow{display:flex;align-items:center;gap:var(--s2);}
 
 .mg-title{font-weight:700;color:var(--fg-2);margin-bottom:var(--s3);}
