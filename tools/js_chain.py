@@ -62,9 +62,12 @@ function kindLabel(){
   if(CH.kind==='other') return CH.kindText||t('gc.other');
   return CH.kind ? t(CH.kind) : '';
 }
-function chainTitle(){ return t('gt.title',{kind:kindLabel(), freq:t('gf.'+(CH.freq||3))}); }
-function chainWeek(){  return t('gw.line',{freq:t('gf.'+(CH.freq||3)), kind:kindLabel()}); }
-function chainToday(){ return t('gd.'+(CH.area||'goals'),{kind:kindLabel()}); }
+/* The goal's name is what the user calls it - prefilled with what they
+   chose, editable on the last screen. How often is kept on the goal as
+   freq and shown beside the name, never glued into it. */
+function chainTitle(){ return (CH.name||'').trim() || kindLabel(); }
+function chainWeek(){  return t('gw.line',{freq:t('gf.'+(CH.freq||3)), kind:chainTitle()}); }
+function chainToday(){ return t('gd.'+(CH.area||'goals'),{kind:chainTitle()}); }
 function chainNow(){   return t('gn.'+(CH.obst||'other')); }
 
 /* A goal built here carries where it came from, so the ladder can be
@@ -121,8 +124,9 @@ function renderChain(hostId){
   } else {
     var a=areaById(CH.area)||AREAS[3];
     html=chainHead(4)+'<h3 class="ch-q">'+esc(t('gc.result.t'))+'</h3><p class="psub">'+esc(t('gc.result.s'))+'</p>'+
+      '<div class="field ch-name"><label for="chName">'+esc(t('gc.name'))+'</label>'+
+        '<input type="text" id="chName" maxlength="60" value="'+esc(chainTitle())+'"></div>'+
       '<div class="ladder ch-ladder">'+
-        '<div class="rung"><span class="rung-k">'+esc(t('gl.goal'))+'</span><span class="rung-v strong">'+esc(chainTitle())+'</span></div>'+
         '<div class="rung"><span class="rung-k">'+esc(t('gl.week'))+'</span><span class="rung-v">'+esc(chainWeek())+'</span></div>'+
         '<div class="rung"><span class="rung-k">'+esc(t('gl.today'))+'</span><span class="rung-v">'+esc(chainToday())+'</span></div>'+
         '<div class="rung now"><span class="rung-k">'+esc(t('gl.now'))+'</span><span class="rung-v">'+esc(chainNow())+'</span></div>'+
@@ -174,6 +178,8 @@ function bindChain(host){
   host.querySelectorAll('[data-obst]').forEach(function(b){
     b.addEventListener('click',function(){ CH.obst=b.dataset.obst; CH.step=4; saveChain(); renderChain(); });
   });
+  var nm=host.querySelector('#chName');
+  if(nm) nm.addEventListener('input',function(){ CH.name=nm.value; saveChain(); });
   host.querySelectorAll('[data-ch-save]').forEach(function(b){
     b.addEventListener('click',function(){ commitChain(false); });
   });

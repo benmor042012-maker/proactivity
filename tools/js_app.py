@@ -199,6 +199,21 @@ function migrateV2(){
 /* Fields the v4 schema adds. Object.assign in load() merges a stored save over
    the defaults, so a v3 save arrives with these already present (as defaults);
    this only backfills a save that was hand-edited or partially written. */
+/* Goals made by the chain used to be named "<what> · <how often>". The how
+   often is on the goal already, so the suffix comes off - in whichever
+   language the goal was made - and the weekly mission follows the name. */
+function tidyGoalTitles(){
+  (S.goals||[]).forEach(function(g){
+    if(!g.freq || !g.title) return;
+    Object.keys(I18N).forEach(function(l){
+      var f=I18N[l]['gf.'+g.freq], suf=' · '+f;
+      if(f && g.title.length>suf.length && g.title.slice(-suf.length)===suf){
+        var old=g.title; g.title=g.title.slice(0,-suf.length);
+        (S.missions||[]).forEach(function(m){ if(m.goalId===g.id && m.title===old) m.title=g.title; });
+      }
+    });
+  });
+}
 function ensureV4Fields(){
   if(!S.quiz) S.quiz=emptyQuiz();
   if(!S.lessons) S.lessons={};
@@ -273,6 +288,7 @@ function load(){ try{
   if(v<4) migrateV3();
   if(!S.mini) S.mini=emptyMini();       // belt and braces for a hand-edited save
   ensureV4Fields();
+  tidyGoalTitles();
   loadQuiz();                           // answers saved before onboarding ended
   if(v<STORE_V) save();
   return true;

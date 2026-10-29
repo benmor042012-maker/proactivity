@@ -50,6 +50,7 @@ CHAIN = {
                 'C\'est ça qui décide de la première étape.',
                 'От этого зависит первый шаг.',
                 'بناءً عليه نختار الخطوة الأولى.'),
+'gc.name':     ('איך לקרוא למטרה?', 'What do you call this goal?', 'Comment appeler cet objectif ?', 'Как назвать цель?', 'ماذا {تسمّي|تسمّين} هذا الهدف؟'),
 'gc.result.t': ('הנה היעד שלך', 'Here is your target', 'Voici ton objectif', 'Вот твоя цель', 'ها هو هدفك'),
 'gc.result.s': ('נבנה ממה שאמרת. אפשר לערוך כל שורה.',
                 'Built from what you said. Every line can be edited.',
@@ -163,7 +164,6 @@ CHAIN = {
 
 # ================= composing the target =================
 # title = kind + frequency
-'gt.title':  ('{kind} · {freq}', '{kind} · {freq}', '{kind} · {freq}', '{kind} · {freq}', '{kind} · {freq}'),
 # the "this week" rung
 'gw.line':   ('{freq}: {kind}', '{freq}: {kind}', '{freq} : {kind}', '{freq}: {kind}', '{freq}: {kind}'),
 

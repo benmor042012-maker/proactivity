@@ -243,6 +243,7 @@ function renderGoals(){
       : started
       ? '<span class="gstate on">'+ic('play')+esc(t('gc.started',{d:fmtDay(g.startedAt)}))+'</span>'
       : '<span class="gstate">'+ic('clock')+esc(t('gc.notstarted'))+'</span>';
+    if(g.freq) state+='<span class="gstate gfreq">'+ic('calendar')+esc(t('gf.'+g.freq))+'</span>';
     if(goalEditId===g.id){
       card.innerHTML='<h3>'+ic('target')+'<span>'+esc(t('ge.btn'))+'</span></h3>'+goalEditForm(g);
       box.appendChild(card); bindGoalEdit(card,g);
@@ -255,8 +256,6 @@ function renderGoals(){
       state+
 
       '<div class="ladder">'+
-        '<div class="rung"><span class="rung-k">'+esc(t('gl.goal'))+'</span>'+
-          '<span class="rung-v strong">'+esc(g.title)+'</span></div>'+
         '<div class="rung"><span class="rung-k">'+esc(t('gl.week'))+'</span>'+
           '<input type="text" class="rung-in" data-lad="week" data-gid="'+g.id+'" '+
           'value="'+esc(g.week||'')+'" placeholder="'+esc(t('gl.wk.ph'))+'" aria-label="'+esc(t('gl.week'))+'"></div>'+
@@ -1035,7 +1034,7 @@ function renderMyGoal(){
           '<button class="btn btn-ghost" data-mg-done="'+g.id+'">'+ic('check')+'<span>'+esc(t('d.mark'))+'</span></button>'+
         '</div>';
     return '<div class="mg-goal" data-gblock="'+g.id+'">'+
-      '<p class="mg-title">'+esc(g.title)+'</p>'+
+      '<h3 class="mg-title">'+esc(g.title)+(g.freq?'<span class="mg-freq">'+esc(t('gf.'+g.freq))+'</span>':'')+'</h3>'+
       (step?'<div class="mg-lab">'+esc(t('mg.today'))+'</div><p class="next-tx">'+esc(step)+'</p>':'')+
       act+
       '<div class="row-btns mg-tools">'+
