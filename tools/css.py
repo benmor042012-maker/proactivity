@@ -118,7 +118,7 @@ svg.ic{width:1.25em;height:1.25em;flex:none;vertical-align:-.22em;}
 .icon-btn:hover{color:var(--acc);background:var(--ink-2);}
 
 /* ============ FIELDS ============ */
-input[type=text],input[type=email],input[type=number],select,textarea{
+input[type=text],input[type=email],input[type=number],input[type=url],select,textarea{
   width:100%;background:var(--ink-2);border:1px solid var(--ink-3);border-radius:var(--r-ctl);
   color:var(--fg);padding:11px var(--s3);font-size:var(--t-body);font-family:var(--f-ui);
   min-height:44px;transition:border-color .14s;}
@@ -718,6 +718,22 @@ table.wk3 tbody th{white-space:nowrap;font-weight:600;color:var(--fg-2);}
 .mg-sim{display:grid;gap:var(--s2);padding:var(--s3);margin-bottom:var(--s4);border-radius:var(--r-card);
   background:var(--acc-dim);font-size:var(--t-sm);color:var(--fg);}
 .mg-sim>svg{width:18px;height:18px;color:var(--acc);}
+.res{margin-top:var(--s3);font-size:var(--t-sm);}
+.res summary{display:flex;align-items:center;gap:var(--s2);cursor:pointer;color:var(--acc);font-weight:600;list-style:none;}
+.res summary::-webkit-details-marker{display:none;}
+.res summary svg{width:16px;height:16px;}
+.res-list{display:grid;gap:var(--s2);margin:var(--s3) 0;}
+.res-item{display:flex;align-items:center;gap:var(--s2);}
+.res-open{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s3);padding:var(--s2);border-radius:var(--r-ctl);
+  border:1px solid var(--ink-2);background:var(--ink-0);cursor:pointer;font:inherit;color:var(--fg);text-align:start;}
+.res-open img{width:96px;height:54px;object-fit:cover;border-radius:6px;flex:none;}
+.res-open svg{width:20px;height:20px;color:var(--acc);flex:none;margin:0 var(--s2);}
+.res-open span{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.res-add{display:grid;gap:var(--s2);margin-top:var(--s3);}
+.res-yt{margin-top:var(--s2);}
+.vid-modal{max-width:720px;}
+.vid-wrap{position:relative;padding-top:56.25%;border-radius:var(--r-ctl);overflow:hidden;background:#000;margin-bottom:var(--s3);}
+.vid-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
 .lookrow{display:flex;align-items:center;gap:var(--s2);}
 
 .mg-title{font-family:var(--f-display);font-weight:400;font-size:var(--t-h2);line-height:1.2;color:var(--fg);
