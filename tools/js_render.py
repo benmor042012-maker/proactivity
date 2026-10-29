@@ -622,6 +622,19 @@ function startFiveMinutes(labelText){
   },1000);
 }
 
+/* ---- asked once on Home if it was never answered ----
+   Accounts made before the question was required still read "מתחיל/ה".
+   One tap answers it, and the card does not come back. */
+function renderGenderAsk(){
+  var box=document.getElementById('gndBox'); if(!box) return;
+  box.hidden = GENDERS.indexOf(P.gender)>=0;
+  if(box.dataset.bound) return;
+  box.dataset.bound='1';
+  box.querySelectorAll('[data-hgnd]').forEach(function(o){
+    o.addEventListener('click',function(){ setGender(o.dataset.hgnd); save(); box.hidden=true; toast(t('gl.saved')); });
+  });
+}
+
 /* ---- my day: the same small ritual for everyone, every morning ----
    Three things that matter today, written by the user, before the
    personal step. A new day starts with three empty lines. */
@@ -689,6 +702,7 @@ function renderToday3(){
         if(!it.paid){ it.paid=true; addPts(10); }
         var all=td.items.every(function(x){ return x.done; });
         toast(all ? t('t3.all') : t('t.pts',{n:10}));
+        if(all) celebrate();
       }
       logDay(); save(); renderToday3(); renderEvening(); renderDashStats(); checkAchievements();
     });
@@ -848,8 +862,17 @@ function renderMyWeek(){
       '<th scope="col">'+esc(t('wk3.c.did'))+'</th>'+(goals.length?'<th scope="col">'+esc(t('wk3.c.step'))+'</th>':'')+'</tr></thead>'+
       '<tbody>'+rows+'</tbody></table></div>'+
     (goals.length?'<p class="hint">'+ic('target')+'<span>'+esc(t(goals.length>1?'wk3.goals':'wk3.goal',{g:goals.map(function(x){ return x.title; }).join(' · ')}))+'</span></p>':'')+
-    '<div class="wk3read">'+lines.join('')+'</div>'+weekReflection();
+    '<div class="wk3read">'+lines.join('')+'</div>'+
+    (done ? '<button class="btn btn-primary btn-sm wk3share" data-wk3-share>'+ic('share')+'<span>'+esc(t('sh.btn'))+'</span></button>' : '')+
+    weekReflection();
   bindWeekReflection(box);
+  var shb=box.querySelector('[data-wk3-share]');
+  if(shb) shb.addEventListener('click',function(){
+    var feels={}; days.forEach(function(d){ var f=log[d].feel; if(f) feels[f]=(feels[f]||0)+1; });
+    var top=Object.keys(feels).sort(function(a,b){ return feels[b]-feels[a]; })[0];
+    var steps=0; Object.keys(stepDays).forEach(function(k){ steps+=stepDays[k]; });
+    shareWeek({done:done, served:served, steps:steps, days:days.length, feel:top});
+  });
   var fx=box.querySelector('[data-wk3-fix]');
   if(fx) fx.addEventListener('click',sharpenGoals);
   var nw=box.querySelector('[data-wk3-new]');
@@ -861,6 +884,48 @@ function sharpenGoals(){
   if(gs.length!==1){ goPage('goals'); return; }
   goalEditId=gs[0].id; goPage('home'); renderMyGoal();
   document.getElementById('myGoal').scrollIntoView({block:'start',behavior:'smooth'});
+}
+
+/* ---- the week as a picture to share ----
+   Only numbers and the week's most common feeling - never the lines
+   themselves, which may be private. */
+function shareWeek(w){
+  var W=1080,H=1350,c=document.createElement('canvas'); c.width=W; c.height=H;
+  var x=c.getContext('2d'), rtl=document.documentElement.dir==='rtl';
+  var g=x.createLinearGradient(0,H,W,0); g.addColorStop(0,'#E9F0E2'); g.addColorStop(1,'#FBF8F1');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.direction=rtl?'rtl':'ltr'; x.textAlign='center';
+  var serif=getComputedStyle(document.body).getPropertyValue('--f-display')||'sans-serif';
+  function txt(s,y,size,col,weight){ x.font=(weight||700)+' '+size+'px '+serif; x.fillStyle=col; x.fillText(s,W/2,y); }
+  txt(t('sh.title'),250,64,'#173F2A',800);
+  /* zeros are left off: the picture is something to be proud of */
+  var cells=[[w.done,t('sh.done')],[w.served,t('sh.served')],[w.steps,t('sh.steps')]].filter(function(cl){ return cl[0]>0; });
+  var top=430+(3-cells.length)*125;
+  cells.forEach(function(cl,i){
+    var y=top+i*250;
+    x.fillStyle='#FFFFFF'; x.beginPath(); (x.roundRect||function(a,b,c2,d){ this.rect(a,b,c2,d); }).call(x,140,y-120,W-280,200,40); x.fill();
+    txt(String(cl[0]),y+5,110,'#3D7B5E',800);
+    txt(cl[1],y+60,38,'#3E5A4A',600);
+  });
+  var f=w.feel && FEELS.filter(function(z){ return z.k===w.feel; })[0];
+  if(f) txt(f.e+'  '+t('ev.f.'+f.k),1150,52,'#173F2A',700);
+  txt('Proacty · '+t('n.hero.lead'),1270,40,'#3E5A4A',600);
+  var img=new Image();
+  img.onload=function(){ x.drawImage(img,W/2-60,40,120,120); out(); };
+  img.onerror=out;
+  img.src='icon-192.png';
+  function out(){
+    c.toBlob(function(blob){
+      var file=new File([blob],'proacty-week.png',{type:'image/png'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file], text:t('sh.text')}).catch(function(){});
+      } else {
+        var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='proacty-week.png';
+        document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },0);
+        toast(t('sh.saved'));
+      }
+    },'image/png');
+  }
 }
 
 /* ---- the week's reflection: what worked, what changes next week ----
@@ -894,7 +959,7 @@ function bindWeekReflection(box){
     if(!good && !next){ document.getElementById('wrGood').focus(); return; }
     if(!S.weeks) S.weeks={};
     S.weeks[weekKey()]={good:good, next:next, at:dayKey()};
-    markActiveToday(); save(); toast(t('wr.saved')); renderEvening();
+    markActiveToday(); save(); toast(t('wr.saved')); celebrate(); renderEvening();
   });
   var fx=box.querySelector('[data-wr-fix]');
   if(fx) fx.addEventListener('click',sharpenGoals);
@@ -1006,7 +1071,7 @@ function renderMyGoal(){
       g.doneDay=dayKey(); logDay();
       S.stats.challenges=(S.stats.challenges||0)+1;
       addPts(25); markActiveToday();
-      toast(t('t.pts',{n:25}));
+      toast(t('t.pts',{n:25})); celebrate();
       save(); renderMyGoal(); renderDashStats(); renderStats(); checkAchievements();
     });
   });
@@ -1065,7 +1130,7 @@ function bindSettings(){
   });
 }
 function renderDash(){
-  renderToday3(); renderMyGoal(); renderEvening(); renderDashStats();
+  renderGenderAsk(); renderToday3(); renderMyGoal(); renderEvening(); renderDashStats();
   renderAvatarCard(); renderInvite();
 }
 

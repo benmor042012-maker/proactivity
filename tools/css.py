@@ -680,6 +680,14 @@ table.wk3 tbody th{white-space:nowrap;font-weight:600;color:var(--fg-2);}
 .mg-goal .mg-tools{margin-top:var(--s2);}
 .mg-back{margin-top:var(--s2);}
 .wk3step b{font-size:var(--t-xs);margin-inline-start:2px;}
+.gndask{border:1px solid var(--acc);}
+#oGender.nudge{animation:nudge .45s ease;}
+@keyframes nudge{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:500;overflow:hidden;}
+.confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;opacity:.95;
+  animation:fall 1.6s cubic-bezier(.2,.6,.4,1) forwards;}
+@keyframes fall{to{transform:translate(var(--dx),105vh) rotate(var(--r));opacity:.9}}
+.wk3share{justify-self:start;margin-top:var(--s3);}
 .lookrow{display:flex;align-items:center;gap:var(--s2);}
 
 .mg-title{font-weight:700;color:var(--fg-2);margin-bottom:var(--s3);}

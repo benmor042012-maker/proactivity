@@ -306,11 +306,33 @@ function addPts(n){
   var after=levelInfo();
   if(n>0 && after.level>before.level){
     var msg = after.tier>before.tier ? t('av.rankup',{x:t(after.rank.k)}) : t('av.lvlup',{n:after.level});
-    setTimeout(function(){ toast(msg); }, 1400);
+    setTimeout(function(){ toast(msg); celebrate(); }, 1400);
     if(typeof renderStats==='function' && document.getElementById('app').style.display==='block') renderStats();
   }
 }
 function praise(){ return t(pick(PRAISE)); }
+
+/* A short burst of confetti and a light buzz for the moments that matter:
+   all three things done, a goal's step done, a level up, the week written
+   up. Nothing for every tick - a celebration that happens all the time
+   stops being one. Skipped when the device asks for reduced motion. */
+function celebrate(){
+  try{ if(navigator.vibrate) navigator.vibrate(35); }catch(e){}
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var host=document.createElement('div'); host.className='confetti'; host.setAttribute('aria-hidden','true');
+  var cols=['#3D7B5E','#8DB86E','#D99A26','#FF7FB0','#3DDCA8'];
+  for(var i=0;i<36;i++){
+    var p=document.createElement('i');
+    p.style.left=(Math.random()*100)+'%';
+    p.style.background=cols[i%cols.length];
+    p.style.animationDelay=(Math.random()*.25)+'s';
+    p.style.setProperty('--dx',(Math.random()*120-60)+'px');
+    p.style.setProperty('--r',(Math.random()*720-360)+'deg');
+    host.appendChild(p);
+  }
+  document.body.appendChild(host);
+  setTimeout(function(){ host.remove(); },1900);
+}
 
 /* ================= pricing ================= */
 var PRICES={
@@ -513,6 +535,14 @@ function readStep2(){
 document.querySelectorAll('[data-next]').forEach(function(b){
   b.addEventListener('click',function(){
     if(os===2) readStep2();          /* the age is asked by the check-in itself */
+    /* Every screen after this one speaks in the chosen form; without a choice
+       it falls back to the slash form ("מתחיל/ה"), which reads as a form to
+       fill in rather than as someone talking to you. "No preference" counts. */
+    if(os===2 && GENDERS.indexOf(P.gender)<0){
+      toast(t('t.pickgnd'));
+      var og=document.getElementById('oGender'); if(og){ og.classList.remove('nudge'); void og.offsetWidth; og.classList.add('nudge'); }
+      return;
+    }
     if(os===3 && !P.goals.length){ toast(t('t.pickarea')); return; }
     showStep(os+1);
   });
