@@ -688,6 +688,29 @@ table.wk3 tbody th{white-space:nowrap;font-weight:600;color:var(--fg-2);}
   animation:fall 1.6s cubic-bezier(.2,.6,.4,1) forwards;}
 @keyframes fall{to{transform:translate(var(--dx),105vh) rotate(var(--r));opacity:.9}}
 .wk3share{justify-self:start;margin-top:var(--s3);}
+.t3ideas{margin-top:var(--s4);display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;}
+.t3ideas .mg-lab{flex:0 0 100%;}
+.t3idea{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--r-pill);
+  border:1px dashed var(--ink-3);background:transparent;color:var(--fg-2);font:inherit;font-size:var(--t-sm);cursor:pointer;}
+.t3idea svg{width:14px;height:14px;color:var(--acc);}
+.t3idea.goal{border-style:solid;border-color:var(--acc);color:var(--acc);font-weight:600;}
+.t3quiz{flex:0 0 100%;justify-content:flex-start;}
+.rg-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--s2);margin:var(--s2) 0 var(--s4);}
+.rg{display:flex;align-items:center;gap:var(--s2);text-align:start;padding:var(--s3);border-radius:var(--r-ctl);
+  border:1px solid var(--ink-3);background:var(--ink-0);cursor:pointer;font:inherit;color:var(--fg);}
+.rg svg{width:20px;height:20px;color:var(--acc);flex:none;}
+.rg b{display:block;font-size:var(--t-sm);}
+.rg small{display:block;font-size:var(--t-xs);color:var(--fg-3);}
+.mg-lab2{margin-top:var(--s2);margin-bottom:var(--s2);}
+.more-list{display:grid;gap:var(--s2);}
+.more-item{display:flex;align-items:center;gap:var(--s3);padding:var(--s4);border-radius:var(--r-card);border:0;
+  background:var(--ink-1);cursor:pointer;font:inherit;color:var(--fg);text-align:start;}
+.more-item>svg:first-child{width:24px;height:24px;color:var(--acc);flex:none;}
+.more-item span{flex:1;}
+.more-item b{display:block;font-size:var(--t-h3);}
+.more-item small{display:block;color:var(--fg-3);font-size:var(--t-sm);margin-top:2px;}
+.more-item>svg:last-child{width:18px;height:18px;color:var(--fg-3);}
+[dir=rtl] .more-item>svg:last-child{transform:scaleX(-1);}
 .lookrow{display:flex;align-items:center;gap:var(--s2);}
 
 .mg-title{font-family:var(--f-display);font-weight:400;font-size:var(--t-h2);line-height:1.2;color:var(--fg);
@@ -1018,7 +1041,7 @@ table.wk3 tbody th{white-space:nowrap;font-weight:600;color:var(--fg-2);}
 /* ---- phone: the tab strip becomes a bottom bar ---- */
 @media(max-width:760px){
   .tabs{position:fixed;inset-inline:0;inset-block-end:0;z-index:150;margin:0;gap:0;
-    display:grid;grid-template-columns:repeat(6,1fr);overflow:visible;
+    display:grid;grid-template-columns:repeat(4,1fr);overflow:visible;
     background:var(--bar-bg);backdrop-filter:blur(14px);
     border-top:1px solid var(--ink-2);border-bottom:0;
     padding-bottom:env(safe-area-inset-bottom);}

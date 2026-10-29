@@ -59,12 +59,14 @@ def nav(back=True, next_id=None, next_key='c.next', skip=None):
     return f'<div class="nav">{out}</div>'
 
 
+# Four tabs fit a phone. Tasks, Learn and Body sit behind More.
 TABS = [('home', 'home', 'n.tab.home'),
-        ('tasks', 'check', 'n.tab.tasks'),
         ('goals', 'target', 'a.tab.goals'),
         ('progress', 'trending', 'n.tab.prog'),
-        ('learn', 'brain', 'n.tab.learn'),
-        ('body', 'activity', 'a.tab.body')]
+        ('more', 'sliders', 'n.tab.more')]
+MORE = [('tasks', 'check', 'n.tab.tasks', 'more.tasks'),
+        ('learn', 'brain', 'n.tab.learn', 'more.learn'),
+        ('body', 'activity', 'a.tab.body', 'more.body')]
 
 LANGS = [('he', 'עברית', 'עב'), ('en', 'English', 'EN'), ('fr', 'Français', 'FR'),
          ('ru', 'Русский', 'RU'), ('ar', 'العربية', 'ع')]
@@ -170,6 +172,8 @@ def build_body(logo):
   <p class="hint">{i("sparkles")}<span data-i18n="n.o.2.gendern"></span></p>
   <div class="field"><label for="oName" data-i18n="n.o.2.name"></label>
    <input type="text" id="oName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
+  <div class="field"><label for="oAge" data-i18n="n.o.2.age"></label>
+   <input type="number" id="oAge" min="6" max="99" step="1" inputmode="numeric" data-i18n-ph="o.age.ph"></div>
   <div class="qlabel" data-i18n="n.o.2.color"></div>
   <div class="opts" id="oAcc">{colours}</div>
   <p class="hint">{i("palette")}<span data-i18n="n.o.2.colorn"></span></p>
@@ -322,6 +326,11 @@ def build_body(logo):
   <section class="dash-box" id="myGoal"></section>
   <section class="dash-box eve" id="eveBox" hidden></section>
   <div class="dstrip" id="dashStats"></div>
+ </div>
+
+ <div class="page" id="page-more" role="tabpanel">
+  <h2 class="ptitle" data-i18n="n.tab.more"></h2>
+  <div class="more-list">{''.join(f'<button class="more-item" data-more="{p}">{i(ic_)}<span><b data-i18n="{k}"></b><small data-i18n="{d}"></small></span>{i("chevron")}</button>' for p, ic_, k, d in MORE)}</div>
  </div>
 
  <div class="page" id="page-tasks" role="tabpanel">

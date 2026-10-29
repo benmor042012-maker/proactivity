@@ -203,7 +203,7 @@ function commitChain(start){
   if(onbActive){
     P.chainGoal={goal:g, start:!!start};
     resetChain();
-    showStep(7);
+    finishOnboarding();
     return;
   }
   S.goals.unshift(g);

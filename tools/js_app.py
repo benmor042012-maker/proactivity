@@ -424,11 +424,13 @@ if('IntersectionObserver' in window){
 } else document.body.classList.add('past-hero');
 
 /* ================= onboarding ================= */
-/* 1 welcome · 2 you · 3 focus + time · 4 check-in · 5 profile · 6 first goal
-   · 7 body plan (skippable). Step 8 is the plans screen: it is deliberately
-   NOT part of the count, because nothing about setting the app up should be
-   gated behind a price. It is reached only from the trial strip. */
-var os=1, ONB_TOTAL=7;
+/* The way in is three screens: 1 welcome · 2 about you · 6 first goal, and
+   then the app. The check-in (4, with its result on 5) is offered inside the
+   app instead of standing between a new user and the first screen; 3 and 7
+   are no longer on the path. Step 8 is the plans screen: deliberately not
+   part of the count, reached only from the trial strip. */
+var ONB_FLOW=[1,2,6];
+var os=1, ONB_TOTAL=ONB_FLOW.length;
 /* True only while the user is walking the setup flow. The plans screen reuses
    the same overlay from inside the app, and without this flag paying from
    there used to re-run seedState() and wipe every task, mission and goal. */
@@ -444,8 +446,9 @@ function showStep(n){
   if(n===4){
     renderQuiz();                       // owns the bar and the counter itself
   } else {
-    if(bar) bar.style.width=Math.round(Math.min(n,ONB_TOTAL)/ONB_TOTAL*100)+'%';
-    if(count) count.textContent = n>ONB_TOTAL ? '' : t('o.step',{n:n,t:ONB_TOTAL});
+    var at=ONB_FLOW.indexOf(n)+1;
+    if(bar) bar.style.width=Math.round((at||ONB_TOTAL)/ONB_TOTAL*100)+'%';
+    if(count) count.textContent = at ? t('o.step',{n:at,t:ONB_TOTAL}) : '';
   }
   if(n===5) renderProfile('rsBody');
   if(n===6) renderChain('onbChain');
@@ -546,6 +549,16 @@ function renderBuilt(){
 
 function readStep2(){
   P.name=document.getElementById('oName').value.trim();
+  var a=parseInt(document.getElementById('oAge').value,10);
+  if(a>=AGE_MIN && a<=AGE_MAX) P.age=String(a);
+}
+/* Leaving the overlay for the app when the check-in was opened from inside
+   it, rather than walking on into the setup screens. */
+function backToApp(page){
+  document.getElementById('onboarding').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.body.classList.add('in-app');
+  goPage(page||'progress');
 }
 
 document.querySelectorAll('[data-next]').forEach(function(b){
@@ -559,22 +572,26 @@ document.querySelectorAll('[data-next]').forEach(function(b){
       var og=document.getElementById('oGender'); if(og){ og.classList.remove('nudge'); void og.offsetWidth; og.classList.add('nudge'); }
       return;
     }
-    if(os===3 && !P.goals.length){ toast(t('t.pickarea')); return; }
-    showStep(os+1);
+    var k=ONB_FLOW.indexOf(os);
+    showStep(k>=0 && k<ONB_FLOW.length-1 ? ONB_FLOW[k+1] : os+1);
   });
 });
 document.querySelectorAll('[data-back]').forEach(function(b){
   b.addEventListener('click',function(){
     if(os===2) readStep2();
-    showStep(Math.max(1,os-1));
+    var k=ONB_FLOW.indexOf(os);
+    showStep(k>0 ? ONB_FLOW[k-1] : Math.max(1,os-1));
   });
 });
 
 document.getElementById('qzPrev').addEventListener('click',function(){
   if(S.quiz.i>0){ S.quiz.i--; renderQuiz(); }
-  else showStep(3);
+  else if(onbActive) showStep(3);
+  else backToApp();
 });
-document.getElementById('rsNext').addEventListener('click',function(){ showStep(6); });
+document.getElementById('rsNext').addEventListener('click',function(){
+  if(onbActive) showStep(6); else backToApp();
+});
 
 document.getElementById('addCustom').addEventListener('click',function(){
   var inp=document.getElementById('oCustom'), v=inp.value.trim();
@@ -596,13 +613,13 @@ function readFirstGoal(){
   P.dream = v;
 }
 document.getElementById('skipGoal').addEventListener('click',function(){
-  P.userGoals=[]; P.chainGoal=null; resetChain(); showStep(7);
+  P.userGoals=[]; P.chainGoal=null; resetChain(); finishOnboarding();
 });
 document.getElementById('oG1').addEventListener('keydown',function(e){
-  if(e.key==='Enter'){ e.preventDefault(); readFirstGoal(); if(P.userGoals.length){ P.chainGoal=null; resetChain(); showStep(7); } }
+  if(e.key==='Enter'){ e.preventDefault(); readFirstGoal(); if(P.userGoals.length){ P.chainGoal=null; resetChain(); finishOnboarding(); } }
 });
 document.getElementById('oG1Go').addEventListener('click',function(){
-  readFirstGoal(); if(P.userGoals.length){ P.chainGoal=null; resetChain(); showStep(7); } else toast(t('t.writegoal'));
+  readFirstGoal(); if(P.userGoals.length){ P.chainGoal=null; resetChain(); finishOnboarding(); } else toast(t('t.writegoal'));
 });
 document.getElementById('skipBody').addEventListener('click', function(){ finishOnboarding(); });
 document.getElementById('oFinish').addEventListener('click', function(){ finishOnboarding(); });

@@ -199,7 +199,8 @@ function renderQuiz(){
   if(body)   body.hidden   = (sc.kind==='age');
 
   var prev=document.getElementById('qzPrev');
-  if(prev) prev.style.visibility = i===0 ? 'hidden' : 'visible';
+  /* opened from inside the app, the first screen's Back is the way out */
+  if(prev) prev.style.visibility = (i===0 && onbActive) ? 'hidden' : 'visible';
 
   if(sc.kind==='age'){ renderQuizAge(); return; }
 
