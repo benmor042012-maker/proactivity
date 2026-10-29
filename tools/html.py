@@ -163,13 +163,13 @@ def build_body(logo):
 
  <section class="step" data-step="2">
   <h2 data-i18n="n.o.2.t"></h2><p class="sub" data-i18n="n.o.2.s"></p>
-  <div class="field"><label for="oName" data-i18n="n.o.2.name"></label>
-   <input type="text" id="oName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
   <div class="qlabel" data-i18n="n.o.2.gender"></div>
   <div class="opts" id="oGender">
    {opt("gnd","m","user","o.iam.boy")}{opt("gnd","f","user","o.iam.girl")}{opt("gnd","n","compass","o.iam.na")}
   </div>
   <p class="hint">{i("sparkles")}<span data-i18n="n.o.2.gendern"></span></p>
+  <div class="field"><label for="oName" data-i18n="n.o.2.name"></label>
+   <input type="text" id="oName" autocomplete="nickname" data-i18n-ph="n.o.2.nameph"></div>
   <div class="qlabel" data-i18n="n.o.2.color"></div>
   <div class="opts" id="oAcc">{colours}</div>
   <p class="hint">{i("palette")}<span data-i18n="n.o.2.colorn"></span></p>
@@ -313,10 +313,19 @@ def build_body(logo):
  <nav class="tabs" id="tabBar" role="tablist" data-i18n-title="n.nav.label">{tabs}</nav>
 
  <div class="page" id="page-home" role="tabpanel">
+  <section class="dash-box gndask" id="gndBox" hidden>
+   <h2 class="boxh">{i("user")}<span data-i18n="n.o.2.gender"></span></h2>
+   <p class="psub" data-i18n="gnd.s"></p>
+   <div class="opts">{opt("hgnd","m","user","o.iam.boy")}{opt("hgnd","f","user","o.iam.girl")}{opt("hgnd","n","compass","o.iam.na")}</div>
+  </section>
   <section class="dash-box today3" id="todayBox"></section>
   <section class="dash-box" id="myGoal"></section>
   <section class="dash-box eve" id="eveBox" hidden></section>
   <div class="dstrip" id="dashStats"></div>
+ </div>
+
+ <div class="page" id="page-tasks" role="tabpanel">
+  <h2 class="ptitle" data-i18n="n.tk.t"></h2><p class="psub" data-i18n="n.tk.s"></p>
   <section class="dash-box wkboard" id="wkBoard">
    <h2 class="boxh">{i("calendar")}<span data-i18n="n.pg.week"></span></h2>
    <p class="psub" data-i18n="w.s"></p>
@@ -338,10 +347,6 @@ def build_body(logo):
     <div class="rvout" id="rvRes"></div>
    </div>
   </section>
- </div>
-
- <div class="page" id="page-tasks" role="tabpanel">
-  <h2 class="ptitle" data-i18n="n.tk.t"></h2><p class="psub" data-i18n="n.tk.s"></p>
   <div class="ringbox">
    <div class="ringwrap"><svg viewBox="0 0 132 132" id="rSvg" role="img" data-i18n-title="h.ring.t"></svg>
     <div class="ringmid"><div class="pct" id="rPct">0%</div><div class="cap" data-i18n="h.done"></div></div></div>
