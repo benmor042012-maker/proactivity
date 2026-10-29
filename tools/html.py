@@ -370,6 +370,8 @@ def build_body(logo):
  <div class="page" id="page-progress" role="tabpanel">
   <h2 class="ptitle" data-i18n="n.pg.t"></h2><p class="psub" data-i18n="n.pg.s"></p>
 
+  <section class="dash-box" id="weekBox"></section>
+
   <section class="dash-box">
    <h3 class="boxh">{i("gauge")}<span data-i18n="rs.t"></span></h3>
    <div class="profile" id="profBody"></div>

@@ -628,28 +628,49 @@ function startFiveMinutes(labelText){
 function today3(){
   var d=dayKey();
   if(!S.today3 || S.today3.day!==d)
-    S.today3={day:d, items:[0,1,2].map(function(){ return {t:'', done:false, paid:false}; })};
+    S.today3={day:d, items:[0,1,2].map(function(){ return {t:'', done:false, paid:false, gid:null}; })};
   return S.today3;
+}
+function liveGoals(){ return (S.goals||[]).filter(function(g){ return !g.archived; }); }
+/* The day's record, rewritten on every change so the last state of a day is
+   what stays: the three lines (text, done, which goal they serve) and which
+   goals' own step was done. That is what My week reads. */
+var LOG_DAYS=120;
+function logDay(){
+  var td=today3();
+  if(!S.log) S.log={};
+  S.log[td.day]={
+    items: td.items.filter(function(x){ return x.t.trim(); })
+             .map(function(x){ return {t:x.t.trim(), done:!!x.done, gid:x.gid||null}; }),
+    steps: (S.goals||[]).filter(function(g){ return g.doneDay===td.day; }).map(function(g){ return g.id; })
+  };
+  var days=Object.keys(S.log).sort();
+  while(days.length>LOG_DAYS) delete S.log[days.shift()];
 }
 function renderToday3(){
   var box=document.getElementById('todayBox'); if(!box) return;
-  var td=today3();
+  var td=today3(), goals=liveGoals();
   var n=td.items.filter(function(x){ return x.done; }).length;
   box.innerHTML='<div class="boxh-row"><h2 class="boxh">'+ic('sun')+'<span>'+esc(t('t3.t'))+'</span></h2>'+
       '<span class="boxh-n numf">'+n+'/3</span></div>'+
     '<p class="psub">'+esc(t('t3.s'))+'</p>'+
     td.items.map(function(it,i){
-      var ph=t('t3.ph',{n:i+1});
+      var ph=t('t3.ph',{n:i+1}), lg=it.gid ? goalById(it.gid) : null;
       return '<div class="t3row'+(it.done?' done':'')+'">'+
         '<button type="button" class="t3chk" data-t3="'+i+'" aria-pressed="'+(it.done?'true':'false')+'"'+
           ' aria-label="'+esc(t('t3.mark'))+'"'+(it.t.trim()?'':' disabled')+'>'+ic('check')+'</button>'+
         '<input type="text" maxlength="80" data-t3in="'+i+'" value="'+esc(it.t)+'"'+
-          ' placeholder="'+esc(ph)+'" aria-label="'+esc(ph)+'"></div>';
-    }).join('');
+          ' placeholder="'+esc(ph)+'" aria-label="'+esc(ph)+'">'+
+        (goals.length ? '<button type="button" class="t3goal'+(lg?' on':'')+'" data-t3g="'+i+'"'+
+          ' aria-pressed="'+(lg?'true':'false')+'" aria-label="'+esc(t('t3.link'))+'" title="'+esc(t('t3.link'))+'">'+ic('target')+'</button>' : '')+
+        '</div>'+
+        (lg ? '<div class="t3tag">'+ic('target')+'<span>'+esc(lg.title)+'</span></div>' : '');
+    }).join('')+
+    (goals.length ? '<p class="hint t3hint">'+esc(t('t3.link.h'))+'</p>' : '');
   box.querySelectorAll('[data-t3in]').forEach(function(inp){
     inp.addEventListener('input',function(){
       var i=Number(inp.dataset.t3in), it=today3().items[i];
-      it.t=inp.value; save();
+      it.t=inp.value; logDay(); save();
       box.querySelector('[data-t3="'+i+'"]').disabled=!inp.value.trim();
     });
   });
@@ -663,9 +684,92 @@ function renderToday3(){
         var all=td.items.every(function(x){ return x.done; });
         toast(all ? t('t3.all') : t('t.pts',{n:10}));
       }
-      save(); renderToday3(); renderDashStats(); checkAchievements();
+      logDay(); save(); renderToday3(); renderDashStats(); checkAchievements();
     });
   });
+  /* Tapping the target walks through the live goals and back to none, so
+     with one goal it is a plain on/off. */
+  box.querySelectorAll('[data-t3g]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var it=today3().items[Number(b.dataset.t3g)], ids=liveGoals().map(function(g){ return g.id; });
+      var k=ids.indexOf(it.gid);
+      it.gid = k<0 ? ids[0] : (k+1<ids.length ? ids[k+1] : null);
+      logDay(); save(); renderToday3();
+    });
+  });
+}
+
+/* ---- my week: what the days held, next to what the goal asked ----
+   The last seven days from the log. Under the table, three plain readings:
+   how much of what got done served the goal, how many days the goal's own
+   step happened, and which lines keep coming back - a line that returns
+   every day and serves no goal is often the real goal. */
+function weekDays(){
+  var out=[], d=new Date();
+  for(var i=6;i>=0;i--){ var x=new Date(d); x.setDate(d.getDate()-i); out.push(dayKey(x)); }
+  return out;
+}
+function normLine(s){ return String(s||'').trim().toLowerCase().replace(/\s+/g,' '); }
+function renderMyWeek(){
+  var box=document.getElementById('weekBox'); if(!box) return;
+  var log=S.log||{}, days=weekDays().filter(function(d){ return log[d] && (log[d].items.length || log[d].steps.length); });
+  var head='<h3 class="boxh">'+ic('calendar')+'<span>'+esc(t('wk3.t'))+'</span></h3><p class="psub">'+esc(t('wk3.s'))+'</p>';
+  if(!days.length){ box.innerHTML=head+'<p class="hint">'+esc(t('wk3.none'))+'</p>'; return; }
+  var g=liveGoals()[0];
+  function dayName(k){
+    try{ return new Date(k+'T00:00:00').toLocaleDateString(cur,{weekday:'short',day:'numeric',month:'numeric'}); }catch(e){ return k; }
+  }
+  var rows=days.slice().reverse().map(function(d){
+    var L=log[d];
+    var chips=L.items.map(function(x){
+      var lg=x.gid && goalById(x.gid);
+      return '<span class="wk3chip'+(x.done?' done':'')+(lg?' goal':'')+'">'+
+        (x.done?ic('check'):'')+esc(x.t)+(lg?ic('target'):'')+'</span>';
+    }).join('');
+    var stepped=g && L.steps.indexOf(g.id)>=0;
+    return '<tr><th scope="row">'+esc(dayName(d))+'</th><td>'+(chips||'<span class="wk3dash">·</span>')+'</td>'+
+      (g?'<td class="wk3step">'+(stepped?ic('check'):'<span class="wk3dash">·</span>')+'</td>':'')+'</tr>';
+  }).join('');
+  var all=[], done=0, served=0, stepDays=0, rep={};
+  days.forEach(function(d){
+    var L=log[d];
+    L.items.forEach(function(x){
+      all.push(x);
+      var ok=x.gid && goalById(x.gid);
+      if(x.done){ done++; if(ok) served++; }
+      var k=normLine(x.t); if(!rep[k]) rep[k]={t:x.t, n:0, goal:false};
+      rep[k].n++; if(ok) rep[k].goal=true;
+    });
+    if(g && L.steps.indexOf(g.id)>=0) stepDays++;
+  });
+  var lines=[];
+  if(done<3) lines.push('<p>'+esc(t('wk3.early'))+'</p>');
+  else {
+    lines.push('<p class="wk3sum">'+esc(t('wk3.sum',{n:done, m:served}))+'</p>');
+    var r=served/done;
+    lines.push('<p>'+esc(t(r>=.5?'wk3.good':r>=.25?'wk3.mid':'wk3.low'))+'</p>');
+    if(r<.25 && g) lines.push('<button class="btn btn-ghost btn-sm" data-wk3-fix>'+ic('edit')+'<span>'+esc(t('wk3.fix'))+'</span></button>');
+  }
+  if(g) lines.push('<p>'+esc(t('wk3.steps',{k:stepDays, d:days.length}))+'</p>');
+  var back=Object.keys(rep).map(function(k){ return rep[k]; }).filter(function(x){ return x.n>=2; })
+    .sort(function(a,b){ return b.n-a.n; }).slice(0,3);
+  if(back.length){
+    lines.push('<p>'+esc(t('wk3.rep'))+' '+back.map(function(x){ return '<b>'+esc(x.t)+'</b> ('+x.n+')'; }).join(' · ')+'</p>');
+    var free=back.filter(function(x){ return !x.goal; })[0];
+    if(free) lines.push('<p class="wk3idea">'+ic('sparkles')+'<span>'+esc(t('wk3.idea',{x:free.t}))+'</span></p>'+
+      '<button class="btn btn-ghost btn-sm" data-wk3-new="'+esc(free.t)+'">'+ic('target')+'<span>'+esc(t('wk3.mk'))+'</span></button>');
+  }
+  box.innerHTML=head+
+    '<div class="scroller"><table class="wk3"><thead><tr><th scope="col">'+esc(t('wk3.c.day'))+'</th>'+
+      '<th scope="col">'+esc(t('wk3.c.did'))+'</th>'+(g?'<th scope="col">'+esc(t('wk3.c.step'))+'</th>':'')+'</tr></thead>'+
+      '<tbody>'+rows+'</tbody></table></div>'+
+    (g?'<p class="hint">'+ic('target')+'<span>'+esc(t('wk3.goal',{g:g.title}))+'</span></p>':'')+
+    '<div class="wk3read">'+lines.join('')+'</div>';
+  var fx=box.querySelector('[data-wk3-fix]');
+  if(fx) fx.addEventListener('click',function(){ goalEditId=g.id; goPage('home'); renderMyGoal();
+    document.getElementById('myGoal').scrollIntoView({block:'start',behavior:'smooth'}); });
+  var nw=box.querySelector('[data-wk3-new]');
+  if(nw) nw.addEventListener('click',function(){ openChainAt('goals', nw.dataset.wk3New); });
 }
 
 /* ---- editing a goal: the name and its ladder, in one small form ----
@@ -759,7 +863,7 @@ function renderMyGoal(){
     var dn=box.querySelector('[data-mg-done]');
     if(dn) dn.addEventListener('click',function(){
       clearFive();
-      g.doneDay=dayKey();
+      g.doneDay=dayKey(); logDay();
       S.stats.challenges=(S.stats.challenges||0)+1;
       addPts(25); markActiveToday();
       toast(t('t.pts',{n:25}));
@@ -948,7 +1052,7 @@ function goPage(name){
   });
   try{ localStorage.setItem('proactive_tab', name); }catch(e){}
   if(name==='home') renderDash();
-  if(name==='progress'){ renderProfile('profBody'); renderAchievements(); renderSettings(); renderTrend(); }
+  if(name==='progress'){ renderMyWeek(); renderProfile('profBody'); renderAchievements(); renderSettings(); renderTrend(); }
   if(name==='body') renderBodyGate();
   window.scrollTo(0,0);
 }
