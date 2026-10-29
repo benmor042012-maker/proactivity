@@ -601,7 +601,7 @@ function renderDashStats(){
 }
 
 /* ---- the five-minute starter, on the goal card's step ---- */
-var fiveTimer=null, fiveLeft=0;
+var fiveTimer=null, fiveLeft=0, fiveGid=null;   // which goal the running five minutes belong to
 function clearFive(){
   if(fiveTimer){ clearInterval(fiveTimer); fiveTimer=null; }
 }
@@ -631,7 +631,11 @@ function today3(){
     S.today3={day:d, items:[0,1,2].map(function(){ return {t:'', done:false, paid:false, gid:null}; })};
   return S.today3;
 }
-function liveGoals(){ return (S.goals||[]).filter(function(g){ return !g.archived; }); }
+/* In the order they were made, so a new goal joins the list under the
+   others instead of pushing the first one down. */
+function liveGoals(){
+  return (S.goals||[]).filter(function(g){ return !g.archived; }).sort(function(a,b){ return a.id-b.id; });
+}
 /* The day's record, rewritten on every change so the last state of a day is
    what stays: the three lines (text, done, which goal they serve) and which
    goals' own step was done. That is what My week reads. */
@@ -790,7 +794,7 @@ function renderMyWeek(){
   var log=S.log||{}, days=weekDays().filter(function(d){ var L=log[d]; return L && (L.items.length || L.steps.length || L.note || L.feel); });
   var head='<h3 class="boxh">'+ic('calendar')+'<span>'+esc(t('wk3.t'))+'</span></h3><p class="psub">'+esc(t('wk3.s'))+'</p>';
   if(!days.length){ box.innerHTML=head+'<p class="hint">'+esc(t('wk3.none'))+'</p>'+weekReflection(); bindWeekReflection(box); return; }
-  var g=liveGoals()[0];
+  var goals=liveGoals();
   function dayName(k){
     try{ return new Date(k+'T00:00:00').toLocaleDateString(cur,{weekday:'short',day:'numeric',month:'numeric'}); }catch(e){ return k; }
   }
@@ -801,13 +805,13 @@ function renderMyWeek(){
       return '<span class="wk3chip'+(x.done?' done':'')+(lg?' goal':'')+'">'+
         (x.done?ic('check'):'')+esc(x.t)+(lg?ic('target'):'')+'</span>';
     }).join('');
-    var stepped=g && L.steps.indexOf(g.id)>=0;
+    var stepped=goals.filter(function(x){ return L.steps.indexOf(x.id)>=0; }).length;
     var f=FEELS.filter(function(x){ return x.k===L.feel; })[0];
     var note=(f||L.note) ? '<div class="wk3note">'+(f?f.e+' ':'')+(L.note?esc(L.note):esc(t('ev.f.'+f.k)))+'</div>' : '';
     return '<tr><th scope="row">'+esc(dayName(d))+'</th><td>'+(chips||'<span class="wk3dash">·</span>')+note+'</td>'+
-      (g?'<td class="wk3step">'+(stepped?ic('check'):'<span class="wk3dash">·</span>')+'</td>':'')+'</tr>';
+      (goals.length?'<td class="wk3step">'+(stepped?ic('check')+(goals.length>1?'<b class="numf">'+stepped+'</b>':''):'<span class="wk3dash">·</span>')+'</td>':'')+'</tr>';
   }).join('');
-  var all=[], done=0, served=0, stepDays=0, rep={};
+  var all=[], done=0, served=0, rep={}, stepDays={};
   days.forEach(function(d){
     var L=log[d];
     L.items.forEach(function(x){
@@ -817,7 +821,7 @@ function renderMyWeek(){
       var k=normLine(x.t); if(!rep[k]) rep[k]={t:x.t, n:0, goal:false};
       rep[k].n++; if(ok) rep[k].goal=true;
     });
-    if(g && L.steps.indexOf(g.id)>=0) stepDays++;
+    L.steps.forEach(function(id){ stepDays[id]=(stepDays[id]||0)+1; });
   });
   var lines=[];
   if(done<3) lines.push('<p>'+esc(t('wk3.early'))+'</p>');
@@ -825,9 +829,12 @@ function renderMyWeek(){
     lines.push('<p class="wk3sum">'+esc(t('wk3.sum',{n:done, m:served}))+'</p>');
     var r=served/done;
     lines.push('<p>'+esc(t(r>=.5?'wk3.good':r>=.25?'wk3.mid':'wk3.low'))+'</p>');
-    if(r<.25 && g) lines.push('<button class="btn btn-ghost btn-sm" data-wk3-fix>'+ic('edit')+'<span>'+esc(t('wk3.fix'))+'</span></button>');
+    if(r<.25 && goals.length) lines.push('<button class="btn btn-ghost btn-sm" data-wk3-fix>'+ic('edit')+'<span>'+esc(t('wk3.fix'))+'</span></button>');
   }
-  if(g && stepDays) lines.push('<p>'+esc(t('wk3.steps',{k:stepDays, d:days.length}))+'</p>');   // a zero only reads as a reproach
+  /* per goal, and only goals whose step happened - a zero only reads as a reproach */
+  goals.forEach(function(x){
+    if(stepDays[x.id]) lines.push('<p>'+esc(t(goals.length>1?'wk3.steps.g':'wk3.steps',{g:x.title, k:stepDays[x.id], d:days.length}))+'</p>');
+  });
   var back=Object.keys(rep).map(function(k){ return rep[k]; }).filter(function(x){ return x.n>=2; })
     .sort(function(a,b){ return b.n-a.n; }).slice(0,3);
   if(back.length){
@@ -838,16 +845,22 @@ function renderMyWeek(){
   }
   box.innerHTML=head+
     '<div class="scroller"><table class="wk3"><thead><tr><th scope="col">'+esc(t('wk3.c.day'))+'</th>'+
-      '<th scope="col">'+esc(t('wk3.c.did'))+'</th>'+(g?'<th scope="col">'+esc(t('wk3.c.step'))+'</th>':'')+'</tr></thead>'+
+      '<th scope="col">'+esc(t('wk3.c.did'))+'</th>'+(goals.length?'<th scope="col">'+esc(t('wk3.c.step'))+'</th>':'')+'</tr></thead>'+
       '<tbody>'+rows+'</tbody></table></div>'+
-    (g?'<p class="hint">'+ic('target')+'<span>'+esc(t('wk3.goal',{g:g.title}))+'</span></p>':'')+
+    (goals.length?'<p class="hint">'+ic('target')+'<span>'+esc(t(goals.length>1?'wk3.goals':'wk3.goal',{g:goals.map(function(x){ return x.title; }).join(' · ')}))+'</span></p>':'')+
     '<div class="wk3read">'+lines.join('')+'</div>'+weekReflection();
   bindWeekReflection(box);
   var fx=box.querySelector('[data-wk3-fix]');
-  if(fx) fx.addEventListener('click',function(){ goalEditId=g.id; goPage('home'); renderMyGoal();
-    document.getElementById('myGoal').scrollIntoView({block:'start',behavior:'smooth'}); });
+  if(fx) fx.addEventListener('click',sharpenGoals);
   var nw=box.querySelector('[data-wk3-new]');
   if(nw) nw.addEventListener('click',function(){ openChainAt('goals', nw.dataset.wk3New); });
+}
+
+function sharpenGoals(){
+  var gs=liveGoals();
+  if(gs.length!==1){ goPage('goals'); return; }
+  goalEditId=gs[0].id; goPage('home'); renderMyGoal();
+  document.getElementById('myGoal').scrollIntoView({block:'start',behavior:'smooth'});
 }
 
 /* ---- the week's reflection: what worked, what changes next week ----
@@ -884,8 +897,7 @@ function bindWeekReflection(box){
     markActiveToday(); save(); toast(t('wr.saved')); renderEvening();
   });
   var fx=box.querySelector('[data-wr-fix]');
-  if(fx) fx.addEventListener('click',function(){ var g=liveGoals()[0]; goalEditId=g.id; goPage('home'); renderMyGoal();
-    document.getElementById('myGoal').scrollIntoView({block:'start',behavior:'smooth'}); });
+  if(fx) fx.addEventListener('click',sharpenGoals);
 }
 
 /* ---- editing a goal: the name and its ladder, in one small form ----
@@ -941,59 +953,76 @@ function openChainAt(area, kindText){
 }
 function renderMyGoal(){
   var box=document.getElementById('myGoal'); if(!box) return;
-  var g=(S.goals||[]).filter(function(x){ return !x.archived; })[0];
-  var head='<h2 class="boxh">'+ic('target')+'<span>'+esc(t('mg.t'))+'</span></h2>';
-  if(g && goalEditId===g.id){
-    box.innerHTML=head+goalEditForm(g);
-    bindGoalEdit(box,g);
-    return;
-  }
-  if(g){
+  var goals=liveGoals();
+  var head='<h2 class="boxh">'+ic('target')+'<span>'+esc(t(goals.length>1?'mg.tn':'mg.t'))+'</span></h2>';
+  if(!goals.length){ renderGoalPicker(box,head,false); return; }
+  var running=!!fiveTimer;
+  var blocks=goals.map(function(g){
+    if(goalEditId===g.id) return '<div class="mg-goal" data-gblock="'+g.id+'">'+goalEditForm(g)+'</div>';
     var step=g.now||g.today||g.week||'';
-    var doneToday=g.doneDay===dayKey(), running=!!fiveTimer;
     var act = !step
       ? '<p class="next-sub">'+esc(t('mg.nostep'))+'</p>'
-      : doneToday
+      : g.doneDay===dayKey()
       ? '<p class="mg-done">'+ic('check')+'<span>'+esc(t('mg.done'))+'</span></p>'
       : '<div class="next-btns">'+
-          '<button class="btn btn-primary" id="fiveBtn"'+(running?' disabled':'')+'>'+ic('play')+
-            '<span id="fiveTxt">'+esc(running?t('d.running',{t:'5:00'}):t('d.start5'))+'</span></button>'+
-          '<button class="btn btn-ghost" data-mg-done>'+ic('check')+'<span>'+esc(t('d.mark'))+'</span></button>'+
+          '<button class="btn btn-primary" data-mg-five="'+g.id+'"'+(running?' disabled':'')+'>'+ic('play')+
+            '<span'+(fiveGid===g.id?' id="fiveTxt"':'')+'>'+esc(running&&fiveGid===g.id?t('d.running',{t:'5:00'}):t('d.start5'))+'</span></button>'+
+          '<button class="btn btn-ghost" data-mg-done="'+g.id+'">'+ic('check')+'<span>'+esc(t('d.mark'))+'</span></button>'+
         '</div>';
-    box.innerHTML=head+
+    return '<div class="mg-goal" data-gblock="'+g.id+'">'+
       '<p class="mg-title">'+esc(g.title)+'</p>'+
       (step?'<div class="mg-lab">'+esc(t('mg.today'))+'</div><p class="next-tx">'+esc(step)+'</p>':'')+
       act+
-      '<p class="next-sub">'+esc(streakLine())+'</p>'+
       '<div class="row-btns mg-tools">'+
-        (g.started ? '' : '<button class="btn btn-ghost btn-sm" data-mg-start>'+ic('flag')+'<span>'+esc(t('gc.start'))+'</span></button>')+
-        '<button class="btn btn-ghost btn-sm" data-mg-edit>'+ic('edit')+'<span>'+esc(t('ge.btn'))+'</span></button>'+
-        '<button class="btn btn-ghost btn-sm" data-mg-all>'+ic('target')+'<span>'+esc(t('mg.all'))+'</span></button>'+
-      '</div>';
-    box.querySelector('[data-mg-edit]').addEventListener('click',function(){ goalEditId=g.id; renderMyGoal(); });
-    var st=box.querySelector('[data-mg-start]');
-    if(st) st.addEventListener('click',function(){ startGoal(g); });
-    box.querySelector('[data-mg-all]').addEventListener('click',function(){ goPage('goals'); });
-    var fb=document.getElementById('fiveBtn');
-    if(fb) fb.addEventListener('click',function(){ startFiveMinutes(step); });
-    var dn=box.querySelector('[data-mg-done]');
-    if(dn) dn.addEventListener('click',function(){
-      clearFive();
+        (g.started ? '' : '<button class="btn btn-quiet btn-sm" data-mg-start="'+g.id+'">'+ic('flag')+'<span>'+esc(t('gc.start'))+'</span></button>')+
+        '<button class="btn btn-quiet btn-sm" data-mg-edit="'+g.id+'">'+ic('edit')+'<span>'+esc(t('ge.btn'))+'</span></button>'+
+      '</div></div>';
+  }).join('');
+  box.innerHTML=head+blocks+
+    '<p class="next-sub">'+esc(streakLine())+'</p>'+
+    '<div class="row-btns mg-tools">'+
+      '<button class="btn btn-ghost btn-sm" data-mg-add>'+ic('plus')+'<span>'+esc(t('mg.add'))+'</span></button>'+
+      '<button class="btn btn-ghost btn-sm" data-mg-all>'+ic('target')+'<span>'+esc(t('mg.all'))+'</span></button>'+
+    '</div>';
+  goals.forEach(function(g){
+    if(goalEditId===g.id) bindGoalEdit(box.querySelector('[data-gblock="'+g.id+'"]'),g);
+  });
+  box.querySelectorAll('[data-mg-edit]').forEach(function(b){
+    b.addEventListener('click',function(){ goalEditId=Number(b.dataset.mgEdit); renderMyGoal(); });
+  });
+  box.querySelectorAll('[data-mg-start]').forEach(function(b){
+    b.addEventListener('click',function(){ startGoal(goalById(Number(b.dataset.mgStart))); });
+  });
+  box.querySelectorAll('[data-mg-five]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.mgFive)); fiveGid=g.id;
+      startFiveMinutes(g.now||g.today||g.week);
+    });
+  });
+  box.querySelectorAll('[data-mg-done]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.mgDone));
+      if(fiveGid===g.id) clearFive();
       g.doneDay=dayKey(); logDay();
       S.stats.challenges=(S.stats.challenges||0)+1;
       addPts(25); markActiveToday();
       toast(t('t.pts',{n:25}));
       save(); renderMyGoal(); renderDashStats(); renderStats(); checkAchievements();
     });
-    return;
-  }
-  box.innerHTML=head+'<p class="psub">'+esc(t('mg.s'))+'</p>'+
+  });
+  box.querySelector('[data-mg-add]').addEventListener('click',function(){ renderGoalPicker(box,head,true); });
+  box.querySelector('[data-mg-all]').addEventListener('click',function(){ goPage('goals'); });
+}
+/* The areas and a free line - the way into a first goal, and into the next. */
+function renderGoalPicker(box,head,more){
+  box.innerHTML=head+'<p class="psub">'+esc(t(more?'mg.s2':'mg.s'))+'</p>'+
     '<div class="opts mg-areas">'+AREAS.map(function(a){
       return '<button type="button" class="opt" data-mg-area="'+a.id+'">'+ic(a.icon)+'<span>'+esc(t('ga.'+a.id))+'</span></button>';
     }).join('')+'</div>'+
     '<div class="addrow mg-free"><input type="text" id="mgText" maxlength="80"'+
       ' placeholder="'+esc(t('mg.ph'))+'" aria-label="'+esc(t('gc.free'))+'">'+
-      '<button class="btn btn-primary" id="mgGo">'+esc(t('c.next'))+'</button></div>';
+      '<button class="btn btn-primary" id="mgGo">'+esc(t('c.next'))+'</button></div>'+
+    (more?'<button class="btn btn-quiet btn-sm mg-back" data-mg-back>'+esc(t('c.cancel'))+'</button>':'');
   box.querySelectorAll('[data-mg-area]').forEach(function(b){
     b.addEventListener('click',function(){ openChainAt(b.dataset.mgArea); });
   });
@@ -1001,6 +1030,8 @@ function renderMyGoal(){
   function go(){ var v=inp.value.trim(); if(!v){ inp.focus(); return; } openChainAt('goals', v); }
   document.getElementById('mgGo').addEventListener('click',go);
   inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
+  var bk=box.querySelector('[data-mg-back]');
+  if(bk) bk.addEventListener('click',renderMyGoal);
 }
 
 /* The same three facts onboarding asked for, editable later. Age feeds the
