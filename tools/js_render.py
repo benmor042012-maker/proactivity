@@ -13,6 +13,8 @@ function openCam(name,cb){
   function stop(){ if(camStream){ camStream.getTracks().forEach(function(t){t.stop();}); camStream=null; } }
   function close(){ stop(); modal.classList.remove('on'); }
   function mk(cls,html){ var b=document.createElement('button'); b.className='btn '+cls; b.innerHTML=html; return b; }
+  /* A photo is a nice record, not a gate: closing without one still counts. */
+  function skipBtn(){ var k=mk('btn-ghost', ic('check')+'<span>'+esc(t('c.nophoto'))+'</span>'); k.onclick=function(){ close(); cb(null); }; return k; }
 
   function buttons(mode){
     bar.innerHTML='';
@@ -29,12 +31,12 @@ function openCam(name,cb){
       };
       g.onclick=function(){ fi.click(); };
       c.onclick=close;
-      bar.append(s,g,c);
+      bar.append(s,g,skipBtn(),c);
     } else if(mode==='upload'){
       var u=mk('btn-primary', ic('image')+'<span>'+esc(t('c.choosephoto'))+'</span>'),
           c2=mk('btn-quiet', esc(t('c.cancel')));
       u.onclick=function(){ fi.click(); }; c2.onclick=close;
-      bar.append(u,c2);
+      bar.append(u,skipBtn(),c2);
     } else {
       var ok=mk('btn-primary', ic('check')+'<span>'+esc(t('c.use'))+'</span>'),
           re=mk('btn-ghost', esc(t('c.retake')));
@@ -129,7 +131,7 @@ function renderCats(){
         '<input type="checkbox" class="cb" data-id="'+x.id+'"'+(x.done?' checked':'')+'>'+
         (x.photo?'<img class="thumb" src="'+x.photo+'" alt="">':'')+
         '<div class="body"><div class="ttl'+(x.done?' done':'')+'">'+esc(label(x))+'</div>'+
-        '<div class="meta">'+ic('camera')+'<span>'+esc(t('c.proof'))+'</span>'+
+        '<div class="meta">'+(x.photo?ic('camera')+'<span>'+esc(t('c.proof'))+'</span>':'')+
         (x.min?ic('clock')+'<span>'+esc(fmtMin(x.min))+'</span>':'')+'</div></div>'+
         (x.min?'<button class="tmr" data-tid="'+x.id+'" data-min="'+x.min+'" aria-label="'+esc(t('c.timer'))+'">'+ic('play')+'</button>':'')+
         '<button class="icon-btn" data-del="'+x.id+'" aria-label="'+esc(t('c.delete'))+'">'+ic('x')+'</button>'+
@@ -645,6 +647,27 @@ function today3(){
 }
 /* In the order they were made, so a new goal joins the list under the
    others instead of pushing the first one down. */
+/* Ideas for the three lines, in this order: today's step of each goal
+   (already linked to it), then what trains the area the check-in found
+   weakest, then everyday things for the user's age. Lines already written
+   are left out, and without a check-in a one-minute one is offered. */
+function t3Ideas(td){
+  var used={}; td.items.forEach(function(x){ if(x.t.trim()) used[normLine(x.t)]=1; });
+  var out=[];
+  function add(text,gid){ if(!text || used[normLine(text)] || out.length>=5) return; used[normLine(text)]=1; out.push({t:text,gid:gid}); }
+  liveGoals().forEach(function(g){ add(g.now||g.today, g.id); });
+  if(hasProfile()) [1,2,3].forEach(function(n){ add(t('sq.'+weakDim()+'.'+n)); });
+  var band=P.age ? ageBand(P.age) : 'a13';
+  [1,2,3,4,5,6].forEach(function(n){ add(t('sq.'+band+'.'+n)); });
+  if(td.items.every(function(x){ return x.t.trim(); })) return '';
+  return '<div class="t3ideas"><div class="mg-lab">'+esc(t('sq.t'))+'</div>'+
+    out.map(function(x){
+      return '<button type="button" class="t3idea'+(x.gid?' goal':'')+'" data-idea="'+esc(x.t)+'"'+(x.gid?' data-gid="'+x.gid+'"':'')+'>'+
+        (x.gid?ic('target'):ic('plus'))+'<span>'+esc(x.t)+'</span></button>';
+    }).join('')+
+    (hasProfile() ? '' : '<button type="button" class="btn btn-quiet btn-sm t3quiz" data-goquiz>'+ic('sparkles')+'<span>'+esc(t('sq.quiz'))+'</span></button>')+
+    '</div>';
+}
 function liveGoals(){
   return (S.goals||[]).filter(function(g){ return !g.archived; }).sort(function(a,b){ return a.id-b.id; });
 }
@@ -684,7 +707,8 @@ function renderToday3(){
         '</div>'+
         (lg ? '<div class="t3tag">'+ic('target')+'<span>'+esc(lg.title)+'</span></div>' : '');
     }).join('')+
-    (goals.length ? '<p class="hint t3hint">'+esc(t('t3.link.h'))+'</p>' : '');
+    (goals.length ? '<p class="hint t3hint">'+esc(t('t3.link.h'))+'</p>' : '')+
+    t3Ideas(td);
   box.querySelectorAll('[data-t3in]').forEach(function(inp){
     inp.addEventListener('input',function(){
       var i=Number(inp.dataset.t3in), it=today3().items[i];
@@ -706,6 +730,16 @@ function renderToday3(){
       logDay(); save(); renderToday3(); renderEvening(); renderDashStats(); checkAchievements();
     });
   });
+  box.querySelectorAll('[data-idea]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var td=today3(), slot=td.items.filter(function(x){ return !x.t.trim(); })[0];
+      if(!slot){ toast(t('sq.full')); return; }
+      slot.t=b.dataset.idea;
+      if(b.dataset.gid) slot.gid=Number(b.dataset.gid);
+      logDay(); save(); renderToday3();
+    });
+  });
+  var qz=box.querySelector('[data-goquiz]'); if(qz) bindGoQuiz(box);
   /* Tapping the target walks through the live goals and back to none, so
      with one goal it is a plain on/off. */
   box.querySelectorAll('[data-t3g]').forEach(function(b){
@@ -1078,8 +1112,46 @@ function renderMyGoal(){
   box.querySelector('[data-mg-all]').addEventListener('click',function(){ goPage('goals'); });
 }
 /* The areas and a free line - the way into a first goal, and into the next. */
+/* A ready goal arrives whole - name, how often, this week, today, right
+   now - and started, so it shows on Home at once. Teens and adults get
+   different sets; goals the user already has are not offered again. */
+var READY={teen:[[1,'study',4],[2,'sleep',5],[3,'habits',5],[4,'sport',3],[5,'learn',4],[6,'social',2]],
+           adult:[[7,'sport',3],[8,'sleep',5],[3,'habits',5],[10,'learn',3],[11,'time',5],[12,'social',2]]};
+function readyGoals(){
+  var set=(!P.age || ageBand(P.age)==='a13') ? READY.teen : READY.adult;
+  var have={}; (S.goals||[]).forEach(function(g){ have[normLine(g.title)]=1; });
+  return set.filter(function(r){ return !have[normLine(t('rg.'+r[0]+'.t'))]; });
+}
+function addReadyGoal(r){
+  if(goalLimitReached()){ toast(t('pro.goalmax',{n:GOAL_FREE_MAX})); openPlans(); return; }
+  var title=t('rg.'+r[0]+'.t'), g=newGoal(title);
+  g.area=r[1]; g.freq=r[2];
+  g.week=t('gw.line',{freq:t('gf.'+r[2]), kind:title});
+  g.today=t('rg.'+r[0]+'.d'); g.now=t('rg.'+r[0]+'.n');
+  g.actions=[{id:uid++,key:null,text:g.now,done:false},{id:uid++,key:null,text:g.today,done:false},{id:uid++,key:null,text:g.week,done:false}];
+  S.goals.unshift(g);
+  startGoal(g);
+  toast(t('rg.added'));
+}
+function readyHtml(){
+  var list=readyGoals(); if(!list.length) return '';
+  return '<div class="mg-lab">'+esc(t('rg.t'))+'</div><div class="rg-list">'+list.map(function(r){
+    var a=areaById(r[1]);
+    return '<button type="button" class="rg" data-ready="'+r[0]+'">'+ic(a?a.icon:'target')+
+      '<span><b>'+esc(t('rg.'+r[0]+'.t'))+'</b><small>'+esc(t('gf.'+r[2]))+'</small></span></button>';
+  }).join('')+'</div>';
+}
+function bindReady(box){
+  box.querySelectorAll('[data-ready]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var id=Number(b.dataset.ready), r=READY.teen.concat(READY.adult).filter(function(x){ return x[0]===id; })[0];
+      if(r) addReadyGoal(r);
+    });
+  });
+}
 function renderGoalPicker(box,head,more){
-  box.innerHTML=head+'<p class="psub">'+esc(t(more?'mg.s2':'mg.s'))+'</p>'+
+  box.innerHTML=head+'<p class="psub">'+esc(t(more?'mg.s2':'mg.s'))+'</p>'+readyHtml()+
+    '<div class="mg-lab mg-lab2">'+esc(t('mg.own'))+'</div>'+
     '<div class="opts mg-areas">'+AREAS.map(function(a){
       return '<button type="button" class="opt" data-mg-area="'+a.id+'">'+ic(a.icon)+'<span>'+esc(t('ga.'+a.id))+'</span></button>';
     }).join('')+'</div>'+
@@ -1096,6 +1168,7 @@ function renderGoalPicker(box,head,more){
   inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
   var bk=box.querySelector('[data-mg-back]');
   if(bk) bk.addEventListener('click',renderMyGoal);
+  bindReady(box);
 }
 
 /* The same three facts onboarding asked for, editable later. Age feeds the
@@ -1252,9 +1325,12 @@ function bindRetake(box){
 /* ================= tabs ================= */
 /* One <nav> serves as top tabs on a wide screen and as the bottom bar on a
    phone, so there is a single set of buttons and a single source of truth. */
+/* Tasks, Learn and Body have no tab of their own; More stays lit on them. */
+var UNDER_MORE=['tasks','learn','body'];
 function goPage(name){
+  var tabName = UNDER_MORE.indexOf(name)>=0 ? 'more' : name;
   document.querySelectorAll('.tab').forEach(function(x){
-    var on=x.dataset.page===name;
+    var on=x.dataset.page===tabName;
     x.classList.toggle('on', on);
     x.setAttribute('aria-selected', on?'true':'false');
   });
@@ -1269,6 +1345,9 @@ function goPage(name){
 }
 document.querySelectorAll('.tab').forEach(function(tab){
   tab.addEventListener('click',function(){ goPage(tab.dataset.page); });
+});
+document.querySelectorAll('[data-more]').forEach(function(b){
+  b.addEventListener('click',function(){ goPage(b.dataset.more); });
 });
 function lastTab(){
   try{
