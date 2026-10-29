@@ -639,7 +639,9 @@ var LOG_DAYS=120;
 function logDay(){
   var td=today3();
   if(!S.log) S.log={};
+  var prev=S.log[td.day]||{};
   S.log[td.day]={
+    note: prev.note||'', feel: prev.feel||'',
     items: td.items.filter(function(x){ return x.t.trim(); })
              .map(function(x){ return {t:x.t.trim(), done:!!x.done, gid:x.gid||null}; }),
     steps: (S.goals||[]).filter(function(g){ return g.doneDay===td.day; }).map(function(g){ return g.id; })
@@ -684,7 +686,7 @@ function renderToday3(){
         var all=td.items.every(function(x){ return x.done; });
         toast(all ? t('t3.all') : t('t.pts',{n:10}));
       }
-      logDay(); save(); renderToday3(); renderDashStats(); checkAchievements();
+      logDay(); save(); renderToday3(); renderEvening(); renderDashStats(); checkAchievements();
     });
   });
   /* Tapping the target walks through the live goals and back to none, so
@@ -696,6 +698,79 @@ function renderToday3(){
       it.gid = k<0 ? ids[0] : (k+1<ids.length ? ids[k+1] : null);
       logDay(); save(); renderToday3();
     });
+  });
+}
+
+/* ---- the end of the day: one line about yourself ----
+   From five in the evening, or earlier once the day's three things are all
+   done, Home asks how the day was: a feeling in one tap and one optional
+   line. Both go into the day's record and show up in My week. At the end
+   of the week (Friday and Saturday) the same card points to the week's
+   reflection until it is written. */
+var FEELS=[{k:'energy',e:'⚡'},{k:'calm',e:'🌿'},{k:'proud',e:'🌟'},{k:'tired',e:'🌙'}];
+var eveEdit=false;
+function weekKey(d){
+  d=d?new Date(d):new Date(); d.setDate(d.getDate()-d.getDay());   // the week starts on Sunday
+  return dayKey(d);
+}
+function eveTime(){
+  var td=today3(), all=td.items.filter(function(x){ return x.t.trim(); });
+  return new Date().getHours()>=17 || (all.length && all.every(function(x){ return x.done; }));
+}
+function renderEvening(){
+  var box=document.getElementById('eveBox'); if(!box) return;
+  var wd=new Date().getDay(), weekEnd=(wd===5||wd===6), weekDone=!!(S.weeks&&S.weeks[weekKey()]);
+  var showWeek=weekEnd && !weekDone;
+  if(!eveTime() && !showWeek){ box.hidden=true; return; }
+  box.hidden=false;
+  logDay();
+  var L=S.log[dayKey()];
+  var weekNudge = showWeek
+    ? '<div class="eve-week">'+ic('calendar')+'<span>'+esc(t('ev.week'))+'</span>'+
+        '<button class="btn btn-ghost btn-sm" data-eve-week>'+esc(t('ev.week.go'))+'</button></div>' : '';
+  if(!eveTime()){ box.innerHTML=weekNudge; bindEveWeek(); return; }
+  var head='<h2 class="boxh">'+ic('moon')+'<span>'+esc(t('ev.t'))+'</span></h2>';
+  if((L.note||L.feel) && !eveEdit){
+    var f=FEELS.filter(function(x){ return x.k===L.feel; })[0];
+    box.innerHTML=head+
+      '<p class="eve-saved">'+(f?'<span class="eve-e">'+f.e+'</span>'+esc(t('ev.f.'+f.k)):'')+
+        (L.note?(f?' · ':'')+'<q>'+esc(L.note)+'</q>':'')+'</p>'+
+      '<p class="next-sub">'+esc(t('ev.thanks'))+'</p>'+
+      '<button class="btn btn-quiet btn-sm" data-eve-edit>'+ic('edit')+'<span>'+esc(t('ge.btn'))+'</span></button>'+
+      weekNudge;
+    box.querySelector('[data-eve-edit]').addEventListener('click',function(){ eveEdit=true; renderEvening(); });
+    bindEveWeek(); return;
+  }
+  box.innerHTML=head+'<p class="psub">'+esc(t('ev.s'))+'</p>'+
+    '<div class="eve-feels">'+FEELS.map(function(x){
+      return '<button type="button" class="opt'+(L.feel===x.k?' on':'')+'" data-feel="'+x.k+'" aria-pressed="'+(L.feel===x.k)+'">'+
+        '<span class="eve-e">'+x.e+'</span><span>'+esc(t('ev.f.'+x.k))+'</span></button>';
+    }).join('')+'</div>'+
+    '<div class="field"><label for="eveNote">'+esc(t('ev.q'))+'</label>'+
+      '<input type="text" id="eveNote" maxlength="140" value="'+esc(L.note||'')+'" placeholder="'+esc(t('ev.ph'))+'"></div>'+
+    '<button class="btn btn-primary btn-sm" data-eve-save>'+ic('check')+'<span>'+esc(t('c.save'))+'</span></button>'+
+    weekNudge;
+  var pick=L.feel;
+  box.querySelectorAll('[data-feel]').forEach(function(b){
+    b.addEventListener('click',function(){
+      pick = pick===b.dataset.feel ? '' : b.dataset.feel;
+      box.querySelectorAll('[data-feel]').forEach(function(o){
+        var on=o.dataset.feel===pick; o.classList.toggle('on',on); o.setAttribute('aria-pressed',on); });
+    });
+  });
+  box.querySelector('[data-eve-save]').addEventListener('click',function(){
+    var L=S.log[dayKey()];
+    L.note=document.getElementById('eveNote').value.trim(); L.feel=pick||'';
+    if(!L.note && !L.feel){ document.getElementById('eveNote').focus(); return; }
+    eveEdit=false; markActiveToday(); save(); toast(t('ev.thanks')); renderEvening();
+  });
+  bindEveWeek();
+}
+function bindEveWeek(){
+  var b=document.querySelector('[data-eve-week]');
+  if(b) b.addEventListener('click',function(){
+    goPage('progress');
+    var r=document.getElementById('weekRefl'); if(r) r.scrollIntoView({block:'start',behavior:'smooth'});
   });
 }
 
@@ -712,9 +787,9 @@ function weekDays(){
 function normLine(s){ return String(s||'').trim().toLowerCase().replace(/\s+/g,' '); }
 function renderMyWeek(){
   var box=document.getElementById('weekBox'); if(!box) return;
-  var log=S.log||{}, days=weekDays().filter(function(d){ return log[d] && (log[d].items.length || log[d].steps.length); });
+  var log=S.log||{}, days=weekDays().filter(function(d){ var L=log[d]; return L && (L.items.length || L.steps.length || L.note || L.feel); });
   var head='<h3 class="boxh">'+ic('calendar')+'<span>'+esc(t('wk3.t'))+'</span></h3><p class="psub">'+esc(t('wk3.s'))+'</p>';
-  if(!days.length){ box.innerHTML=head+'<p class="hint">'+esc(t('wk3.none'))+'</p>'; return; }
+  if(!days.length){ box.innerHTML=head+'<p class="hint">'+esc(t('wk3.none'))+'</p>'+weekReflection(); bindWeekReflection(box); return; }
   var g=liveGoals()[0];
   function dayName(k){
     try{ return new Date(k+'T00:00:00').toLocaleDateString(cur,{weekday:'short',day:'numeric',month:'numeric'}); }catch(e){ return k; }
@@ -727,7 +802,9 @@ function renderMyWeek(){
         (x.done?ic('check'):'')+esc(x.t)+(lg?ic('target'):'')+'</span>';
     }).join('');
     var stepped=g && L.steps.indexOf(g.id)>=0;
-    return '<tr><th scope="row">'+esc(dayName(d))+'</th><td>'+(chips||'<span class="wk3dash">·</span>')+'</td>'+
+    var f=FEELS.filter(function(x){ return x.k===L.feel; })[0];
+    var note=(f||L.note) ? '<div class="wk3note">'+(f?f.e+' ':'')+(L.note?esc(L.note):esc(t('ev.f.'+f.k)))+'</div>' : '';
+    return '<tr><th scope="row">'+esc(dayName(d))+'</th><td>'+(chips||'<span class="wk3dash">·</span>')+note+'</td>'+
       (g?'<td class="wk3step">'+(stepped?ic('check'):'<span class="wk3dash">·</span>')+'</td>':'')+'</tr>';
   }).join('');
   var all=[], done=0, served=0, stepDays=0, rep={};
@@ -750,7 +827,7 @@ function renderMyWeek(){
     lines.push('<p>'+esc(t(r>=.5?'wk3.good':r>=.25?'wk3.mid':'wk3.low'))+'</p>');
     if(r<.25 && g) lines.push('<button class="btn btn-ghost btn-sm" data-wk3-fix>'+ic('edit')+'<span>'+esc(t('wk3.fix'))+'</span></button>');
   }
-  if(g) lines.push('<p>'+esc(t('wk3.steps',{k:stepDays, d:days.length}))+'</p>');
+  if(g && stepDays) lines.push('<p>'+esc(t('wk3.steps',{k:stepDays, d:days.length}))+'</p>');   // a zero only reads as a reproach
   var back=Object.keys(rep).map(function(k){ return rep[k]; }).filter(function(x){ return x.n>=2; })
     .sort(function(a,b){ return b.n-a.n; }).slice(0,3);
   if(back.length){
@@ -764,12 +841,51 @@ function renderMyWeek(){
       '<th scope="col">'+esc(t('wk3.c.did'))+'</th>'+(g?'<th scope="col">'+esc(t('wk3.c.step'))+'</th>':'')+'</tr></thead>'+
       '<tbody>'+rows+'</tbody></table></div>'+
     (g?'<p class="hint">'+ic('target')+'<span>'+esc(t('wk3.goal',{g:g.title}))+'</span></p>':'')+
-    '<div class="wk3read">'+lines.join('')+'</div>';
+    '<div class="wk3read">'+lines.join('')+'</div>'+weekReflection();
+  bindWeekReflection(box);
   var fx=box.querySelector('[data-wk3-fix]');
   if(fx) fx.addEventListener('click',function(){ goalEditId=g.id; goPage('home'); renderMyGoal();
     document.getElementById('myGoal').scrollIntoView({block:'start',behavior:'smooth'}); });
   var nw=box.querySelector('[data-wk3-new]');
   if(nw) nw.addEventListener('click',function(){ openChainAt('goals', nw.dataset.wk3New); });
+}
+
+/* ---- the week's reflection: what worked, what changes next week ----
+   Kept per week (by its Sunday) in S.weeks; earlier ones fold away below,
+   so it is possible to look back and see how the answers moved. */
+function weekReflection(){
+  var W=(S.weeks||{})[weekKey()]||{};
+  var past=Object.keys(S.weeks||{}).filter(function(k){ return k!==weekKey(); }).sort().reverse().slice(0,8);
+  return '<div class="wk3refl" id="weekRefl">'+
+    '<h4>'+ic('sparkles')+'<span>'+esc(t('wr.t'))+'</span></h4>'+
+    '<div class="field"><label for="wrGood">'+esc(t('wr.q1'))+'</label>'+
+      '<textarea id="wrGood" rows="2" maxlength="300" placeholder="'+esc(t('wr.ph1'))+'">'+esc(W.good||'')+'</textarea></div>'+
+    '<div class="field"><label for="wrNext">'+esc(t('wr.q2'))+'</label>'+
+      '<textarea id="wrNext" rows="2" maxlength="300" placeholder="'+esc(t('wr.ph2'))+'">'+esc(W.next||'')+'</textarea></div>'+
+    '<div class="row-btns">'+
+      '<button class="btn btn-primary btn-sm" data-wr-save>'+ic('check')+'<span>'+esc(t('c.save'))+'</span></button>'+
+      (liveGoals().length?'<button class="btn btn-ghost btn-sm" data-wr-fix>'+ic('edit')+'<span>'+esc(t('wk3.fix'))+'</span></button>':'')+
+    '</div>'+
+    (past.length ? '<details class="wr-past"><summary>'+esc(t('wr.past'))+'</summary>'+past.map(function(k){
+        var w=S.weeks[k];
+        return '<div class="wr-item"><b>'+esc(t('wr.of',{d:fmtDay(k)}))+'</b>'+
+          (w.good?'<p><span>'+esc(t('wr.q1'))+'</span> '+esc(w.good)+'</p>':'')+
+          (w.next?'<p><span>'+esc(t('wr.q2'))+'</span> '+esc(w.next)+'</p>':'')+'</div>';
+      }).join('')+'</details>' : '')+
+    '</div>';
+}
+function bindWeekReflection(box){
+  var sv=box.querySelector('[data-wr-save]');
+  if(sv) sv.addEventListener('click',function(){
+    var good=document.getElementById('wrGood').value.trim(), next=document.getElementById('wrNext').value.trim();
+    if(!good && !next){ document.getElementById('wrGood').focus(); return; }
+    if(!S.weeks) S.weeks={};
+    S.weeks[weekKey()]={good:good, next:next, at:dayKey()};
+    markActiveToday(); save(); toast(t('wr.saved')); renderEvening();
+  });
+  var fx=box.querySelector('[data-wr-fix]');
+  if(fx) fx.addEventListener('click',function(){ var g=liveGoals()[0]; goalEditId=g.id; goPage('home'); renderMyGoal();
+    document.getElementById('myGoal').scrollIntoView({block:'start',behavior:'smooth'}); });
 }
 
 /* ---- editing a goal: the name and its ladder, in one small form ----
@@ -918,7 +1034,7 @@ function bindSettings(){
   });
 }
 function renderDash(){
-  renderToday3(); renderMyGoal(); renderDashStats();
+  renderToday3(); renderMyGoal(); renderEvening(); renderDashStats();
   renderAvatarCard(); renderInvite();
 }
 
