@@ -349,8 +349,8 @@ function renderGoals(){
   });
   box.querySelectorAll('[data-dg]').forEach(function(b){
     b.addEventListener('click',function(){
-      S.goals=S.goals.filter(function(g){ return g.id!==Number(b.dataset.dg); });
-      save(); renderGoals(); renderDash();
+      var g=goalById(Number(b.dataset.dg));
+      if(g && confirm(t('ge.del.q',{g:g.title}))) deleteGoal(g.id);
     });
   });
   box.querySelectorAll('[data-na]').forEach(function(b){
@@ -1003,6 +1003,7 @@ function bindWeekReflection(box){
    so it is renamed with it. */
 var goalEditId=null;
 function goalEditForm(g){
+  var others=liveGoals().filter(function(o){ return o.id!==g.id; });
   function row(f,lab,ph){
     return '<div class="field"><label for="ge-'+f+'">'+esc(t(lab))+'</label>'+
       '<input type="text" id="ge-'+f+'" data-ge="'+f+'" maxlength="100" value="'+esc(g[f]||'')+'"'+
@@ -1014,7 +1015,55 @@ function goalEditForm(g){
     '<div class="row-btns">'+
       '<button class="btn btn-primary btn-sm" data-ge-save>'+ic('check')+'<span>'+esc(t('c.save'))+'</span></button>'+
       '<button class="btn btn-ghost btn-sm" data-ge-cancel>'+esc(t('c.cancel'))+'</button>'+
-    '</div></div>';
+    '</div>'+
+    (others.length ? '<div class="ge-merge"><label for="ge-mergeSel">'+esc(t('ge.merge'))+'</label><div class="addrow">'+
+        '<select id="ge-mergeSel">'+others.map(function(o){ return '<option value="'+o.id+'">'+esc(o.title)+'</option>'; }).join('')+'</select>'+
+        '<button class="btn btn-ghost btn-sm" data-ge-merge>'+ic('link')+'<span>'+esc(t('ge.merge.btn'))+'</span></button></div>'+
+        '<p class="hint">'+esc(t('ge.merge.h'))+'</p></div>' : '')+
+    '<button class="btn btn-quiet btn-sm ge-del" data-ge-del>'+ic('trash')+'<span>'+esc(t('ge.del'))+'</span></button>'+
+    '</div>';
+}
+/* Deleting a goal takes its weekly mission with it and unlinks the day
+   lines that pointed at it; the days it was part of stay in the log. */
+function deleteGoal(id){
+  S.goals=(S.goals||[]).filter(function(g){ return g.id!==id; });
+  S.missions=(S.missions||[]).filter(function(m){ return m.goalId!==id; });
+  today3().items.forEach(function(x){ if(x.gid===id) x.gid=null; });
+  if(goalEditId===id) goalEditId=null;
+  save(); renderGoals(); renderWeek(); renderDash();
+  toast(t('ge.deleted'));
+}
+/* Two goals that are really one: the one kept takes the other's steps,
+   any empty rung, its started date if earlier, and every day line, day
+   record and goal step that pointed at it. One weekly mission remains. */
+function mergeGoals(keepId,dropId){
+  var a=goalById(keepId), b=goalById(dropId);
+  if(!a || !b || a===b) return;
+  var seen={}; a.actions.forEach(function(x){ seen[normLine(x.text||x.key)]=1; });
+  b.actions.forEach(function(x){ if(!seen[normLine(x.text||x.key)]){ a.actions.push(x); seen[normLine(x.text||x.key)]=1; } });
+  /* the kept goal keeps its own step; only a goal with none takes the other's */
+  if(!(a.now||a.today)) ['now','today'].forEach(function(k){ if(b[k]) a[k]=b[k]; });
+  if(!a.week && b.week) a.week=b.week;
+  if(!a.freq && b.freq) a.freq=b.freq;
+  if(b.started && (!a.started || (b.startedAt && b.startedAt<a.startedAt))){ a.started=true; a.startedAt=b.startedAt; }
+  if(b.doneDay && (!a.doneDay || b.doneDay>a.doneDay)) a.doneDay=b.doneDay;
+  var keepMission=(S.missions||[]).some(function(m){ return m.goalId===a.id; });
+  S.missions=(S.missions||[]).filter(function(m){
+    if(m.goalId!==b.id) return true;
+    if(keepMission) return false;
+    m.goalId=a.id; m.title=a.title; keepMission=true; return true;
+  });
+  today3().items.forEach(function(x){ if(x.gid===b.id) x.gid=a.id; });
+  Object.keys(S.log||{}).forEach(function(d){
+    var L=S.log[d];
+    L.items.forEach(function(x){ if(x.gid===b.id) x.gid=a.id; });
+    L.steps=L.steps.map(function(id){ return id===b.id ? a.id : id; })
+               .filter(function(id,i,arr){ return arr.indexOf(id)===i; });
+  });
+  S.goals=S.goals.filter(function(g){ return g.id!==b.id; });
+  goalEditId=null;
+  save(); renderGoals(); renderWeek(); renderDash();
+  toast(t('ge.merged',{a:a.title}));
 }
 function bindGoalEdit(host,g){
   host.querySelector('[data-ge-save]').addEventListener('click',function(){
@@ -1029,6 +1078,30 @@ function bindGoalEdit(host,g){
   host.querySelector('[data-ge-cancel]').addEventListener('click',function(){
     goalEditId=null; renderGoals(); renderDash();
   });
+  host.querySelector('[data-ge-del]').addEventListener('click',function(){
+    if(confirm(t('ge.del.q',{g:g.title}))) deleteGoal(g.id);
+  });
+  var mb=host.querySelector('[data-ge-merge]');
+  if(mb) mb.addEventListener('click',function(){
+    var other=goalById(Number(host.querySelector('#ge-mergeSel').value));
+    if(other && confirm(t('ge.merge.q',{a:g.title, b:other.title}))) mergeGoals(g.id, other.id);
+  });
+}
+
+/* Two live goals look like one when they share an area, or when one name
+   holds a real word of the other's. Offered once per pair; "they are
+   different" is remembered. */
+function similarGoals(){
+  var gs=liveGoals(), skip=S.mergeSkip||[];
+  function words(s){ return normLine(s).split(/[\s·,.\-]+/).filter(function(w){ return w.length>=3; }); }
+  for(var i=0;i<gs.length;i++) for(var j=i+1;j<gs.length;j++){
+    var a=gs[i], b=gs[j], key=a.id+'-'+b.id;
+    if(skip.indexOf(key)>=0) continue;
+    var wa=words(a.title+' '+(a.today||'')), wb=words(b.title+' '+(b.today||''));
+    var shared=wa.some(function(w){ return wb.indexOf(w)>=0; });
+    if((a.area && a.area===b.area) || shared) return {a:a, b:b, key:key};
+  }
+  return null;
 }
 
 /* ---- my goal, and today's step toward it ----
@@ -1076,7 +1149,11 @@ function renderMyGoal(){
         '<button class="btn btn-quiet btn-sm" data-mg-edit="'+g.id+'">'+ic('edit')+'<span>'+esc(t('ge.btn'))+'</span></button>'+
       '</div></div>';
   }).join('');
-  box.innerHTML=head+blocks+
+  var sim=goalEditId?null:similarGoals();
+  var simHtml = sim ? '<div class="mg-sim">'+ic('link')+'<span>'+esc(t('mg.sim',{a:sim.a.title, b:sim.b.title}))+'</span>'+
+      '<div class="row-btns"><button class="btn btn-primary btn-sm" data-sim-yes>'+esc(t('ge.merge.btn'))+'</button>'+
+      '<button class="btn btn-quiet btn-sm" data-sim-no>'+esc(t('mg.sim.no'))+'</button></div></div>' : '';
+  box.innerHTML=head+simHtml+blocks+
     '<p class="next-sub">'+esc(streakLine())+'</p>'+
     '<div class="row-btns mg-tools">'+
       '<button class="btn btn-ghost btn-sm" data-mg-add>'+ic('plus')+'<span>'+esc(t('mg.add'))+'</span></button>'+
@@ -1109,6 +1186,14 @@ function renderMyGoal(){
     });
   });
   box.querySelector('[data-mg-add]').addEventListener('click',function(){ renderGoalPicker(box,head,true); });
+  if(sim){
+    box.querySelector('[data-sim-yes]').addEventListener('click',function(){
+      if(confirm(t('ge.merge.q',{a:sim.a.title, b:sim.b.title}))) mergeGoals(sim.a.id, sim.b.id);
+    });
+    box.querySelector('[data-sim-no]').addEventListener('click',function(){
+      S.mergeSkip=(S.mergeSkip||[]).concat(sim.key); save(); renderMyGoal();
+    });
+  }
   box.querySelector('[data-mg-all]').addEventListener('click',function(){ goPage('goals'); });
 }
 /* The areas and a free line - the way into a first goal, and into the next. */

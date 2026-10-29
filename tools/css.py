@@ -711,6 +711,13 @@ table.wk3 tbody th{white-space:nowrap;font-weight:600;color:var(--fg-2);}
 .more-item small{display:block;color:var(--fg-3);font-size:var(--t-sm);margin-top:2px;}
 .more-item>svg:last-child{width:18px;height:18px;color:var(--fg-3);}
 [dir=rtl] .more-item>svg:last-child{transform:scaleX(-1);}
+.ge-merge{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--ink-2);}
+.ge-merge label{display:block;font-size:var(--t-sm);font-weight:600;color:var(--fg-2);margin-bottom:var(--s2);}
+.ge-merge select{flex:1;min-width:0;}
+.ge-del{margin-top:var(--s3);color:var(--fg-3);}
+.mg-sim{display:grid;gap:var(--s2);padding:var(--s3);margin-bottom:var(--s4);border-radius:var(--r-card);
+  background:var(--acc-dim);font-size:var(--t-sm);color:var(--fg);}
+.mg-sim>svg{width:18px;height:18px;color:var(--acc);}
 .lookrow{display:flex;align-items:center;gap:var(--s2);}
 
 .mg-title{font-family:var(--f-display);font-weight:400;font-size:var(--t-h2);line-height:1.2;color:var(--fg);
