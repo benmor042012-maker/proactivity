@@ -676,6 +676,10 @@ table.wk3 tbody th{white-space:nowrap;font-weight:600;color:var(--fg-2);}
 .wr-item{padding:var(--s3) 0;border-bottom:1px solid var(--ink-2);}
 .wr-item p{color:var(--fg-2);margin-top:4px;}
 .wr-item p span{color:var(--fg-3);}
+.mg-goal{padding-bottom:var(--s4);margin-bottom:var(--s4);border-bottom:1px solid var(--ink-2);}
+.mg-goal .mg-tools{margin-top:var(--s2);}
+.mg-back{margin-top:var(--s2);}
+.wk3step b{font-size:var(--t-xs);margin-inline-start:2px;}
 .lookrow{display:flex;align-items:center;gap:var(--s2);}
 
 .mg-title{font-weight:700;color:var(--fg-2);margin-bottom:var(--s3);}
