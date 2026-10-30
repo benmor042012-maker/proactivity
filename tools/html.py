@@ -66,7 +66,8 @@ TABS = [('home', 'home', 'n.tab.home'),
         ('more', 'sliders', 'n.tab.more')]
 MORE = [('tasks', 'check', 'n.tab.tasks', 'more.tasks'),
         ('learn', 'brain', 'n.tab.learn', 'more.learn'),
-        ('body', 'activity', 'a.tab.body', 'more.body')]
+        ('body', 'activity', 'a.tab.body', 'more.body'),
+        ('circle', 'compass', 'cir.t', 'more.circle')]
 
 LANGS = [('he', 'עברית', 'עב'), ('en', 'English', 'EN'), ('fr', 'Français', 'FR'),
          ('ru', 'Русский', 'RU'), ('ar', 'العربية', 'ع')]
@@ -324,6 +325,7 @@ def build_body(logo):
  <nav class="tabs" id="tabBar" role="tablist" data-i18n-title="n.nav.label">{tabs}</nav>
 
  <div class="page" id="page-home" role="tabpanel">
+  <section class="vision" id="visionBox"></section>
   <section class="dash-box gndask" id="gndBox" hidden>
    <h2 class="boxh">{i("user")}<span data-i18n="n.o.2.gender"></span></h2>
    <p class="psub" data-i18n="gnd.s"></p>
@@ -331,12 +333,18 @@ def build_body(logo):
   </section>
   <section class="dash-box today3" id="todayBox"></section>
   <section class="dash-box eve" id="eveBox" hidden></section>
+  <section class="dash-box bkask" id="bkAsk" hidden></section>
   <div class="dstrip" id="dashStats"></div>
  </div>
 
  <div class="page" id="page-more" role="tabpanel">
   <h2 class="ptitle" data-i18n="n.tab.more"></h2>
   <div class="more-list">{''.join(f'<button class="more-item" data-more="{p}">{i(ic_)}<span><b data-i18n="{k}"></b><small data-i18n="{d}"></small></span>{i("chevron")}</button>' for p, ic_, k, d in MORE)}</div>
+ </div>
+
+ <div class="page" id="page-circle" role="tabpanel">
+  <h2 class="ptitle" data-i18n="cir.t"></h2><p class="psub" data-i18n="cir.s"></p>
+  <section class="dash-box" id="cirBox"></section>
  </div>
 
  <div class="page" id="page-tasks" role="tabpanel">
@@ -427,6 +435,7 @@ def build_body(logo):
     <label class="btn btn-ghost" for="bkFile">{i("refresh")}<span data-i18n="bk.import"></span></label>
     <input type="file" accept="application/json,.json" class="hidden-file" id="bkFile">
    </div>
+   <p class="bk-last" id="bkLast"></p>
    <p class="hint" id="bkMsg" role="status" aria-live="polite"></p>
   </section>
 

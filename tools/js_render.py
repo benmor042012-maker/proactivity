@@ -684,7 +684,7 @@ function logDay(){
   if(!S.log) S.log={};
   var prev=S.log[td.day]||{};
   S.log[td.day]={
-    note: prev.note||'', feel: prev.feel||'',
+    note: prev.note||'', feel: prev.feel||'', choice: prev.choice||'',
     items: td.items.filter(function(x){ return x.t.trim(); })
              .map(function(x){ return {t:x.t.trim(), done:!!x.done, gid:x.gid||null}; }),
     steps: (S.goals||[]).filter(function(g){ return g.doneDay===td.day; }).map(function(g){ return g.id; }),
@@ -858,11 +858,12 @@ function renderEvening(){
         '<button class="btn btn-ghost btn-sm" data-eve-week>'+esc(t('ev.week.go'))+'</button></div>' : '';
   if(!eveTime()){ box.innerHTML=weekNudge; bindEveWeek(); return; }
   var head='<h2 class="boxh">'+ic('moon')+'<span>'+esc(t('ev.t'))+'</span></h2>';
-  if((L.note||L.feel) && !eveEdit){
+  if((L.note||L.feel||L.choice) && !eveEdit){
     var f=FEELS.filter(function(x){ return x.k===L.feel; })[0];
     box.innerHTML=head+
       '<p class="eve-saved">'+(f?'<span class="eve-e">'+f.e+'</span>'+esc(t('ev.f.'+f.k)):'')+
         (L.note?(f?' · ':'')+'<q>'+esc(L.note)+'</q>':'')+'</p>'+
+      (L.choice?'<p class="eve-choice">'+ic('compass')+'<span>'+esc(L.choice)+'</span></p>':'')+
       '<p class="next-sub">'+esc(t('ev.thanks'))+'</p>'+
       '<button class="btn btn-quiet btn-sm" data-eve-edit>'+ic('edit')+'<span>'+esc(t('ge.btn'))+'</span></button>'+
       weekNudge;
@@ -876,9 +877,19 @@ function renderEvening(){
     }).join('')+'</div>'+
     '<div class="field"><label for="eveNote">'+esc(t('ev.q'))+'</label>'+
       '<input type="text" id="eveNote" maxlength="140" value="'+esc(L.note||'')+'" placeholder="'+esc(t('ev.ph'))+'"></div>'+
+    '<div class="field"><label for="eveChoice">'+ic('compass')+'<span>'+esc(t('ev.ch.q'))+'</span></label>'+
+      '<input type="text" id="eveChoice" maxlength="140" value="'+esc(L.choice||'')+'" placeholder="'+esc(t('ev.ch.ph'))+'">'+
+      '<div class="mg-picks">'+[1,2,3,4,5].map(function(n){ var x=t('evc.'+n);
+        return '<button type="button" class="t3idea" data-evc="'+esc(x)+'">'+ic('plus')+'<span>'+esc(x)+'</span></button>'; }).join('')+'</div></div>'+
     '<button class="btn btn-primary btn-sm" data-eve-save>'+ic('check')+'<span>'+esc(t('c.save'))+'</span></button>'+
     weekNudge;
   var pick=L.feel;
+  box.querySelectorAll('[data-evc]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var ci=document.getElementById('eveChoice'); ci.value=b.dataset.evc;
+      box.querySelectorAll('[data-evc]').forEach(function(o){ o.classList.toggle('on',o===b); });
+    });
+  });
   box.querySelectorAll('[data-feel]').forEach(function(b){
     b.addEventListener('click',function(){
       pick = pick===b.dataset.feel ? '' : b.dataset.feel;
@@ -889,7 +900,8 @@ function renderEvening(){
   box.querySelector('[data-eve-save]').addEventListener('click',function(){
     var L=S.log[dayKey()];
     L.note=document.getElementById('eveNote').value.trim(); L.feel=pick||'';
-    if(!L.note && !L.feel){ document.getElementById('eveNote').focus(); return; }
+    L.choice=document.getElementById('eveChoice').value.trim();
+    if(!L.note && !L.feel && !L.choice){ document.getElementById('eveNote').focus(); return; }
     eveEdit=false; markActiveToday(); save(); toast(t('ev.thanks')); renderEvening();
   });
   bindEveWeek();
@@ -918,7 +930,7 @@ function normLine(s){ return String(s||'').trim().toLowerCase().replace(/\s+/g,'
 function renderMyWeek(){
   var box=document.getElementById('weekBox'); if(!box) return;
   var log=S.log||{}, days=weekOf(wkOff), today=dayKey();
-  function has(d){ var L=log[d]; return !!(L && (L.items.some(function(x){ return x.done; }) || L.steps.length || (L.rest||[]).length || L.note || L.feel)); }
+  function has(d){ var L=log[d]; return !!(L && (L.items.some(function(x){ return x.done; }) || L.steps.length || (L.rest||[]).length || L.note || L.feel || L.choice)); }
   var used=days.filter(has);
   if(!wkSel || days.indexOf(wkSel)<0) wkSel = days.indexOf(today)>=0 ? today : (used[used.length-1]||days[0]);
   var older=Object.keys(log).some(function(d){ return d<days[0]; });
@@ -927,10 +939,11 @@ function renderMyWeek(){
   days.forEach(function(d){ ((log[d]||{}).steps||[]).forEach(function(id){ seen[id]=1; }); });
   var goals=live.concat((S.goals||[]).filter(function(g){ return seen[g.id] && live.indexOf(g)<0; }));
   function lang(d,o){ try{ return new Date(d+'T00:00:00').toLocaleDateString(cur,o); }catch(e){ return d; } }
-  var steps=0, things=0, feels={}, rep={};
+  var steps=0, things=0, feels={}, rep={}, choices=0;
   days.forEach(function(d){
     var L=log[d]; if(!L) return;
     steps+=L.steps.length;
+    if(L.choice) choices++;
     if(L.feel) feels[L.feel]=(feels[L.feel]||0)+1;
     L.items.forEach(function(x){
       if(x.done) things++;
@@ -948,7 +961,7 @@ function renderMyWeek(){
     bindWeek(); return;
   }
   /* the week in numbers - only the ones that are there */
-  var tiles=[[steps,'sh.steps'],[things,'sh.done'],[used.length,'wk.active']].filter(function(c){ return c[0]>0; });
+  var tiles=[[steps,'sh.steps'],[things,'sh.done'],[choices,'wk.choices'],[used.length,'wk.active']].filter(function(c){ return c[0]>0; });
   var tilesHtml=tiles.length ? '<div class="wk-tiles">'+tiles.map(function(c){
     return '<div class="wk-tile"><b class="numf">'+c[0]+'</b><span>'+esc(t(c[1]))+'</span></div>'; }).join('')+'</div>' : '';
   function cells(fn){ return '<div class="wk-cells">'+days.map(fn).join('')+'</div>'; }
@@ -990,8 +1003,9 @@ function renderMyWeek(){
   var panel='<div class="wk-panel"><h4>'+esc(lang(wkSel,{weekday:'long',day:'numeric',month:'numeric'}))+'</h4>'+
     ((ds||dr)?'<div class="mg-lab">'+esc(t('t3.forgoals'))+'</div><ul class="wk-list">'+ds+dr+'</ul>':'')+
     (dt?'<div class="mg-lab">'+esc(t('t3.more'))+'</div><ul class="wk-list">'+dt+'</ul>':'')+
+    (L.choice?'<p class="wk-feel">'+ic('compass')+'<span>'+esc(L.choice)+'</span></p>':'')+
     ((f||L.note)?'<p class="wk-feel">'+(f?'<span class="eve-e">'+f.e+'</span>'+esc(t('ev.f.'+f.k)):'')+(L.note?(f?' · ':'')+'<q>'+esc(L.note)+'</q>':'')+'</p>':'')+
-    ((ds||dr||dt||f||L.note)?'':'<p class="hint">'+esc(t(wkSel===today?'wk.d.today':'wk.d.rest'))+'</p>')+
+    ((ds||dr||dt||f||L.note||L.choice)?'':'<p class="hint">'+esc(t(wkSel===today?'wk.d.today':'wk.d.rest'))+'</p>')+
     '</div>';
   /* a line that keeps coming back is often the real goal */
   var idea='';
@@ -1000,7 +1014,10 @@ function renderMyWeek(){
   if(back && !goals.some(function(g){ return normLine(g.title)===normLine(back.t); }))
     idea='<div class="wk3read"><p class="wk3idea">'+ic('sparkles')+'<span>'+esc(t('wk3.idea',{x:back.t}))+'</span></p>'+
       '<button class="btn btn-ghost btn-sm" data-wk3-new="'+esc(back.t)+'">'+ic('target')+'<span>'+esc(t('wk3.mk'))+'</span></button></div>';
-  box.innerHTML=head+tilesHtml+
+  var vis=(P.vision||'').trim();
+  box.innerHTML=head+
+    (vis && !wkOff ? '<p class="wk-vision">'+ic('compass')+'<span><small>'+esc(t('vis.lab'))+'</small> '+esc(vis)+'</span></p>' : '')+
+    tilesHtml+
     '<div class="wk-grid">'+hdr+rows+'</div>'+
     '<p class="hint wk-tap">'+esc(t('wk.tap'))+'</p>'+
     panel+idea+
@@ -1451,7 +1468,7 @@ function bindSettings(){
   });
 }
 function renderDash(){
-  renderGenderAsk(); renderToday3(); renderEvening(); renderDashStats();
+  renderVision(); renderGenderAsk(); renderToday3(); renderEvening(); renderBackupAsk(); renderDashStats();
   renderAvatarCard(); renderInvite();
 }
 
@@ -1578,7 +1595,7 @@ document.getElementById('vidModal').addEventListener('click',function(e){ if(e.t
 /* One <nav> serves as top tabs on a wide screen and as the bottom bar on a
    phone, so there is a single set of buttons and a single source of truth. */
 /* Tasks, Learn and Body have no tab of their own; More stays lit on them. */
-var UNDER_MORE=['tasks','learn','body'];
+var UNDER_MORE=['tasks','learn','body','circle'];
 function goPage(name){
   var tabName = UNDER_MORE.indexOf(name)>=0 ? 'more' : name;
   document.querySelectorAll('.tab').forEach(function(x){
@@ -1592,7 +1609,8 @@ function goPage(name){
   try{ localStorage.setItem('proactive_tab', name); }catch(e){}
   if(name==='home') renderDash();
   if(name==='goals') renderGoals();
-  if(name==='progress'){ renderMyWeek(); renderProfile('profBody'); renderAchievements(); renderSettings(); renderTrend(); }
+  if(name==='progress'){ renderMyWeek(); renderProfile('profBody'); renderAchievements(); renderSettings(); renderTrend(); renderBackupLast(); }
+  if(name==='circle') renderCircle();
   if(name==='body') renderBodyGate();
   window.scrollTo(0,0);
 }

@@ -27,6 +27,7 @@ function doExport(){
   var d=new Date(), pad=function(n){ return (n<10?'0':'')+n; };
   downloadJSON(exportBundle(), 'proacty-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json');
   if(typeof toast==='function') toast(t('bk.done'));
+  if(typeof markBackedUp==='function') markBackedUp();
 }
 
 /* A restore overwrites everything, so it says out loud what it is about to
