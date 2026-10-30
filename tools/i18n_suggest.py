@@ -116,6 +116,10 @@ SUGGEST = {
 'yt.q.social': ('טיפים', 'tips', 'conseils', 'советы', 'نصائح'),
 'yt.q.learn':  ('למתחילים', 'for beginners', 'pour débutants', 'для начинающих', 'للمبتدئين'),
 
+'mg.ask':     ('מה הצעד להיום?', 'What is today\'s step?', 'Quel est le pas du jour ?', 'Какой шаг сегодня?', 'ما خطوة اليوم؟'),
+'mg.ask.ph':  ('צעד קטן אחד למטרה הזו', 'One small step for this goal', 'Un petit pas pour cet objectif', 'Один маленький шаг к этой цели', 'خطوة صغيرة لهذا الهدف'),
+'mg.change':  ('צעד אחר להיום', 'Another step today', 'Un autre pas aujourd\'hui', 'Другой шаг сегодня', 'خطوة أخرى اليوم'),
+
 # ---------- ready goals ----------
 'rg.t':     ('מטרות מוכנות', 'Ready-made goals', 'Objectifs tout prêts', 'Готовые цели', 'أهداف جاهزة'),
 'rg.added': ('המטרה נוספה והתחילה. אפשר לשנות אותה מתי שרוצים.', 'Goal added and started. Change it any time.',
