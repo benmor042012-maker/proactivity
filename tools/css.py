@@ -679,6 +679,21 @@ body.no-scroll{overflow:hidden;}
 .wk-list{list-style:none;margin:0 0 var(--s2);padding:0;display:grid;gap:6px;font-size:var(--t-sm);}
 .wk-list li{display:flex;gap:6px;align-items:flex-start;}
 .wk-list svg{width:15px;height:15px;color:var(--acc);flex:none;margin-top:3px;}
+.gwhy{display:flex;gap:6px;align-items:flex-start;margin:4px 0 var(--s2);font-size:var(--t-sm);color:var(--fg-2);}
+.gwhy svg,.t3g-why svg{width:15px;height:15px;color:var(--acc);flex:none;margin-top:3px;}
+.gwhy b{color:var(--acc);}
+.gwhy-add{margin:2px 0 var(--s2);}
+.why-f label{display:flex;align-items:center;gap:6px;}
+.why-f label svg{width:16px;height:16px;color:var(--acc);}
+.why-f .mg-picks{margin-top:var(--s2);}
+.t3g-why{display:flex;gap:6px;align-items:flex-start;margin:-4px 0 var(--s2);font-size:var(--t-xs);color:var(--fg-2);}
+.t3rest{margin-top:var(--s2);}
+.t3row.rested .t3chk{background:var(--acc-dim);border-color:var(--acc-dim);color:var(--acc);}
+.t3row.rested .t3g-step{color:var(--fg-2);font-size:var(--t-sm);}
+.wk-dot.rested{background:var(--acc-dim);border-color:var(--acc-dim);font-size:14px;}
+.wk-li-e{flex:none;font-size:13px;}
+.fg-picks{margin-top:var(--s3);}
+.fg-picks .t3idea.on{border-style:solid;border-color:var(--acc);background:var(--acc-dim);color:var(--acc);font-weight:700;}
 .wk-feel{font-size:var(--t-sm);color:var(--fg-2);}
 .wk3read{display:grid;gap:var(--s2);margin-top:var(--s3);font-size:var(--t-sm);color:var(--fg-2);}
 .wk3read .btn{justify-self:start;}
@@ -954,6 +969,7 @@ body.no-scroll{overflow:hidden;}
 .mini-h svg{width:15px;height:15px;color:var(--acc);}
 .hint{display:flex;gap:var(--s2);align-items:flex-start;font-size:var(--t-sm);color:var(--fg-2);
   background:var(--ink-1);border-radius:var(--r-card);padding:var(--s3) var(--s4);margin:var(--s4) 0;}
+.hint[hidden]{display:none;}   /* .hint is flex, which would otherwise beat the hidden attribute */
 .hint svg{color:var(--acc);flex:none;margin-top:2px;}
 .hint.safe{background:transparent;padding-inline:0;}
 

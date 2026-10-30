@@ -13,11 +13,12 @@ var DIMS=[
  {id:'goal', k:'dim.goal',  icon:'target',   em:'🎯'},
  {id:'time', k:'dim.time',  icon:'clock',    em:'⏱️'},
  {id:'solve',k:'dim.solve', icon:'brain',    em:'🧠'},
- {id:'plan', k:'dim.plan',  icon:'calendar', em:'📅'}
+ {id:'plan', k:'dim.plan',  icon:'calendar', em:'📅'},
+ {id:'choice',k:'dim.choice',icon:'compass', em:'🧭', lesson:9}
 ];
 function dimById(id){ for(var i=0;i<DIMS.length;i++) if(DIMS[i].id===id) return DIMS[i]; return DIMS[0]; }
 
-/* Ten questions, two per dimension. The four numbers are what each answer is
+/* Twelve questions, two per dimension. The four numbers are what each answer is
    worth, in the option order a-b-c-d. They are not a grade - they only decide
    which area the app leans on when it suggests something. */
 var QUESTIONS=[
@@ -30,7 +31,9 @@ var QUESTIONS=[
  {n:7,  dim:'goal',  v:[100,70,40,20]},
  {n:8,  dim:'plan',  v:[100,65,35,15]},
  {n:9,  dim:'solve', v:[100,65,40,15]},
- {n:10, dim:'time',  v:[100,80,30,15]}
+ {n:10, dim:'time',  v:[100,80,30,15]},
+ {n:11, dim:'choice',v:[100,45,25,55]},
+ {n:12, dim:'choice',v:[100,35,15,55]}
 ];
 var QLETTERS=['a','b','c','d'];
 
@@ -109,9 +112,11 @@ function scoreQuiz(){
     if(v===null) return;
     sum[Q.dim]+=v; count[Q.dim]++;
   });
+  /* a dimension with no answer is left out rather than scored 0: a profile
+     made before the choice questions existed has not measured choice */
   var out={};
   DIMS.forEach(function(d){
-    out[d.id]= count[d.id] ? Math.round(sum[d.id]/count[d.id]) : 0;
+    if(count[d.id]) out[d.id]=Math.round(sum[d.id]/count[d.id]);
   });
   return out;
 }
@@ -123,20 +128,22 @@ function quizAnswered(){
   return n;
 }
 function hasProfile(){ return !!(S.quiz && S.quiz.scores); }
+function measured(){ return DIMS.filter(function(d){ return hasProfile() && typeof S.quiz.scores[d.id]==='number'; }); }
 function profileIndex(){
-  if(!hasProfile()) return 0;
-  var t=0; DIMS.forEach(function(d){ t+=S.quiz.scores[d.id]||0; });
-  return Math.round(t/DIMS.length);
+  var ds=measured(); if(!ds.length) return 0;
+  var t=0; ds.forEach(function(d){ t+=S.quiz.scores[d.id]; });
+  return Math.round(t/ds.length);
 }
 function bandKey(v){ return v>=80?'rs.b4' : v>=65?'rs.b3' : v>=40?'rs.b2' : 'rs.b1'; }
 
 /* Ties resolve by DIMS order rather than by whichever key the engine happens to
    walk first, so the same answers always produce the same profile text. */
 function extremeDim(want){
-  if(!hasProfile()) return DIMS[0].id;
-  var best=DIMS[0].id, bv=S.quiz.scores[DIMS[0].id]||0;
-  DIMS.forEach(function(d){
-    var v=S.quiz.scores[d.id]||0;
+  var ds=measured();
+  if(!ds.length) return DIMS[0].id;
+  var best=ds[0].id, bv=S.quiz.scores[ds[0].id];
+  ds.forEach(function(d){
+    var v=S.quiz.scores[d.id];
     if(want==='high' ? v>bv : v<bv){ bv=v; best=d.id; }
   });
   return best;
@@ -361,8 +368,8 @@ function recordCheckin(){
   if(!S.hist) S.hist=[];
   var sc=S.quiz.scores||{};
   var last=S.hist[S.hist.length-1];
-  var entry={d:dayKey(), band:S.quiz.band||'a13', s:{
-    init:sc.init|0, goal:sc.goal|0, time:sc.time|0, solve:sc.solve|0, plan:sc.plan|0}};
+  var entry={d:dayKey(), band:S.quiz.band||'a13', s:{}};
+  DIMS.forEach(function(d){ if(typeof sc[d.id]==='number') entry.s[d.id]=sc[d.id]; });
   /* two goes at the same check-in on one day is one data point, the later one */
   if(last && last.d===entry.d) S.hist[S.hist.length-1]=entry;
   else S.hist.push(entry);
@@ -370,7 +377,9 @@ function recordCheckin(){
   save();
 }
 function checkinAvg(e){
-  var s=e.s; return Math.round((s.init+s.goal+s.time+s.solve+s.plan)/5);
+  var ks=Object.keys(e.s); if(!ks.length) return 0;
+  var t=0; ks.forEach(function(k){ t+=e.s[k]|0; });
+  return Math.round(t/ks.length);
 }
 function daysSinceCheckin(){
   if(!S.hist||!S.hist.length) return 0;
@@ -412,7 +421,7 @@ function renderProfile(boxId, compact){
      '<div class="pro-num numf">'+idx+'<span>%</span></div>'+
      '<div><div class="pro-lab">'+esc(t('rs.index'))+'</div>'+
      '<div class="pro-band">'+esc(t(bandKey(idx)))+'</div></div></div>'+
-   '<div class="meters">'+DIMS.map(meterRow).join('')+'</div>';
+   '<div class="meters">'+measured().map(meterRow).join('')+'</div>';
 
   if(compact){
     box.innerHTML=head+
@@ -426,15 +435,29 @@ function renderProfile(boxId, compact){
 
   var stale = S.quiz.band && S.quiz.band!==quizBand()
     ? '<p class="hint">'+ic('refresh')+'<span>'+esc(t('rs.ageband'))+'</span></p>' : '';
-  box.innerHTML=head+stale+
+  /* a profile from before the choice questions: one tap retakes it */
+  var fresh = measured().length<DIMS.length
+    ? '<p class="hint">'+ic('compass')+'<span>'+esc(t('rs.newdim'))+'</span></p>' : '';
+  var wd=dimById(weakDim());
+  box.innerHTML=head+stale+fresh+
    '<div class="pro-blk"><h3>'+esc(t('rs.mean'))+'</h3><p>'+esc(profileMeaning())+'</p></div>'+
    '<div class="pro-blk"><h3>'+esc(t('rs.try'))+'</h3><ol class="pro-acts">'+
      profileActions().map(function(a){ return '<li>'+esc(a)+'</li>'; }).join('')+
-   '</ol></div>'+
+   '</ol>'+
+   (wd.lesson ? '<button class="btn btn-ghost btn-sm" data-golsn="'+wd.lesson+'">'+ic('book')+'<span>'+esc(t('ls.'+wd.lesson+'.t'))+'</span></button>' : '')+
+   '</div>'+
    '<button class="btn btn-ghost btn-sm" data-goquiz>'+ic('refresh')+'<span>'+esc(t('rs.again'))+'</span></button>';
   bindGoQuiz(box);
 }
+function openLesson(n){
+  goPage('learn');
+  var d=document.querySelectorAll('#lsGrid details')[n-1];
+  if(d){ d.open=true; d.scrollIntoView({block:'start'}); }
+}
 function bindGoQuiz(box){
+  box.querySelectorAll('[data-golsn]').forEach(function(b){
+    b.addEventListener('click',function(){ openLesson(Number(b.dataset.golsn)); });
+  });
   box.querySelectorAll('[data-goquiz]').forEach(function(b){
     b.addEventListener('click',function(){
       restartQuiz();
@@ -454,7 +477,8 @@ var LESSONS=[
  {n:5, icon:'clock',    min:'ls.read2'},
  {n:6, icon:'target',   min:'ls.read2'},
  {n:7, icon:'refresh',  min:'ls.read'},
- {n:8, icon:'shield',   min:'ls.read'}
+ {n:8, icon:'shield',   min:'ls.read'},
+ {n:9, icon:'compass',  min:'ls.read'}
 ];
 function lessonsRead(){
   var n=0; for(var k in (S.lessons||{})) if(S.lessons[k]) n++;

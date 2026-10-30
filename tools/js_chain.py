@@ -75,6 +75,7 @@ function chainNow(){   return t('gn.'+(CH.obst||'other')); }
 function goalFromChain(){
   var g=newGoal(chainTitle());
   g.area=CH.area; g.kind=CH.kind; g.kindText=CH.kindText; g.freq=CH.freq||3; g.obst=CH.obst;
+  g.why=(CH.why||'').trim();
   g.week=chainWeek(); g.today=chainToday(); g.now=chainNow();
   g.actions=[
     {id:uid++, key:null, text:chainNow(),   done:false},
@@ -82,6 +83,25 @@ function goalFromChain(){
     {id:uid++, key:null, text:chainWeek(),  done:false}
   ];
   return g;
+}
+
+/* ================= why this goal ================= */
+/* A goal is something chosen, not something owed: the reason is asked on
+   the way in, in the user's words or one tap, and shown on the goal. */
+var WHY=['why.c1','why.c2','why.c3','why.c4'];
+function whyField(id, val){
+  return '<div class="field why-f"><label for="'+id+'">'+ic('compass')+'<span>'+esc(t('why.q'))+'</span></label>'+
+    '<input type="text" id="'+id+'" maxlength="100" value="'+esc(val||'')+'" placeholder="'+esc(t('why.ph'))+'">'+
+    '<div class="mg-picks">'+WHY.map(function(k){
+      return '<button type="button" class="t3idea" data-why="'+esc(t(k))+'">'+ic('plus')+'<span>'+esc(t(k))+'</span></button>';
+    }).join('')+'</div></div>';
+}
+function bindWhy(host, id, onChange){
+  var inp=host.querySelector('#'+id); if(!inp) return;
+  inp.addEventListener('input',function(){ onChange(inp.value); });
+  host.querySelectorAll('[data-why]').forEach(function(b){
+    b.addEventListener('click',function(){ inp.value=b.dataset.why; onChange(inp.value); });
+  });
 }
 
 /* ================= rendering ================= */
@@ -126,6 +146,7 @@ function renderChain(hostId){
     html=chainHead(4)+'<h3 class="ch-q">'+esc(t('gc.result.t'))+'</h3><p class="psub">'+esc(t('gc.result.s'))+'</p>'+
       '<div class="field ch-name"><label for="chName">'+esc(t('gc.name'))+'</label>'+
         '<input type="text" id="chName" maxlength="60" value="'+esc(chainTitle())+'"></div>'+
+      whyField('chWhy', CH.why)+
       '<div class="ladder ch-ladder">'+
         '<div class="rung"><span class="rung-k">'+esc(t('gl.week'))+'</span><span class="rung-v">'+esc(chainWeek())+'</span></div>'+
         '<div class="rung"><span class="rung-k">'+esc(t('gl.today'))+'</span><span class="rung-v">'+esc(chainToday())+'</span></div>'+
@@ -178,6 +199,7 @@ function bindChain(host){
   host.querySelectorAll('[data-obst]').forEach(function(b){
     b.addEventListener('click',function(){ CH.obst=b.dataset.obst; CH.step=4; saveChain(); renderChain(); });
   });
+  bindWhy(host,'chWhy',function(v){ CH.why=v; saveChain(); });
   var nm=host.querySelector('#chName');
   if(nm) nm.addEventListener('input',function(){ CH.name=nm.value; saveChain(); });
   host.querySelectorAll('[data-ch-save]').forEach(function(b){
