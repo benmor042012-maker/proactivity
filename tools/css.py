@@ -692,6 +692,8 @@ body.no-scroll{overflow:hidden;}
 .t3row.rested .t3g-step{color:var(--fg-2);font-size:var(--t-sm);}
 .wk-dot.rested{background:var(--acc-dim);border-color:var(--acc-dim);font-size:14px;}
 .wk-li-e{flex:none;font-size:13px;}
+.fg-picks{margin-top:var(--s3);}
+.fg-picks .t3idea.on{border-style:solid;border-color:var(--acc);background:var(--acc-dim);color:var(--acc);font-weight:700;}
 .wk-feel{font-size:var(--t-sm);color:var(--fg-2);}
 .wk3read{display:grid;gap:var(--s2);margin-top:var(--s3);font-size:var(--t-sm);color:var(--fg-2);}
 .wk3read .btn{justify-self:start;}

@@ -1335,6 +1335,35 @@ function setDayStep(g,text){
 /* A ready goal arrives whole - name, how often, this week, today, right
    now - and started, so it shows on Home at once. Teens and adults get
    different sets; goals the user already has are not offered again. */
+/* ---- under "write a goal in your own words": goals to choose from ----
+   For someone who does not want to write one, so it is still a choice:
+   one for the area the check-in found weakest, then ideas for the age.
+   A tap fills the field, where it can be changed before adding. */
+function freeGoalPicks(){
+  var band=P.age ? ageBand(P.age) : 'a13', out=[], have={};
+  (S.goals||[]).forEach(function(g){ have[normLine(g.title)]=1; });
+  if(hasProfile()) out.push(t('fg.dim.'+weakDim()));
+  [1,2,3,4,5].forEach(function(n){ out.push(t('fg.'+band+'.'+n)); });
+  return out.filter(function(x){ return !have[normLine(x)]; });
+}
+function renderFreePicks(box){
+  var inp=document.getElementById(box.dataset.fgFor); if(!inp) return;
+  var picks=freeGoalPicks();
+  box.innerHTML=picks.length ? '<div class="mg-lab">'+esc(t('fg.t'))+'</div><div class="mg-picks">'+picks.map(function(x){
+    return '<button type="button" class="t3idea" data-fg="'+esc(x)+'">'+ic('plus')+'<span>'+esc(x)+'</span></button>'; }).join('')+'</div>' : '';
+  box.querySelectorAll('[data-fg]').forEach(function(b){
+    b.addEventListener('click',function(){
+      inp.value=b.dataset.fg; inp.dispatchEvent(new Event('input',{bubbles:true})); inp.focus();
+      box.querySelectorAll('[data-fg]').forEach(function(o){ o.classList.toggle('on',o===b); });
+    });
+  });
+}
+/* filled each time the box is opened, so it follows the age, the check-in and the goals */
+document.addEventListener('toggle',function(e){
+  var d=e.target; if(!d.open || !d.classList || !d.classList.contains('ch-free')) return;
+  var box=d.querySelector('.fg-picks'); if(box) renderFreePicks(box);
+},true);
+
 var READY={teen:[[1,'study',4],[2,'sleep',5],[3,'habits',5],[4,'sport',3],[5,'learn',4],[6,'social',2]],
            adult:[[7,'sport',3],[8,'sleep',5],[3,'habits',5],[10,'learn',3],[11,'time',5],[12,'social',2]]};
 function readyGoals(){
