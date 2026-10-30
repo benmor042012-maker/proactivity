@@ -657,7 +657,7 @@ function t3Ideas(td){
   var used={}; td.items.forEach(function(x){ if(x.t.trim()) used[normLine(x.t)]=1; });
   var out=[];
   function add(text,gid){ if(!text || used[normLine(text)] || out.length>=5) return; used[normLine(text)]=1; out.push({t:text,gid:gid}); }
-  liveGoals().forEach(function(g){ add(g.now||g.today, g.id); });
+  liveGoals().forEach(function(g){ add(dayStep(g)||g.now||g.today, g.id); });
   if(hasProfile()) [1,2,3].forEach(function(n){ add(t('sq.'+weakDim()+'.'+n)); });
   var band=P.age ? ageBand(P.age) : 'a13';
   [1,2,3,4,5,6].forEach(function(n){ add(t('sq.'+band+'.'+n)); });
@@ -1205,6 +1205,25 @@ function openChainAt(area, kindText){
   renderChain('goalChain');
   host.scrollIntoView({block:'start',behavior:'smooth'});
 }
+/* Today's step for a goal is chosen each day: what was written yesterday
+   ("I went to the gym") is yesterday's. The goal's own rungs (right now,
+   today) and the last few steps chosen are offered as one-tap choices,
+   so a step that repeats is still one tap away. */
+function dayStep(g){ return (g.day && g.day.d===dayKey()) ? g.day.t : ''; }
+function stepChoices(g){
+  var seen={}, out=[];
+  (g.past||[]).concat([g.now, g.today]).forEach(function(s){
+    s=String(s||'').trim(); var k=normLine(s);
+    if(s && !seen[k] && out.length<4){ seen[k]=1; out.push(s); }
+  });
+  return out;
+}
+function setDayStep(g,text){
+  text=String(text||'').trim(); if(!text) return;
+  g.day={d:dayKey(), t:text};
+  g.past=[text].concat((g.past||[]).filter(function(s){ return normLine(s)!==normLine(text); })).slice(0,6);
+  save(); renderMyGoal(); renderToday3();
+}
 function renderMyGoal(){
   var box=document.getElementById('myGoal'); if(!box) return;
   var goals=liveGoals();
@@ -1213,9 +1232,15 @@ function renderMyGoal(){
   var running=!!fiveTimer;
   var blocks=goals.map(function(g){
     if(goalEditId===g.id) return '<div class="mg-goal" data-gblock="'+g.id+'">'+goalEditForm(g)+'</div>';
-    var step=g.now||g.today||g.week||'';
+    var step=dayStep(g);
     var act = !step
-      ? '<p class="next-sub">'+esc(t('mg.nostep'))+'</p>'
+      ? '<div class="mg-ask"><label for="mgs-'+g.id+'">'+esc(t('mg.ask'))+'</label>'+
+          '<div class="addrow"><input type="text" id="mgs-'+g.id+'" data-mg-step-in="'+g.id+'" maxlength="100" placeholder="'+esc(t('mg.ask.ph'))+'">'+
+          '<button class="btn btn-primary" data-mg-step-set="'+g.id+'">'+esc(t('c.save'))+'</button></div>'+
+          (stepChoices(g).length ? '<div class="mg-picks">'+stepChoices(g).map(function(s){
+              return '<button type="button" class="t3idea" data-mg-step-pick="'+g.id+'" data-text="'+esc(s)+'">'+ic('plus')+'<span>'+esc(s)+'</span></button>';
+            }).join('')+'</div>' : '')+
+        '</div>'
       : g.doneDay===dayKey()
       ? '<p class="mg-done">'+ic('check')+'<span>'+esc(t('mg.done'))+'</span></p>'
       : '<div class="next-btns">'+
@@ -1230,6 +1255,7 @@ function renderMyGoal(){
       act+
       '<div class="row-btns mg-tools">'+
         (g.started ? '' : '<button class="btn btn-quiet btn-sm" data-mg-start="'+g.id+'">'+ic('flag')+'<span>'+esc(t('gc.start'))+'</span></button>')+
+        (step && g.doneDay!==dayKey() ? '<button class="btn btn-quiet btn-sm" data-mg-step-clear="'+g.id+'">'+ic('refresh')+'<span>'+esc(t('mg.change'))+'</span></button>' : '')+
         '<button class="btn btn-quiet btn-sm" data-mg-edit="'+g.id+'">'+ic('edit')+'<span>'+esc(t('ge.btn'))+'</span></button>'+
       '</div>'+resHtml(g)+'</div>';
   }).join('');
@@ -1255,7 +1281,7 @@ function renderMyGoal(){
   box.querySelectorAll('[data-mg-five]').forEach(function(b){
     b.addEventListener('click',function(){
       var g=goalById(Number(b.dataset.mgFive)); fiveGid=g.id;
-      startFiveMinutes(g.now||g.today||g.week);
+      startFiveMinutes(dayStep(g));
     });
   });
   box.querySelectorAll('[data-mg-done]').forEach(function(b){
@@ -1271,6 +1297,18 @@ function renderMyGoal(){
   });
   box.querySelector('[data-mg-add]').addEventListener('click',function(){ renderGoalPicker(box,head,true); });
   bindRes(box, renderMyGoal);
+  box.querySelectorAll('[data-mg-step-set]').forEach(function(b){
+    var g=goalById(Number(b.dataset.mgStepSet)), inp=box.querySelector('[data-mg-step-in="'+g.id+'"]');
+    function go(){ if(!inp.value.trim()){ inp.focus(); return; } setDayStep(g, inp.value); }
+    b.addEventListener('click',go);
+    inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
+  });
+  box.querySelectorAll('[data-mg-step-pick]').forEach(function(b){
+    b.addEventListener('click',function(){ setDayStep(goalById(Number(b.dataset.mgStepPick)), b.dataset.text); });
+  });
+  box.querySelectorAll('[data-mg-step-clear]').forEach(function(b){
+    b.addEventListener('click',function(){ var g=goalById(Number(b.dataset.mgStepClear)); g.day=null; save(); renderMyGoal(); });
+  });
   box.querySelectorAll('[data-mg-vid]').forEach(function(b){
     b.addEventListener('click',function(){ openRes(firstVideo(goalById(Number(b.dataset.mgVid)))); });
   });

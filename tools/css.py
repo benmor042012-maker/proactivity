@@ -737,6 +737,8 @@ table.wk3 tbody th{white-space:nowrap;font-weight:600;color:var(--fg-2);}
 .vid-modal{max-width:720px;}
 .vid-wrap{position:relative;padding-top:56.25%;border-radius:var(--r-ctl);overflow:hidden;background:#000;margin-bottom:var(--s3);}
 .vid-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+.mg-ask label{display:block;font-size:var(--t-sm);font-weight:700;color:var(--acc);margin-bottom:var(--s2);}
+.mg-picks{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3);}
 .lookrow{display:flex;align-items:center;gap:var(--s2);}
 
 .mg-title{font-family:var(--f-display);font-weight:400;font-size:var(--t-h2);line-height:1.2;color:var(--fg);
