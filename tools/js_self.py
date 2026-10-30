@@ -11,16 +11,37 @@ backup itself, so restoring an old file does not reset it.
 
 JS_SELF = r"""
 /* ================= who I want to be ================= */
+/* Suggestions: the area the check-in found weakest, two for the age band,
+   then the general ones. Seven at most. */
 var VISION=['vis.c1','vis.c2','vis.c3','vis.c4','vis.c5'];
+function visionPicks(){
+  var band=P.age ? ageBand(P.age) : 'a13', keys=[];
+  if(hasProfile()) keys.push('vis.dim.'+weakDim());
+  keys.push('vis.'+band+'.1','vis.'+band+'.2');
+  var seen={}, out=[];
+  keys.concat(VISION).forEach(function(k){ var x=t(k); if(!seen[x]){ seen[x]=1; out.push(x); } });
+  return out.slice(0,7);
+}
+function inDays(n){ var d=new Date(); d.setDate(d.getDate()+n); return dayKey(d); }
 var visEdit=false;
 function renderVision(){
   var box=document.getElementById('visionBox'); if(!box) return;
   var v=(P.vision||'').trim();
   if(v && !visEdit){
+    /* a week after choosing, and then once a month: is this still it? */
+    if(!P.visionNext){ P.visionNext=inDays(7); save(); }
+    var due=P.visionNext<=dayKey();
     box.className='vision';
     box.innerHTML='<button type="button" class="vision-line" data-vis-edit aria-label="'+esc(t('ge.btn'))+'">'+ic('compass')+
-      '<span><small>'+esc(t('vis.lab'))+'</small><b>'+esc(v)+'</b></span></button>';
+      '<span><small>'+esc(t('vis.lab'))+'</small><b>'+esc(v)+'</b></span></button>'+
+      (due ? '<div class="vis-chk"><p>'+esc(t('vis.chk'))+'</p><div class="row-btns">'+
+        '<button class="btn btn-ghost btn-sm" data-vis-keep>'+ic('check')+'<span>'+esc(t('vis.keep'))+'</span></button>'+
+        '<button class="btn btn-quiet btn-sm" data-vis-change>'+ic('edit')+'<span>'+esc(t('vis.change'))+'</span></button></div></div>' : '');
     box.querySelector('[data-vis-edit]').addEventListener('click',function(){ visEdit=true; renderVision(); });
+    var kp=box.querySelector('[data-vis-keep]');
+    if(kp) kp.addEventListener('click',function(){ P.visionNext=inDays(30); save(); toast(t('vis.saved')); renderVision(); });
+    var ch=box.querySelector('[data-vis-change]');
+    if(ch) ch.addEventListener('click',function(){ visEdit=true; renderVision(); });
     return;
   }
   /* not written yet: asked once, and "later" puts it away for a week */
@@ -30,8 +51,8 @@ function renderVision(){
     '<p class="psub">'+esc(t('vis.s'))+'</p>'+
     '<div class="field"><label for="visIn">'+esc(t('vis.lab'))+'</label>'+
       '<input type="text" id="visIn" maxlength="120" value="'+esc(v)+'" placeholder="'+esc(t('why.ph'))+'"></div>'+
-    '<div class="mg-picks">'+VISION.map(function(k){
-      return '<button type="button" class="t3idea" data-vis="'+esc(t(k))+'">'+ic('plus')+'<span>'+esc(t(k))+'</span></button>'; }).join('')+'</div>'+
+    '<div class="mg-picks">'+visionPicks().map(function(x){
+      return '<button type="button" class="t3idea" data-vis="'+esc(x)+'">'+ic('plus')+'<span>'+esc(x)+'</span></button>'; }).join('')+'</div>'+
     '<div class="row-btns">'+
       '<button class="btn btn-primary btn-sm" data-vis-save>'+ic('check')+'<span>'+esc(t('c.save'))+'</span></button>'+
       '<button class="btn btn-quiet btn-sm" data-vis-later>'+esc(t(v?'c.cancel':'vis.later'))+'</button>'+
@@ -45,12 +66,12 @@ function renderVision(){
   });
   function go(){
     var val=inp.value.trim(); if(!val){ inp.focus(); return; }
-    P.vision=val; visEdit=false; save(); toast(t('vis.saved')); renderVision();
+    P.vision=val; P.visionNext=inDays(7); visEdit=false; save(); toast(t('vis.saved')); renderVision();
   }
   box.querySelector('[data-vis-save]').addEventListener('click',go);
   inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
   box.querySelector('[data-vis-later]').addEventListener('click',function(){
-    if(!v){ var d=new Date(); d.setDate(d.getDate()+7); P.visionLater=dayKey(d); save(); }
+    if(!v){ P.visionLater=inDays(7); save(); }
     visEdit=false; renderVision();
   });
 }
@@ -93,10 +114,17 @@ function renderCircle(){
       '<div class="row-btns"><button class="btn btn-ghost btn-sm" data-cir-let="'+x.id+'">'+ic('seedling')+'<span>'+esc(t('cir.let'))+'</span></button>'+
       '<button class="btn btn-quiet btn-sm" data-cir-k="in" data-id="'+x.id+'">'+esc(t('cir.backin'))+'</button></div></div>';
   }
+  /* things that often weigh on someone of this age, minus what is already here */
+  var band=P.age ? ageBand(P.age) : 'a13', have={};
+  all.forEach(function(x){ have[normLine(x.t)]=1; });
+  var sug=[1,2,3,4,5].map(function(n){ return t('cirw.'+band+'.'+n); }).filter(function(x){ return !have[normLine(x)]; });
   box.innerHTML=
     '<div class="field"><label for="cirIn">'+esc(t('cir.q'))+'</label>'+
       '<div class="addrow"><input type="text" id="cirIn" maxlength="100" placeholder="'+esc(t('cir.ph'))+'">'+
-      '<button class="btn btn-primary" id="cirAdd" aria-label="'+esc(t('c.add'))+'">'+ic('plus')+'</button></div></div>'+
+      '<button class="btn btn-primary" id="cirAdd" aria-label="'+esc(t('c.add'))+'">'+ic('plus')+'</button></div>'+
+      (sug.length ? '<div class="mg-lab cir-sug">'+esc(t('cir.sug'))+'</div><div class="mg-picks">'+sug.map(function(x){
+        return '<button type="button" class="t3idea" data-cirw="'+esc(x)+'">'+ic('plus')+'<span>'+esc(x)+'</span></button>'; }).join('')+'</div>' : '')+
+    '</div>'+
     ask.map(askCard).join('')+
     (mine.length ? '<div class="cir-ring in"><h3>'+ic('target')+'<span>'+esc(t('cir.h.in'))+'</span></h3>'+mine.map(mineCard).join('')+'</div>' : '')+
     (out.length ? '<div class="cir-ring out"><h3>'+ic('seedling')+'<span>'+esc(t('cir.h.out'))+'</span></h3>'+out.map(outCard).join('')+'</div>' : '')+
@@ -108,6 +136,12 @@ function renderCircle(){
     save(); renderCircle();
   }
   box.querySelector('#cirAdd').addEventListener('click',add);
+  box.querySelectorAll('[data-cirw]').forEach(function(b){
+    b.addEventListener('click',function(){
+      inp.value=b.dataset.cirw; inp.focus();
+      box.querySelectorAll('[data-cirw]').forEach(function(o){ o.classList.toggle('on',o===b); });
+    });
+  });
   inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });
   box.querySelectorAll('[data-cir-k]').forEach(function(b){
     b.addEventListener('click',function(){

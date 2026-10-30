@@ -710,6 +710,11 @@ body.no-scroll{overflow:hidden;}
 .eve-choice svg,.wk-feel svg{width:15px;height:15px;color:var(--acc);flex:none;margin-top:3px;}
 #eveBox .field label{display:flex;align-items:center;gap:6px;}
 #eveBox .field label svg{width:16px;height:16px;color:var(--acc);flex:none;}
+.vis-chk{margin:-4px 0 var(--s3);padding:var(--s3) var(--s4);border-radius:var(--r-card);border:1px dashed var(--acc);font-size:var(--t-sm);}
+.vis-chk p{margin-bottom:var(--s2);color:var(--fg);}
+.cir-sug{margin-top:var(--s3);}
+#cirBox .t3idea.on,#eveBox .t3idea.on{border-style:solid;border-color:var(--acc);background:var(--acc-dim);color:var(--acc);font-weight:700;}
+#eveBox .mg-picks{margin-top:var(--s2);}
 .bk-last{font-size:var(--t-xs);color:var(--fg-3);margin-top:var(--s2);}
 .cir-item{padding:var(--s3);border-radius:var(--r-ctl);border:1px solid var(--ink-2);background:var(--ink-0);margin-top:var(--s3);}
 .cir-item.ask{border-style:dashed;border-color:var(--ink-3);background:var(--ink-0);}

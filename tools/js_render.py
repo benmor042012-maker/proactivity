@@ -878,10 +878,18 @@ function renderEvening(){
     '<div class="field"><label for="eveNote">'+esc(t('ev.q'))+'</label>'+
       '<input type="text" id="eveNote" maxlength="140" value="'+esc(L.note||'')+'" placeholder="'+esc(t('ev.ph'))+'"></div>'+
     '<div class="field"><label for="eveChoice">'+ic('compass')+'<span>'+esc(t('ev.ch.q'))+'</span></label>'+
-      '<input type="text" id="eveChoice" maxlength="140" value="'+esc(L.choice||'')+'" placeholder="'+esc(t('ev.ch.ph'))+'"></div>'+
+      '<input type="text" id="eveChoice" maxlength="140" value="'+esc(L.choice||'')+'" placeholder="'+esc(t('ev.ch.ph'))+'">'+
+      '<div class="mg-picks">'+[1,2,3,4,5].map(function(n){ var x=t('evc.'+n);
+        return '<button type="button" class="t3idea" data-evc="'+esc(x)+'">'+ic('plus')+'<span>'+esc(x)+'</span></button>'; }).join('')+'</div></div>'+
     '<button class="btn btn-primary btn-sm" data-eve-save>'+ic('check')+'<span>'+esc(t('c.save'))+'</span></button>'+
     weekNudge;
   var pick=L.feel;
+  box.querySelectorAll('[data-evc]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var ci=document.getElementById('eveChoice'); ci.value=b.dataset.evc;
+      box.querySelectorAll('[data-evc]').forEach(function(o){ o.classList.toggle('on',o===b); });
+    });
+  });
   box.querySelectorAll('[data-feel]').forEach(function(b){
     b.addEventListener('click',function(){
       pick = pick===b.dataset.feel ? '' : b.dataset.feel;
