@@ -1540,6 +1540,8 @@ function renderHome(){ renderTasks(); }   // kept: other modules still call it
 function startApp(){
   var name=P.name || t('a.greet.anon');
   document.getElementById('greetName').textContent=t('a.greet',{name:name});
+  var tag=document.getElementById('appTag'), tk=(P.gender==='m'||P.gender==='f') ? 'b.tag' : 'b.tag.n';
+  if(tag){ tag.setAttribute('data-i18n',tk); tag.textContent=t(tk); }
 
   var wp=buildWorkout(P.age,P.workout,P.fitLevel);
   document.getElementById('woSub').textContent=

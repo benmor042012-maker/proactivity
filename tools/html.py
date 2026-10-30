@@ -90,7 +90,7 @@ def build_body(logo):
        button. Everything below it is for whoever still wants convincing. -->
   <section class="hero">
    <div class="hero-brand"><img src="{logo}" alt="" width="40" height="40">
-    <div><div role="img" aria-label="Proacty">{WORDMARK}</div><p class="brand-tag" data-i18n="b.tag"></p></div></div>
+    <div><div role="img" aria-label="Proacty">{WORDMARK}</div><p class="brand-tag" data-i18n="b.tag.n"></p></div></div>
    <h1 class="hero-lead" data-i18n="n.hero.lead"></h1>
    <p class="hero-sub" data-i18n="n.hero.sub2"></p>
    <p class="hero-who" data-i18n="n.hero.who"></p>
@@ -316,7 +316,7 @@ def build_body(logo):
 
  <header class="apphead">
   <div class="app-brand"><img src="{logo}" alt="" width="32" height="32">
-   <div><div role="img" aria-label="Proacty">{WORDMARK}</div><p class="brand-tag" data-i18n="b.tag"></p></div></div>
+   <div><div role="img" aria-label="Proacty">{WORDMARK}</div><p class="brand-tag" id="appTag" data-i18n="b.tag.n"></p></div></div>
   <p class="greet" id="greetName"></p>
  </header>
 

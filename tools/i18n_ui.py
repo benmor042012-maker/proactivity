@@ -114,9 +114,10 @@ UI = {
                   'نعم. الاستبيان والأهداف وأحمال التمرين تُبنى ممّا قلته عن نفسك، فلا يحصل شخصان مختلفان على الأسئلة نفسها ولا التمارين نفسها.'),
 
 # ---------- landing: final ----------
-'b.tag':         ('יוזמים. בוחרים. יוצרים מציאות.', 'Take initiative. Make the call. Build the life.',
-                  'Prends l\'initiative. Décide. Construis ta vie.', 'Проявляй инициативу. Выбирай. Создавай.',
-                  'بادر. اختر. اصنع واقعك.'),
+'b.tag':         ('{תהיה|תהיי} מי {שאתה|שאת} רוצה להיות.', 'Be who you want to be.', 'Sois qui tu veux être.',
+                  'Будь {тем|той}, кем хочешь быть.', '{كن|كوني} من {تريد|تريدين} أن {تكون|تكوني}.'),
+'b.tag.n':       ('תהיה(י) מי שאת(ה) רוצה להיות.', 'Be who you want to be.', 'Sois qui tu veux être.',
+                  'Будь тем, кем хочешь быть.', 'كن(ي) من تريد(ين) أن تكون(ي).'),
 'l.footer':      ('פרואקטי · יוזמים. בוחרים. יוצרים מציאות.',
                   'Proacty · Take initiative. Make the call. Build the life.',
                   'Proacty · Prends l\'initiative. Décide. Construis ta vie.',
