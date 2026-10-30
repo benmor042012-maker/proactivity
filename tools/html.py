@@ -329,7 +329,6 @@ def build_body(logo):
    <div class="opts">{opt("hgnd","m","user","o.iam.boy")}{opt("hgnd","f","user","o.iam.girl")}{opt("hgnd","n","compass","o.iam.na")}</div>
   </section>
   <section class="dash-box today3" id="todayBox"></section>
-  <section class="dash-box" id="myGoal"></section>
   <section class="dash-box eve" id="eveBox" hidden></section>
   <div class="dstrip" id="dashStats"></div>
  </div>
@@ -379,7 +378,9 @@ def build_body(logo):
 
  <div class="page" id="page-goals" role="tabpanel">
   <h2 class="ptitle" data-i18n="g.t"></h2><p class="psub" data-i18n="g.s"></p>
+  <div id="goalSim"></div>
   <button class="btn btn-primary btn-lg btn-block" id="newGoalBtn">{i("plus")}<span data-i18n="gc.new"></span></button>
+  <div class="dash-box rg-box" id="goalReady"></div>
   <div class="chain dash-box" id="goalChain" hidden></div>
   <details class="ch-free"><summary>{i("chevron")}<span data-i18n="gc.free"></span></summary>
    <div class="newrow"><input type="text" id="nGoalIn" data-i18n-ph="g.new.ph" data-i18n-title="g.new.ph">

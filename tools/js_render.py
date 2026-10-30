@@ -223,6 +223,7 @@ function archivedCard(g){
   return card;
 }
 function renderGoals(){
+  renderGoalExtras();
   var box=document.getElementById('goalsCont'); box.innerHTML='';
   if(!S.goals.length){
     box.innerHTML='<div class="empty-state">'+ic('target')+
@@ -302,7 +303,7 @@ function renderGoals(){
   });
   bindRes(box, renderGoals);
   box.querySelectorAll('[data-ge-open]').forEach(function(b){
-    b.addEventListener('click',function(){ goalEditId=Number(b.dataset.geOpen); renderGoals(); renderMyGoal(); });
+    b.addEventListener('click',function(){ goalEditId=Number(b.dataset.geOpen); renderGoals(); });
   });
   box.querySelectorAll('[data-gpause]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -613,7 +614,6 @@ function startFiveMinutes(labelText){
   fiveLeft=5*60;
   markActiveToday(); tip('task.skip');
   goPage('home');
-  renderMyGoal();
   fiveTimer=setInterval(function(){
     fiveLeft--;
     var el=document.getElementById('fiveTxt');
@@ -621,8 +621,9 @@ function startFiveMinutes(labelText){
       var m=Math.floor(fiveLeft/60), sec=String(fiveLeft%60).padStart(2,'0');
       el.textContent=t('d.running',{t:m+':'+sec});
     }
-    if(fiveLeft<=0){ clearFive(); toast(t('d.timeup')); renderMyGoal(); }
+    if(fiveLeft<=0){ clearFive(); toast(t('d.timeup')); renderToday3(); }
   },1000);
+  renderToday3();   // after the timer exists, so the row shows the countdown
 }
 
 /* ---- asked once on Home if it was never answered ----
@@ -657,11 +658,10 @@ function t3Ideas(td){
   var used={}; td.items.forEach(function(x){ if(x.t.trim()) used[normLine(x.t)]=1; });
   var out=[];
   function add(text,gid){ if(!text || used[normLine(text)] || out.length>=5) return; used[normLine(text)]=1; out.push({t:text,gid:gid}); }
-  liveGoals().forEach(function(g){ add(dayStep(g)||g.now||g.today, g.id); });
   if(hasProfile()) [1,2,3].forEach(function(n){ add(t('sq.'+weakDim()+'.'+n)); });
   var band=P.age ? ageBand(P.age) : 'a13';
   [1,2,3,4,5,6].forEach(function(n){ add(t('sq.'+band+'.'+n)); });
-  if(td.items.every(function(x){ return x.t.trim(); })) return '';
+  if(td.items.every(function(x){ return x.t.trim(); }) || !out.length) return '';
   return '<div class="t3ideas"><div class="mg-lab">'+esc(t('sq.t'))+'</div>'+
     out.map(function(x){
       return '<button type="button" class="t3idea'+(x.gid?' goal':'')+'" data-idea="'+esc(x.t)+'"'+(x.gid?' data-gid="'+x.gid+'"':'')+'>'+
@@ -692,24 +692,41 @@ function logDay(){
 }
 function renderToday3(){
   var box=document.getElementById('todayBox'); if(!box) return;
-  var td=today3(), goals=liveGoals();
-  var n=td.items.filter(function(x){ return x.done; }).length;
+  var td=today3(), goals=liveGoals(), today=dayKey(), running=!!fiveTimer;
+  var nDone=td.items.filter(function(x){ return x.done; }).length + goals.filter(function(g){ return g.doneDay===today; }).length;
+  /* one row per live goal: choose today's step in the row, then tick it */
+  var gRows=goals.map(function(g){
+    var step=dayStep(g), done=g.doneDay===today, vid=firstVideo(g);
+    if(!step) return '<div class="t3g ask"><div class="t3g-name">'+ic('target')+'<b>'+esc(g.title)+'</b></div>'+
+      '<div class="addrow"><input type="text" data-mg-step-in="'+g.id+'" maxlength="100" placeholder="'+esc(t('mg.ask'))+'" aria-label="'+esc(t('mg.ask'))+'">'+
+        '<button class="btn btn-primary" data-mg-step-set="'+g.id+'">'+esc(t('c.save'))+'</button></div>'+
+      (stepChoices(g).length ? '<div class="mg-picks">'+stepChoices(g).map(function(x){
+          return '<button type="button" class="t3idea" data-mg-step-pick="'+g.id+'" data-text="'+esc(x)+'">'+ic('plus')+'<span>'+esc(x)+'</span></button>';
+        }).join('')+'</div>' : '')+'</div>';
+    return '<div class="t3row t3g'+(done?' done':'')+'">'+
+      '<button type="button" class="t3chk" data-gstep-done="'+g.id+'" aria-pressed="'+done+'" aria-label="'+esc(t('t3.mark'))+'">'+ic('check')+'</button>'+
+      '<div class="t3g-body"><div class="t3g-goal">'+ic('target')+'<span>'+esc(g.title)+'</span></div><div class="t3g-step">'+esc(step)+'</div>'+
+        (fiveGid===g.id && running ? '<div class="t3g-run" id="fiveTxt">'+esc(t('d.running',{t:'5:00'}))+'</div>' : '')+'</div>'+
+      (done ? '' :
+        (vid ? '<button type="button" class="t3act" data-mg-vid="'+g.id+'" aria-label="'+esc(t('res.video'))+'" title="'+esc(t('res.video'))+'">'+ic('play')+'</button>'
+             : '<button type="button" class="t3act" data-mg-five="'+g.id+'"'+(running?' disabled':'')+' aria-label="'+esc(t('d.start5'))+'" title="'+esc(t('d.start5'))+'">'+ic('clock')+'</button>')+
+        '<button type="button" class="t3act" data-mg-step-clear="'+g.id+'" aria-label="'+esc(t('mg.change'))+'" title="'+esc(t('mg.change'))+'">'+ic('refresh')+'</button>')+
+      '</div>';
+  }).join('');
   box.innerHTML='<div class="boxh-row"><h2 class="boxh">'+ic('sun')+'<span>'+esc(t('t3.t'))+'</span></h2>'+
-      '<span class="boxh-n numf">'+n+'/3</span></div>'+
+      '<span class="boxh-n numf">'+nDone+'/'+(goals.length+3)+'</span></div>'+
     '<p class="psub">'+esc(t('t3.s'))+'</p>'+
+    '<div class="mg-lab">'+esc(t('t3.forgoals'))+'</div>'+
+    (gRows || '<button type="button" class="btn btn-ghost btn-sm t3nogoal" data-goto-goals>'+ic('target')+'<span>'+esc(t('t3.nogoal'))+'</span></button>')+
+    '<div class="mg-lab t3more">'+esc(t('t3.more'))+'</div>'+
     td.items.map(function(it,i){
-      var ph=t('t3.ph',{n:i+1}), lg=it.gid ? goalById(it.gid) : null;
+      var ph=t('t3.ph',{n:i+1});
       return '<div class="t3row'+(it.done?' done':'')+'">'+
         '<button type="button" class="t3chk" data-t3="'+i+'" aria-pressed="'+(it.done?'true':'false')+'"'+
           ' aria-label="'+esc(t('t3.mark'))+'"'+(it.t.trim()?'':' disabled')+'>'+ic('check')+'</button>'+
         '<input type="text" maxlength="80" data-t3in="'+i+'" value="'+esc(it.t)+'"'+
-          ' placeholder="'+esc(ph)+'" aria-label="'+esc(ph)+'">'+
-        (goals.length ? '<button type="button" class="t3goal'+(lg?' on':'')+'" data-t3g="'+i+'"'+
-          ' aria-pressed="'+(lg?'true':'false')+'" aria-label="'+esc(t('t3.link'))+'" title="'+esc(t('t3.link'))+'">'+ic('target')+'</button>' : '')+
-        '</div>'+
-        (lg ? '<div class="t3tag">'+ic('target')+'<span>'+esc(lg.title)+'</span></div>' : '');
+          ' placeholder="'+esc(ph)+'" aria-label="'+esc(ph)+'"></div>';
     }).join('')+
-    (goals.length ? '<p class="hint t3hint">'+esc(t('t3.link.h'))+'</p>' : '')+
     t3Ideas(td);
   box.querySelectorAll('[data-t3in]').forEach(function(inp){
     inp.addEventListener('input',function(){
@@ -720,38 +737,68 @@ function renderToday3(){
   });
   box.querySelectorAll('[data-t3]').forEach(function(b){
     b.addEventListener('click',function(){
-      var td=today3(), it=td.items[Number(b.dataset.t3)];
+      var it=today3().items[Number(b.dataset.t3)];
       it.done=!it.done;
       if(it.done){
         markActiveToday();
         if(!it.paid){ it.paid=true; addPts(10); }
-        var all=td.items.every(function(x){ return x.done; });
-        toast(all ? t('t3.all') : t('t.pts',{n:10}));
-        if(all) celebrate();
+        cheerIfAll(t('t.pts',{n:10}));
       }
       logDay(); save(); renderToday3(); renderEvening(); renderDashStats(); checkAchievements();
     });
   });
+  /* a goal's step ticked here is the goal's step done: points once a day,
+     and it counts in My week */
+  box.querySelectorAll('[data-gstep-done]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.gstepDone));
+      if(g.doneDay===dayKey()){ g.doneDay=null; logDay(); save(); renderToday3(); return; }
+      if(fiveGid===g.id) clearFive();
+      g.doneDay=dayKey(); markActiveToday();
+      if(g.paidDay!==dayKey()){
+        g.paidDay=dayKey(); addPts(25);
+        S.stats.challenges=(S.stats.challenges||0)+1;
+      }
+      cheerIfAll(t('t.pts',{n:25}), true);
+      logDay(); save(); renderToday3(); renderEvening(); renderDashStats(); renderStats(); checkAchievements();
+    });
+  });
+  box.querySelectorAll('[data-mg-step-set]').forEach(function(b){
+    var g=goalById(Number(b.dataset.mgStepSet)), inp=box.querySelector('[data-mg-step-in="'+g.id+'"]');
+    function go(){ if(!inp.value.trim()){ inp.focus(); return; } setDayStep(g, inp.value); }
+    b.addEventListener('click',go);
+    inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
+  });
+  box.querySelectorAll('[data-mg-step-pick]').forEach(function(b){
+    b.addEventListener('click',function(){ setDayStep(goalById(Number(b.dataset.mgStepPick)), b.dataset.text); });
+  });
+  box.querySelectorAll('[data-mg-step-clear]').forEach(function(b){
+    b.addEventListener('click',function(){ var g=goalById(Number(b.dataset.mgStepClear)); g.day=null; save(); renderToday3(); });
+  });
+  box.querySelectorAll('[data-mg-five]').forEach(function(b){
+    b.addEventListener('click',function(){ var g=goalById(Number(b.dataset.mgFive)); fiveGid=g.id; startFiveMinutes(dayStep(g)); });
+  });
+  box.querySelectorAll('[data-mg-vid]').forEach(function(b){
+    b.addEventListener('click',function(){ openRes(firstVideo(goalById(Number(b.dataset.mgVid)))); });
+  });
+  var ng=box.querySelector('[data-goto-goals]'); if(ng) ng.addEventListener('click',function(){ goPage('goals'); });
   box.querySelectorAll('[data-idea]').forEach(function(b){
     b.addEventListener('click',function(){
       var td=today3(), slot=td.items.filter(function(x){ return !x.t.trim(); })[0];
       if(!slot){ toast(t('sq.full')); return; }
-      slot.t=b.dataset.idea;
-      if(b.dataset.gid) slot.gid=Number(b.dataset.gid);
-      logDay(); save(); renderToday3();
+      slot.t=b.dataset.idea; logDay(); save(); renderToday3();
     });
   });
-  var qz=box.querySelector('[data-goquiz]'); if(qz) bindGoQuiz(box);
-  /* Tapping the target walks through the live goals and back to none, so
-     with one goal it is a plain on/off. */
-  box.querySelectorAll('[data-t3g]').forEach(function(b){
-    b.addEventListener('click',function(){
-      var it=today3().items[Number(b.dataset.t3g)], ids=liveGoals().map(function(g){ return g.id; });
-      var k=ids.indexOf(it.gid);
-      it.gid = k<0 ? ids[0] : (k+1<ids.length ? ids[k+1] : null);
-      logDay(); save(); renderToday3();
-    });
-  });
+  if(box.querySelector('[data-goquiz]')) bindGoQuiz(box);
+}
+/* Everything on the day's list done - goal steps and the lines written -
+   is the moment for confetti; a goal's step gets it too. */
+function cheerIfAll(msg, isGoal){
+  var td=today3(), today=dayKey();
+  var lines=td.items.filter(function(x){ return x.t.trim(); });
+  var all=lines.every(function(x){ return x.done; }) && liveGoals().every(function(g){ return g.doneDay===today; });
+  toast(all ? t('t3.all') : msg);
+  if(all || isGoal) celebrate();
 }
 
 /* ---- the end of the day: one line about yourself ----
@@ -917,8 +964,7 @@ function renderMyWeek(){
 function sharpenGoals(){
   var gs=liveGoals();
   if(gs.length!==1){ goPage('goals'); return; }
-  goalEditId=gs[0].id; goPage('home'); renderMyGoal();
-  document.getElementById('myGoal').scrollIntoView({block:'start',behavior:'smooth'});
+  goalEditId=gs[0].id; goPage('goals');
 }
 
 /* ---- the week as a picture to share ----
@@ -1187,12 +1233,6 @@ function closeVid(){
   document.getElementById('vidFrame').src='about:blank';   // stops the sound
 }
 
-/* ---- my goal, and today's step toward it ----
-   One card: the goal, the step for today taken from its own ladder (right
-   now, else today, else this week), and the two ways to act on it. A
-   separate "next step" card used to repeat the same line under it. With no
-   goal yet it offers the areas and a free line; both go on into the same
-   chain the Goals tab uses, so a goal made here has a full ladder. */
 function openChainAt(area, kindText){
   if(goalLimitReached()){ toast(t('pro.goalmax',{n:GOAL_FREE_MAX})); openPlans(); return; }
   resetChain();
@@ -1222,107 +1262,8 @@ function setDayStep(g,text){
   text=String(text||'').trim(); if(!text) return;
   g.day={d:dayKey(), t:text};
   g.past=[text].concat((g.past||[]).filter(function(s){ return normLine(s)!==normLine(text); })).slice(0,6);
-  save(); renderMyGoal(); renderToday3();
+  save(); renderToday3();
 }
-function renderMyGoal(){
-  var box=document.getElementById('myGoal'); if(!box) return;
-  var goals=liveGoals();
-  var head='<h2 class="boxh">'+ic('target')+'<span>'+esc(t(goals.length>1?'mg.tn':'mg.t'))+'</span></h2>';
-  if(!goals.length){ renderGoalPicker(box,head,false); return; }
-  var running=!!fiveTimer;
-  var blocks=goals.map(function(g){
-    if(goalEditId===g.id) return '<div class="mg-goal" data-gblock="'+g.id+'">'+goalEditForm(g)+'</div>';
-    var step=dayStep(g);
-    var act = !step
-      ? '<div class="mg-ask"><label for="mgs-'+g.id+'">'+esc(t('mg.ask'))+'</label>'+
-          '<div class="addrow"><input type="text" id="mgs-'+g.id+'" data-mg-step-in="'+g.id+'" maxlength="100" placeholder="'+esc(t('mg.ask.ph'))+'">'+
-          '<button class="btn btn-primary" data-mg-step-set="'+g.id+'">'+esc(t('c.save'))+'</button></div>'+
-          (stepChoices(g).length ? '<div class="mg-picks">'+stepChoices(g).map(function(s){
-              return '<button type="button" class="t3idea" data-mg-step-pick="'+g.id+'" data-text="'+esc(s)+'">'+ic('plus')+'<span>'+esc(s)+'</span></button>';
-            }).join('')+'</div>' : '')+
-        '</div>'
-      : g.doneDay===dayKey()
-      ? '<p class="mg-done">'+ic('check')+'<span>'+esc(t('mg.done'))+'</span></p>'
-      : '<div class="next-btns">'+
-          '<button class="btn btn-primary" data-mg-five="'+g.id+'"'+(running?' disabled':'')+'>'+ic('play')+
-            '<span'+(fiveGid===g.id?' id="fiveTxt"':'')+'>'+esc(running&&fiveGid===g.id?t('d.running',{t:'5:00'}):t('d.start5'))+'</span></button>'+
-          '<button class="btn btn-ghost" data-mg-done="'+g.id+'">'+ic('check')+'<span>'+esc(t('d.mark'))+'</span></button>'+
-          (firstVideo(g)?'<button class="btn btn-ghost" data-mg-vid="'+g.id+'">'+ic('play')+'<span>'+esc(t('res.video'))+'</span></button>':'')+
-        '</div>';
-    return '<div class="mg-goal" data-gblock="'+g.id+'">'+
-      '<h3 class="mg-title">'+esc(g.title)+(g.freq?'<span class="mg-freq">'+esc(t('gf.'+g.freq))+'</span>':'')+'</h3>'+
-      (step?'<div class="mg-lab">'+esc(t('mg.today'))+'</div><p class="next-tx">'+esc(step)+'</p>':'')+
-      act+
-      '<div class="row-btns mg-tools">'+
-        (g.started ? '' : '<button class="btn btn-quiet btn-sm" data-mg-start="'+g.id+'">'+ic('flag')+'<span>'+esc(t('gc.start'))+'</span></button>')+
-        (step && g.doneDay!==dayKey() ? '<button class="btn btn-quiet btn-sm" data-mg-step-clear="'+g.id+'">'+ic('refresh')+'<span>'+esc(t('mg.change'))+'</span></button>' : '')+
-        '<button class="btn btn-quiet btn-sm" data-mg-edit="'+g.id+'">'+ic('edit')+'<span>'+esc(t('ge.btn'))+'</span></button>'+
-      '</div>'+resHtml(g)+'</div>';
-  }).join('');
-  var sim=goalEditId?null:similarGoals();
-  var simHtml = sim ? '<div class="mg-sim">'+ic('link')+'<span>'+esc(t('mg.sim',{a:sim.a.title, b:sim.b.title}))+'</span>'+
-      '<div class="row-btns"><button class="btn btn-primary btn-sm" data-sim-yes>'+esc(t('ge.merge.btn'))+'</button>'+
-      '<button class="btn btn-quiet btn-sm" data-sim-no>'+esc(t('mg.sim.no'))+'</button></div></div>' : '';
-  box.innerHTML=head+simHtml+blocks+
-    '<p class="next-sub">'+esc(streakLine())+'</p>'+
-    '<div class="row-btns mg-tools">'+
-      '<button class="btn btn-ghost btn-sm" data-mg-add>'+ic('plus')+'<span>'+esc(t('mg.add'))+'</span></button>'+
-      '<button class="btn btn-ghost btn-sm" data-mg-all>'+ic('target')+'<span>'+esc(t('mg.all'))+'</span></button>'+
-    '</div>';
-  goals.forEach(function(g){
-    if(goalEditId===g.id) bindGoalEdit(box.querySelector('[data-gblock="'+g.id+'"]'),g);
-  });
-  box.querySelectorAll('[data-mg-edit]').forEach(function(b){
-    b.addEventListener('click',function(){ goalEditId=Number(b.dataset.mgEdit); renderMyGoal(); });
-  });
-  box.querySelectorAll('[data-mg-start]').forEach(function(b){
-    b.addEventListener('click',function(){ startGoal(goalById(Number(b.dataset.mgStart))); });
-  });
-  box.querySelectorAll('[data-mg-five]').forEach(function(b){
-    b.addEventListener('click',function(){
-      var g=goalById(Number(b.dataset.mgFive)); fiveGid=g.id;
-      startFiveMinutes(dayStep(g));
-    });
-  });
-  box.querySelectorAll('[data-mg-done]').forEach(function(b){
-    b.addEventListener('click',function(){
-      var g=goalById(Number(b.dataset.mgDone));
-      if(fiveGid===g.id) clearFive();
-      g.doneDay=dayKey(); logDay();
-      S.stats.challenges=(S.stats.challenges||0)+1;
-      addPts(25); markActiveToday();
-      toast(t('t.pts',{n:25})); celebrate();
-      save(); renderMyGoal(); renderDashStats(); renderStats(); checkAchievements();
-    });
-  });
-  box.querySelector('[data-mg-add]').addEventListener('click',function(){ renderGoalPicker(box,head,true); });
-  bindRes(box, renderMyGoal);
-  box.querySelectorAll('[data-mg-step-set]').forEach(function(b){
-    var g=goalById(Number(b.dataset.mgStepSet)), inp=box.querySelector('[data-mg-step-in="'+g.id+'"]');
-    function go(){ if(!inp.value.trim()){ inp.focus(); return; } setDayStep(g, inp.value); }
-    b.addEventListener('click',go);
-    inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
-  });
-  box.querySelectorAll('[data-mg-step-pick]').forEach(function(b){
-    b.addEventListener('click',function(){ setDayStep(goalById(Number(b.dataset.mgStepPick)), b.dataset.text); });
-  });
-  box.querySelectorAll('[data-mg-step-clear]').forEach(function(b){
-    b.addEventListener('click',function(){ var g=goalById(Number(b.dataset.mgStepClear)); g.day=null; save(); renderMyGoal(); });
-  });
-  box.querySelectorAll('[data-mg-vid]').forEach(function(b){
-    b.addEventListener('click',function(){ openRes(firstVideo(goalById(Number(b.dataset.mgVid)))); });
-  });
-  if(sim){
-    box.querySelector('[data-sim-yes]').addEventListener('click',function(){
-      if(confirm(t('ge.merge.q',{a:sim.a.title, b:sim.b.title}))) mergeGoals(sim.a.id, sim.b.id);
-    });
-    box.querySelector('[data-sim-no]').addEventListener('click',function(){
-      S.mergeSkip=(S.mergeSkip||[]).concat(sim.key); save(); renderMyGoal();
-    });
-  }
-  box.querySelector('[data-mg-all]').addEventListener('click',function(){ goPage('goals'); });
-}
-/* The areas and a free line - the way into a first goal, and into the next. */
 /* A ready goal arrives whole - name, how often, this week, today, right
    now - and started, so it shows on Home at once. Teens and adults get
    different sets; goals the user already has are not offered again. */
@@ -1343,6 +1284,27 @@ function addReadyGoal(r){
   S.goals.unshift(g);
   startGoal(g);
   toast(t('rg.added'));
+  renderGoals();
+}
+/* Above the goals: the offer to merge two that look alike, and the ready
+   goals - both used to live in a goal card on Home. */
+function renderGoalExtras(){
+  var sb=document.getElementById('goalSim'), rb=document.getElementById('goalReady');
+  if(sb){
+    var sim=goalEditId?null:similarGoals();
+    sb.innerHTML = sim ? '<div class="mg-sim">'+ic('link')+'<span>'+esc(t('mg.sim',{a:sim.a.title, b:sim.b.title}))+'</span>'+
+      '<div class="row-btns"><button class="btn btn-primary btn-sm" data-sim-yes>'+esc(t('ge.merge.btn'))+'</button>'+
+      '<button class="btn btn-quiet btn-sm" data-sim-no>'+esc(t('mg.sim.no'))+'</button></div></div>' : '';
+    if(sim){
+      sb.querySelector('[data-sim-yes]').addEventListener('click',function(){
+        if(confirm(t('ge.merge.q',{a:sim.a.title, b:sim.b.title}))) mergeGoals(sim.a.id, sim.b.id);
+      });
+      sb.querySelector('[data-sim-no]').addEventListener('click',function(){
+        S.mergeSkip=(S.mergeSkip||[]).concat(sim.key); save(); renderGoals();
+      });
+    }
+  }
+  if(rb){ var h=readyHtml(); rb.hidden=!h; rb.innerHTML=h; bindReady(rb); }
 }
 function readyHtml(){
   var list=readyGoals(); if(!list.length) return '';
@@ -1359,27 +1321,6 @@ function bindReady(box){
       if(r) addReadyGoal(r);
     });
   });
-}
-function renderGoalPicker(box,head,more){
-  box.innerHTML=head+'<p class="psub">'+esc(t(more?'mg.s2':'mg.s'))+'</p>'+readyHtml()+
-    '<div class="mg-lab mg-lab2">'+esc(t('mg.own'))+'</div>'+
-    '<div class="opts mg-areas">'+AREAS.map(function(a){
-      return '<button type="button" class="opt" data-mg-area="'+a.id+'">'+ic(a.icon)+'<span>'+esc(t('ga.'+a.id))+'</span></button>';
-    }).join('')+'</div>'+
-    '<div class="addrow mg-free"><input type="text" id="mgText" maxlength="80"'+
-      ' placeholder="'+esc(t('mg.ph'))+'" aria-label="'+esc(t('gc.free'))+'">'+
-      '<button class="btn btn-primary" id="mgGo">'+esc(t('c.next'))+'</button></div>'+
-    (more?'<button class="btn btn-quiet btn-sm mg-back" data-mg-back>'+esc(t('c.cancel'))+'</button>':'');
-  box.querySelectorAll('[data-mg-area]').forEach(function(b){
-    b.addEventListener('click',function(){ openChainAt(b.dataset.mgArea); });
-  });
-  var inp=document.getElementById('mgText');
-  function go(){ var v=inp.value.trim(); if(!v){ inp.focus(); return; } openChainAt('goals', v); }
-  document.getElementById('mgGo').addEventListener('click',go);
-  inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
-  var bk=box.querySelector('[data-mg-back]');
-  if(bk) bk.addEventListener('click',renderMyGoal);
-  bindReady(box);
 }
 
 /* The same three facts onboarding asked for, editable later. Age feeds the
@@ -1413,7 +1354,7 @@ function bindSettings(){
   });
 }
 function renderDash(){
-  renderGenderAsk(); renderToday3(); renderMyGoal(); renderEvening(); renderDashStats();
+  renderGenderAsk(); renderToday3(); renderEvening(); renderDashStats();
   renderAvatarCard(); renderInvite();
 }
 
@@ -1553,6 +1494,7 @@ function goPage(name){
   });
   try{ localStorage.setItem('proactive_tab', name); }catch(e){}
   if(name==='home') renderDash();
+  if(name==='goals') renderGoals();
   if(name==='progress'){ renderMyWeek(); renderProfile('profBody'); renderAchievements(); renderSettings(); renderTrend(); }
   if(name==='body') renderBodyGate();
   window.scrollTo(0,0);
