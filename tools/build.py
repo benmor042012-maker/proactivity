@@ -40,6 +40,7 @@ from js_mini import JS_MINI
 from js_pro import JS_PRO
 from js_data import JS_DATA
 from js_avatar import JS_AVATAR
+from js_self import JS_SELF
 
 LANGS = ['he', 'en', 'fr', 'ru', 'ar']
 OUT = os.path.join(ROOT, 'index.html')
@@ -335,7 +336,7 @@ def main():
              "}catch(e){}})();")
 
     js = '\n'.join([i18n_js(table), JS_CORE, JS_QUIZ, JS_APP, JS_PRO, JS_DATA,
-                    JS_AVATAR, JS_CHAIN, JS_MINI, JS_RENDER])
+                    JS_AVATAR, JS_CHAIN, JS_MINI, JS_SELF, JS_RENDER])
 
     html = (
         '<!DOCTYPE html>\n'

@@ -1,0 +1,171 @@
+# -*- coding: utf-8 -*-
+"""Knowing yourself: who I want to be, the circle of influence, and the
+monthly nudge to back up.
+
+P.vision is one sentence the user writes about who they want to be; Home
+shows it under the greeting and My week opens with it. S.circle holds what
+is on the user's mind, sorted into what is in their hands and what is not.
+The last backup date is kept per device in proactive_bk, outside the
+backup itself, so restoring an old file does not reset it.
+"""
+
+JS_SELF = r"""
+/* ================= who I want to be ================= */
+var VISION=['vis.c1','vis.c2','vis.c3','vis.c4','vis.c5'];
+var visEdit=false;
+function renderVision(){
+  var box=document.getElementById('visionBox'); if(!box) return;
+  var v=(P.vision||'').trim();
+  if(v && !visEdit){
+    box.className='vision';
+    box.innerHTML='<button type="button" class="vision-line" data-vis-edit aria-label="'+esc(t('ge.btn'))+'">'+ic('compass')+
+      '<span><small>'+esc(t('vis.lab'))+'</small><b>'+esc(v)+'</b></span></button>';
+    box.querySelector('[data-vis-edit]').addEventListener('click',function(){ visEdit=true; renderVision(); });
+    return;
+  }
+  /* not written yet: asked once, and "later" puts it away for a week */
+  if(!v && !visEdit && P.visionLater && P.visionLater>dayKey()){ box.className='vision'; box.innerHTML=''; return; }
+  box.className='vision dash-box';
+  box.innerHTML='<h2 class="boxh">'+ic('compass')+'<span>'+esc(t('vis.t'))+'</span></h2>'+
+    '<p class="psub">'+esc(t('vis.s'))+'</p>'+
+    '<div class="field"><label for="visIn">'+esc(t('vis.lab'))+'</label>'+
+      '<input type="text" id="visIn" maxlength="120" value="'+esc(v)+'" placeholder="'+esc(t('why.ph'))+'"></div>'+
+    '<div class="mg-picks">'+VISION.map(function(k){
+      return '<button type="button" class="t3idea" data-vis="'+esc(t(k))+'">'+ic('plus')+'<span>'+esc(t(k))+'</span></button>'; }).join('')+'</div>'+
+    '<div class="row-btns">'+
+      '<button class="btn btn-primary btn-sm" data-vis-save>'+ic('check')+'<span>'+esc(t('c.save'))+'</span></button>'+
+      '<button class="btn btn-quiet btn-sm" data-vis-later>'+esc(t(v?'c.cancel':'vis.later'))+'</button>'+
+    '</div>';
+  var inp=box.querySelector('#visIn');
+  box.querySelectorAll('[data-vis]').forEach(function(b){
+    b.addEventListener('click',function(){
+      inp.value=b.dataset.vis; inp.focus();
+      box.querySelectorAll('[data-vis]').forEach(function(o){ o.classList.toggle('on',o===b); });
+    });
+  });
+  function go(){
+    var val=inp.value.trim(); if(!val){ inp.focus(); return; }
+    P.vision=val; visEdit=false; save(); toast(t('vis.saved')); renderVision();
+  }
+  box.querySelector('[data-vis-save]').addEventListener('click',go);
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
+  box.querySelector('[data-vis-later]').addEventListener('click',function(){
+    if(!v){ var d=new Date(); d.setDate(d.getDate()+7); P.visionLater=dayKey(d); save(); }
+    visEdit=false; renderVision();
+  });
+}
+
+/* ================= the circle of influence =================
+   What is on my mind, sorted: in my hands (or part of it) becomes one small
+   step that can go straight into My day; not in my hands can be let go. */
+function cirItems(){ if(!S.circle) S.circle=[]; return S.circle; }
+function cirById(id){ return cirItems().filter(function(x){ return x.id===id; })[0]; }
+function renderCircle(){
+  var box=document.getElementById('cirBox'); if(!box) return;
+  var all=cirItems(), today=dayKey();
+  var ask=all.filter(function(x){ return !x.k; });
+  var mine=all.filter(function(x){ return x.k==='in' || x.k==='part'; });
+  var out=all.filter(function(x){ return x.k==='out'; });
+  function askCard(x){
+    return '<div class="cir-item ask"><p class="cir-t">'+esc(x.t)+'</p>'+
+      '<div class="mg-lab">'+esc(t('cir.ask'))+'</div>'+
+      '<div class="cir-opts">'+
+        '<button type="button" class="opt" data-cir-k="in" data-id="'+x.id+'">'+ic('check')+'<span>'+esc(t('cir.in'))+'</span></button>'+
+        '<button type="button" class="opt" data-cir-k="part" data-id="'+x.id+'">'+ic('compass')+'<span>'+esc(t('cir.part'))+'</span></button>'+
+        '<button type="button" class="opt" data-cir-k="out" data-id="'+x.id+'">'+ic('seedling')+'<span>'+esc(t('cir.out'))+'</span></button>'+
+      '</div></div>';
+  }
+  function mineCard(x){
+    var body = x.step
+      ? '<p class="cir-step">'+ic('arrow')+'<span>'+esc(x.step)+'</span></p>'+
+        (x.day===today
+          ? '<span class="cir-in-day">'+ic('check')+esc(t('cir.added'))+'</span>'
+          : '<button class="btn btn-ghost btn-sm" data-cir-day="'+x.id+'">'+ic('sun')+'<span>'+esc(t('cir.toDay'))+'</span></button>')
+      : '<div class="field"><label for="cirStep'+x.id+'">'+esc(t(x.k==='part'?'cir.step.p':'cir.step'))+'</label>'+
+          '<div class="addrow"><input type="text" id="cirStep'+x.id+'" data-cir-step-in="'+x.id+'" maxlength="80">'+
+          '<button class="btn btn-primary" data-cir-step="'+x.id+'">'+esc(t('c.save'))+'</button></div></div>';
+    return '<div class="cir-item in"><div class="cir-top"><p class="cir-t">'+esc(x.t)+'</p>'+
+      '<button class="icon-btn" data-cir-del="'+x.id+'" aria-label="'+esc(t('c.delete'))+'">'+ic('x')+'</button></div>'+body+'</div>';
+  }
+  function outCard(x){
+    return '<div class="cir-item out"><div class="cir-top"><p class="cir-t">'+esc(x.t)+'</p></div>'+
+      '<p class="cir-note">'+esc(t('cir.out.n'))+'</p>'+
+      '<div class="row-btns"><button class="btn btn-ghost btn-sm" data-cir-let="'+x.id+'">'+ic('seedling')+'<span>'+esc(t('cir.let'))+'</span></button>'+
+      '<button class="btn btn-quiet btn-sm" data-cir-k="in" data-id="'+x.id+'">'+esc(t('cir.backin'))+'</button></div></div>';
+  }
+  box.innerHTML=
+    '<div class="field"><label for="cirIn">'+esc(t('cir.q'))+'</label>'+
+      '<div class="addrow"><input type="text" id="cirIn" maxlength="100" placeholder="'+esc(t('cir.ph'))+'">'+
+      '<button class="btn btn-primary" id="cirAdd" aria-label="'+esc(t('c.add'))+'">'+ic('plus')+'</button></div></div>'+
+    ask.map(askCard).join('')+
+    (mine.length ? '<div class="cir-ring in"><h3>'+ic('target')+'<span>'+esc(t('cir.h.in'))+'</span></h3>'+mine.map(mineCard).join('')+'</div>' : '')+
+    (out.length ? '<div class="cir-ring out"><h3>'+ic('seedling')+'<span>'+esc(t('cir.h.out'))+'</span></h3>'+out.map(outCard).join('')+'</div>' : '')+
+    (all.length ? '' : '<p class="hint">'+ic('compass')+'<span>'+esc(t('cir.empty'))+'</span></p>');
+  var inp=box.querySelector('#cirIn');
+  function add(){
+    var v=inp.value.trim(); if(!v){ inp.focus(); return; }
+    cirItems().unshift({id:uid++, t:v, k:null, step:'', day:null});
+    save(); renderCircle();
+  }
+  box.querySelector('#cirAdd').addEventListener('click',add);
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });
+  box.querySelectorAll('[data-cir-k]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var x=cirById(Number(b.dataset.id)); x.k=b.dataset.cirK; save(); renderCircle();
+      var s=box.querySelector('[data-cir-step-in="'+x.id+'"]'); if(s) s.focus();
+    });
+  });
+  box.querySelectorAll('[data-cir-step]').forEach(function(b){
+    var x=cirById(Number(b.dataset.cirStep)), s=box.querySelector('[data-cir-step-in="'+x.id+'"]');
+    function go(){ if(!s.value.trim()){ s.focus(); return; } x.step=s.value.trim(); markActiveToday(); save(); renderCircle(); }
+    b.addEventListener('click',go);
+    s.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
+  });
+  box.querySelectorAll('[data-cir-day]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var x=cirById(Number(b.dataset.cirDay)), td=today3();
+      var free=td.items.filter(function(it){ return !it.t.trim(); })[0];
+      if(!free){ toast(t('cir.full')); return; }
+      free.t=x.step; x.day=dayKey(); logDay(); save(); toast(t('cir.added')); renderCircle();
+    });
+  });
+  box.querySelectorAll('[data-cir-del]').forEach(function(b){
+    b.addEventListener('click',function(){
+      S.circle=cirItems().filter(function(x){ return x.id!==Number(b.dataset.cirDel); }); save(); renderCircle();
+    });
+  });
+  box.querySelectorAll('[data-cir-let]').forEach(function(b){
+    b.addEventListener('click',function(){
+      S.circle=cirItems().filter(function(x){ return x.id!==Number(b.dataset.cirLet); });
+      markActiveToday(); save(); toast(t('cir.letgo')); renderCircle();
+    });
+  });
+}
+
+/* ================= the monthly nudge to back up =================
+   Shown on Home once there are a few days worth keeping and the last backup
+   is a month old (or there never was one). "Next week" puts it away for
+   seven days. */
+function bkState(){ try{ return JSON.parse(localStorage.getItem('proactive_bk')||'{}')||{}; }catch(e){ return {}; } }
+function bkSet(o){ try{ localStorage.setItem('proactive_bk', JSON.stringify(o)); }catch(e){} }
+function markBackedUp(){ var b=bkState(); b.last=dayKey(); b.later=null; bkSet(b); renderBackupAsk(); renderBackupLast(); }
+function renderBackupLast(){
+  var el=document.getElementById('bkLast'); if(!el) return;
+  var b=bkState();
+  el.textContent = b.last ? t('bk.last',{d:fmtDay(b.last)}) : t('bk.never');
+}
+function renderBackupAsk(){
+  var box=document.getElementById('bkAsk'); if(!box) return;
+  var b=bkState(), today=dayKey(), days=Object.keys(S.log||{}).length;
+  var due = days>=5 && (!b.last || daysBetween(b.last,today)>=30) && !(b.later && b.later>today);
+  box.hidden=!due; if(!due) return;
+  box.innerHTML='<h2 class="boxh">'+ic('shield')+'<span>'+esc(t('bk.ask.t'))+'</span></h2>'+
+    '<p class="psub">'+esc(t('bk.ask.s'))+'</p>'+
+    '<div class="row-btns"><button class="btn btn-primary btn-sm" data-bk-go>'+ic('arrow')+'<span>'+esc(t('bk.ask.go'))+'</span></button>'+
+    '<button class="btn btn-quiet btn-sm" data-bk-later>'+esc(t('bk.ask.later'))+'</button></div>';
+  box.querySelector('[data-bk-go]').addEventListener('click',doExport);
+  box.querySelector('[data-bk-later]').addEventListener('click',function(){
+    var d=new Date(); d.setDate(d.getDate()+7); var s=bkState(); s.later=dayKey(d); bkSet(s); box.hidden=true;
+  });
+}
+"""
