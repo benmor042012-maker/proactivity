@@ -685,8 +685,10 @@ function logDay(){
     note: prev.note||'', feel: prev.feel||'',
     items: td.items.filter(function(x){ return x.t.trim(); })
              .map(function(x){ return {t:x.t.trim(), done:!!x.done, gid:x.gid||null}; }),
-    steps: (S.goals||[]).filter(function(g){ return g.doneDay===td.day; }).map(function(g){ return g.id; })
+    steps: (S.goals||[]).filter(function(g){ return g.doneDay===td.day; }).map(function(g){ return g.id; }),
+    st: {}   // the text of each step that was done, so My week can show it
   };
+  (S.goals||[]).forEach(function(g){ if(g.doneDay===td.day && dayStep(g)) S.log[td.day].st[g.id]=dayStep(g); });
   var days=Object.keys(S.log).sort();
   while(days.length>LOG_DAYS) delete S.log[days.shift()];
 }
@@ -874,91 +876,124 @@ function bindEveWeek(){
   });
 }
 
-/* ---- my week: what the days held, next to what the goal asked ----
-   The last seven days from the log. Under the table, three plain readings:
-   how much of what got done served the goal, how many days the goal's own
-   step happened, and which lines keep coming back - a line that returns
-   every day and serves no goal is often the real goal. */
-function weekDays(){
-  var out=[], d=new Date();
-  for(var i=6;i>=0;i--){ var x=new Date(d); x.setDate(d.getDate()-i); out.push(dayKey(x)); }
+/* ---- my week: Sunday to Saturday at a glance ----
+   A row of seven days for each goal, with a check where its step was done,
+   then the free things and how the days felt. Tapping a day opens what it
+   held. Only what happened is counted: an empty day reads as rest, never
+   as a zero. The arrows step back through earlier weeks. */
+var wkOff=0, wkSel=null;
+function weekOf(off){
+  var s=new Date(weekKey()+'T00:00:00'), out=[];
+  s.setDate(s.getDate()+7*off);
+  for(var i=0;i<7;i++){ var x=new Date(s); x.setDate(s.getDate()+i); out.push(dayKey(x)); }
   return out;
 }
 function normLine(s){ return String(s||'').trim().toLowerCase().replace(/\s+/g,' '); }
 function renderMyWeek(){
   var box=document.getElementById('weekBox'); if(!box) return;
-  var log=S.log||{}, days=weekDays().filter(function(d){ var L=log[d]; return L && (L.items.length || L.steps.length || L.note || L.feel); });
-  var head='<h3 class="boxh">'+ic('calendar')+'<span>'+esc(t('wk3.t'))+'</span></h3><p class="psub">'+esc(t('wk3.s'))+'</p>';
-  if(!days.length){ box.innerHTML=head+'<p class="hint">'+esc(t('wk3.none'))+'</p>'+weekReflection(); bindWeekReflection(box); return; }
-  var goals=liveGoals();
-  function dayName(k){
-    try{ return new Date(k+'T00:00:00').toLocaleDateString(cur,{weekday:'short',day:'numeric',month:'numeric'}); }catch(e){ return k; }
-  }
-  var rows=days.slice().reverse().map(function(d){
-    var L=log[d];
-    var chips=L.items.map(function(x){
-      var lg=x.gid && goalById(x.gid);
-      return '<span class="wk3chip'+(x.done?' done':'')+(lg?' goal':'')+'">'+
-        (x.done?ic('check'):'')+esc(x.t)+(lg?ic('target'):'')+'</span>';
-    }).join('');
-    var stepped=goals.filter(function(x){ return L.steps.indexOf(x.id)>=0; }).length;
-    var f=FEELS.filter(function(x){ return x.k===L.feel; })[0];
-    var note=(f||L.note) ? '<div class="wk3note">'+(f?f.e+' ':'')+(L.note?esc(L.note):esc(t('ev.f.'+f.k)))+'</div>' : '';
-    return '<tr><th scope="row">'+esc(dayName(d))+'</th><td>'+(chips||'<span class="wk3dash">·</span>')+note+'</td>'+
-      (goals.length?'<td class="wk3step">'+(stepped?ic('check')+(goals.length>1?'<b class="numf">'+stepped+'</b>':''):'<span class="wk3dash">·</span>')+'</td>':'')+'</tr>';
-  }).join('');
-  var all=[], done=0, served=0, rep={}, stepDays={};
+  var log=S.log||{}, days=weekOf(wkOff), today=dayKey();
+  function has(d){ var L=log[d]; return !!(L && (L.items.some(function(x){ return x.done; }) || L.steps.length || L.note || L.feel)); }
+  var used=days.filter(has);
+  if(!wkSel || days.indexOf(wkSel)<0) wkSel = days.indexOf(today)>=0 ? today : (used[used.length-1]||days[0]);
+  var older=Object.keys(log).some(function(d){ return d<days[0]; });
+  /* live goals, and any goal that was stepped this week and has since been put away */
+  var live=liveGoals(), seen={};
+  days.forEach(function(d){ ((log[d]||{}).steps||[]).forEach(function(id){ seen[id]=1; }); });
+  var goals=live.concat((S.goals||[]).filter(function(g){ return seen[g.id] && live.indexOf(g)<0; }));
+  function lang(d,o){ try{ return new Date(d+'T00:00:00').toLocaleDateString(cur,o); }catch(e){ return d; } }
+  var steps=0, things=0, feels={}, rep={};
   days.forEach(function(d){
-    var L=log[d];
+    var L=log[d]; if(!L) return;
+    steps+=L.steps.length;
+    if(L.feel) feels[L.feel]=(feels[L.feel]||0)+1;
     L.items.forEach(function(x){
-      all.push(x);
-      var ok=x.gid && goalById(x.gid);
-      if(x.done){ done++; if(ok) served++; }
-      var k=normLine(x.t); if(!rep[k]) rep[k]={t:x.t, n:0, goal:false};
-      rep[k].n++; if(ok) rep[k].goal=true;
+      if(x.done) things++;
+      var k=normLine(x.t); if(!rep[k]) rep[k]={t:x.t, n:0}; rep[k].n++;
     });
-    L.steps.forEach(function(id){ stepDays[id]=(stepDays[id]||0)+1; });
   });
-  var lines=[];
-  if(done<3) lines.push('<p>'+esc(t('wk3.early'))+'</p>');
-  else {
-    lines.push('<p class="wk3sum">'+esc(t('wk3.sum',{n:done, m:served}))+'</p>');
-    var r=served/done;
-    lines.push('<p>'+esc(t(r>=.5?'wk3.good':r>=.25?'wk3.mid':'wk3.low'))+'</p>');
-    if(r<.25 && goals.length) lines.push('<button class="btn btn-ghost btn-sm" data-wk3-fix>'+ic('edit')+'<span>'+esc(t('wk3.fix'))+'</span></button>');
+  var head='<div class="boxh-row"><h3 class="boxh">'+ic('calendar')+'<span>'+esc(t('wk3.t'))+'</span></h3></div>'+
+    '<div class="wk-nav">'+
+      '<button type="button" class="t3act" data-wk-nav="-1"'+(older?'':' disabled')+' aria-label="'+esc(t('wk.prev'))+'" title="'+esc(t('wk.prev'))+'">'+ic('chevron')+'</button>'+
+      '<span>'+esc(wkOff ? t('wr.of',{d:fmtDay(days[0])}) : t('wk.this'))+'</span>'+
+      '<button type="button" class="t3act" data-wk-nav="1"'+(wkOff?'':' disabled')+' aria-label="'+esc(t('wk.next'))+'" title="'+esc(t('wk.next'))+'">'+ic('chevron')+'</button>'+
+    '</div>';
+  if(!goals.length && !used.length){
+    box.innerHTML=head+'<p class="hint">'+esc(t('wk3.none'))+'</p>'+(wkOff?'':weekReflection());
+    bindWeek(); return;
   }
-  /* per goal, and only goals whose step happened - a zero only reads as a reproach */
-  goals.forEach(function(x){
-    if(stepDays[x.id]) lines.push('<p>'+esc(t(goals.length>1?'wk3.steps.g':'wk3.steps',{g:x.title, k:stepDays[x.id], d:days.length}))+'</p>');
+  /* the week in numbers - only the ones that are there */
+  var tiles=[[steps,'sh.steps'],[things,'sh.done'],[used.length,'wk.active']].filter(function(c){ return c[0]>0; });
+  var tilesHtml=tiles.length ? '<div class="wk-tiles">'+tiles.map(function(c){
+    return '<div class="wk-tile"><b class="numf">'+c[0]+'</b><span>'+esc(t(c[1]))+'</span></div>'; }).join('')+'</div>' : '';
+  function cells(fn){ return '<div class="wk-cells">'+days.map(fn).join('')+'</div>'; }
+  var hdr=cells(function(d){
+    return '<button type="button" class="wk-day'+(d===wkSel?' on':'')+(d===today?' today':'')+'" data-wk-day="'+d+'"'+
+      (d>today?' disabled':'')+' aria-pressed="'+(d===wkSel)+'" aria-label="'+esc(lang(d,{weekday:'long',day:'numeric',month:'numeric'}))+'">'+
+      '<span>'+esc(lang(d,{weekday:'narrow'}))+'</span><b class="numf">'+Number(d.slice(8))+'</b></button>';
   });
+  function cls(d){ return (d>today?' fut':'')+(d===wkSel?' sel':''); }
+  var rows=goals.map(function(g){
+    var n=0, c=cells(function(d){
+      var ok=!!(log[d] && log[d].steps.indexOf(g.id)>=0); if(ok) n++;
+      return '<span class="wk-dot'+(ok?' on':'')+cls(d)+'">'+(ok?ic('check'):'')+'</span>';
+    });
+    return '<div class="wk-row"><div class="wk-name">'+ic('target')+'<span>'+esc(g.title)+'</span>'+
+      (n?'<b class="wk-n numf">'+ic('check')+n+'</b>':'')+'</div>'+c+'</div>';
+  }).join('');
+  rows+='<div class="wk-row"><div class="wk-name">'+ic('sun')+'<span>'+esc(t('t3.more'))+'</span>'+
+      (things?'<b class="wk-n numf">'+ic('check')+things+'</b>':'')+'</div>'+
+    cells(function(d){
+      var n=log[d] ? log[d].items.filter(function(x){ return x.done; }).length : 0;
+      return '<span class="wk-dot'+(n?' on num':'')+cls(d)+'">'+(n?'<b class="numf">'+n+'</b>':'')+'</span>';
+    })+'</div>';
+  if(Object.keys(feels).length) rows+='<div class="wk-row"><div class="wk-name">'+ic('moon')+'<span>'+esc(t('wk.feel'))+'</span></div>'+
+    cells(function(d){
+      var f=log[d] && FEELS.filter(function(x){ return x.k===log[d].feel; })[0];
+      return '<span class="wk-dot emo'+cls(d)+'">'+(f?f.e:'')+'</span>';
+    })+'</div>';
+  /* the chosen day, opened */
+  var L=log[wkSel]||{items:[],steps:[]};
+  var ds=goals.filter(function(g){ return L.steps.indexOf(g.id)>=0; }).map(function(g){
+    var st=L.st&&L.st[g.id];
+    return '<li>'+ic('check')+'<span><b>'+esc(g.title)+'</b>'+(st?' · '+esc(st):'')+'</span></li>'; }).join('');
+  var dt=L.items.filter(function(x){ return x.done; }).map(function(x){ return '<li>'+ic('check')+'<span>'+esc(x.t)+'</span></li>'; }).join('');
+  var f=FEELS.filter(function(x){ return x.k===L.feel; })[0];
+  var panel='<div class="wk-panel"><h4>'+esc(lang(wkSel,{weekday:'long',day:'numeric',month:'numeric'}))+'</h4>'+
+    (ds?'<div class="mg-lab">'+esc(t('t3.forgoals'))+'</div><ul class="wk-list">'+ds+'</ul>':'')+
+    (dt?'<div class="mg-lab">'+esc(t('t3.more'))+'</div><ul class="wk-list">'+dt+'</ul>':'')+
+    ((f||L.note)?'<p class="wk-feel">'+(f?'<span class="eve-e">'+f.e+'</span>'+esc(t('ev.f.'+f.k)):'')+(L.note?(f?' · ':'')+'<q>'+esc(L.note)+'</q>':'')+'</p>':'')+
+    ((ds||dt||f||L.note)?'':'<p class="hint">'+esc(t(wkSel===today?'wk.d.today':'wk.d.rest'))+'</p>')+
+    '</div>';
+  /* a line that keeps coming back is often the real goal */
+  var idea='';
   var back=Object.keys(rep).map(function(k){ return rep[k]; }).filter(function(x){ return x.n>=2; })
-    .sort(function(a,b){ return b.n-a.n; }).slice(0,3);
-  if(back.length){
-    lines.push('<p>'+esc(t('wk3.rep'))+' '+back.map(function(x){ return '<b>'+esc(x.t)+'</b> ('+x.n+')'; }).join(' · ')+'</p>');
-    var free=back.filter(function(x){ return !x.goal; })[0];
-    if(free) lines.push('<p class="wk3idea">'+ic('sparkles')+'<span>'+esc(t('wk3.idea',{x:free.t}))+'</span></p>'+
-      '<button class="btn btn-ghost btn-sm" data-wk3-new="'+esc(free.t)+'">'+ic('target')+'<span>'+esc(t('wk3.mk'))+'</span></button>');
-  }
-  box.innerHTML=head+
-    '<div class="scroller"><table class="wk3"><thead><tr><th scope="col">'+esc(t('wk3.c.day'))+'</th>'+
-      '<th scope="col">'+esc(t('wk3.c.did'))+'</th>'+(goals.length?'<th scope="col">'+esc(t('wk3.c.step'))+'</th>':'')+'</tr></thead>'+
-      '<tbody>'+rows+'</tbody></table></div>'+
-    (goals.length?'<p class="hint">'+ic('target')+'<span>'+esc(t(goals.length>1?'wk3.goals':'wk3.goal',{g:goals.map(function(x){ return x.title; }).join(' · ')}))+'</span></p>':'')+
-    '<div class="wk3read">'+lines.join('')+'</div>'+
-    (done ? '<button class="btn btn-primary btn-sm wk3share" data-wk3-share>'+ic('share')+'<span>'+esc(t('sh.btn'))+'</span></button>' : '')+
-    weekReflection();
-  bindWeekReflection(box);
+    .sort(function(a,b){ return b.n-a.n; })[0];
+  if(back && !goals.some(function(g){ return normLine(g.title)===normLine(back.t); }))
+    idea='<div class="wk3read"><p class="wk3idea">'+ic('sparkles')+'<span>'+esc(t('wk3.idea',{x:back.t}))+'</span></p>'+
+      '<button class="btn btn-ghost btn-sm" data-wk3-new="'+esc(back.t)+'">'+ic('target')+'<span>'+esc(t('wk3.mk'))+'</span></button></div>';
+  box.innerHTML=head+tilesHtml+
+    '<div class="wk-grid">'+hdr+rows+'</div>'+
+    '<p class="hint wk-tap">'+esc(t('wk.tap'))+'</p>'+
+    panel+idea+
+    ((steps||things) ? '<button class="btn btn-primary btn-sm wk3share" data-wk3-share>'+ic('share')+'<span>'+esc(t('sh.btn'))+'</span></button>' : '')+
+    (wkOff?'':weekReflection());
+  bindWeek();
+  box.querySelectorAll('[data-wk-day]').forEach(function(b){
+    b.addEventListener('click',function(){ wkSel=b.dataset.wkDay; renderMyWeek(); });
+  });
   var shb=box.querySelector('[data-wk3-share]');
   if(shb) shb.addEventListener('click',function(){
-    var feels={}; days.forEach(function(d){ var f=log[d].feel; if(f) feels[f]=(feels[f]||0)+1; });
     var top=Object.keys(feels).sort(function(a,b){ return feels[b]-feels[a]; })[0];
-    var steps=0; Object.keys(stepDays).forEach(function(k){ steps+=stepDays[k]; });
-    shareWeek({done:done, served:served, steps:steps, days:days.length, feel:top});
+    shareWeek({done:things, steps:steps, days:used.length, feel:top});
   });
-  var fx=box.querySelector('[data-wk3-fix]');
-  if(fx) fx.addEventListener('click',sharpenGoals);
   var nw=box.querySelector('[data-wk3-new]');
   if(nw) nw.addEventListener('click',function(){ openChainAt('goals', nw.dataset.wk3New); });
+  function bindWeek(){
+    bindWeekReflection(box);
+    box.querySelectorAll('[data-wk-nav]').forEach(function(b){
+      b.addEventListener('click',function(){ wkOff=Math.min(0,wkOff+Number(b.dataset.wkNav)); wkSel=null; renderMyWeek(); });
+    });
+  }
 }
 
 function sharpenGoals(){
@@ -980,7 +1015,7 @@ function shareWeek(w){
   function txt(s,y,size,col,weight){ x.font=(weight||700)+' '+size+'px '+serif; x.fillStyle=col; x.fillText(s,W/2,y); }
   txt(t('sh.title'),250,64,'#173F2A',800);
   /* zeros are left off: the picture is something to be proud of */
-  var cells=[[w.done,t('sh.done')],[w.served,t('sh.served')],[w.steps,t('sh.steps')]].filter(function(cl){ return cl[0]>0; });
+  var cells=[[w.steps,t('sh.steps')],[w.done,t('sh.done')],[w.days,t('wk.active')]].filter(function(cl){ return cl[0]>0; });
   var top=430+(3-cells.length)*125;
   cells.forEach(function(cl,i){
     var y=top+i*250;
