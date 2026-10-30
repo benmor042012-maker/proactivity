@@ -333,10 +333,12 @@ footer{text-align:center;color:var(--fg-3);font-size:var(--t-xs);padding:var(--s
 .trialbar.on{display:flex;}
 .trialbar button{background:var(--acc);color:var(--on-acc);border:0;border-radius:var(--r-pill);
   padding:5px 12px;font-family:var(--f-ui);font-weight:700;font-size:var(--t-xs);cursor:pointer;}
-.apphead{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);flex-wrap:wrap;
-  padding:var(--s5) 0 var(--s4);}
+.apphead{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s3);
+  padding:var(--s4) 0 var(--s4);}
+.app-brand{display:flex;align-items:center;gap:var(--s2);}
+.app-brand .wordmark{font-size:22px;}
 .apphead .who{display:flex;align-items:center;gap:var(--s3);min-width:0;}
-.apphead img{width:40px;height:40px;border-radius:10px;flex:none;}
+.apphead img{width:32px;height:32px;border-radius:8px;flex:none;}
 .apphead .greet{font-family:var(--f-display);font-weight:400;letter-spacing:-.02em;line-height:1.15;font-size:var(--t-h2);}
 .xp-n{font-size:var(--t-xs);color:var(--fg-3);margin-top:4px;font-variant-numeric:tabular-nums;}
 .xp{height:3px;border-radius:var(--r-pill);background:var(--ink-2);overflow:hidden;}
@@ -1527,8 +1529,8 @@ svg.trend .td.hot{fill:var(--acc-hi);stroke:var(--acc-hi);r:5.5;}
  </div>
 
  <header class="apphead">
-  <div class="who"><img src="icon-192.png" alt="" width="40" height="40">
-   <p class="greet" id="greetName"></p></div>
+  <div class="app-brand" role="img" aria-label="Proacty"><img src="icon-192.png" alt="" width="32" height="32"><span class="wordmark" dir="ltr" aria-hidden="true">Proact<svg viewBox="0 0 96 150" class="wm-y"><path d="M8 50 L40 100 M14 140 L70 30" stroke="currentColor" stroke-width="19" stroke-linecap="round"/><path d="M54 30 L84 4 L88 44 Z" fill="currentColor" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/><circle cx="34" cy="40" r="11" fill="#D99A26"/></svg></span></div>
+  <p class="greet" id="greetName"></p>
  </header>
 
  <nav class="tabs" id="tabBar" role="tablist" data-i18n-title="n.nav.label"><button class="tab" data-page="home" role="tab" aria-selected="false" aria-controls="page-home"><svg class="ic" aria-hidden="true"><use href="#i-home"></use></svg><span data-i18n="n.tab.home"></span></button><button class="tab" data-page="goals" role="tab" aria-selected="false" aria-controls="page-goals"><svg class="ic" aria-hidden="true"><use href="#i-target"></use></svg><span data-i18n="a.tab.goals"></span></button><button class="tab" data-page="progress" role="tab" aria-selected="false" aria-controls="page-progress"><svg class="ic" aria-hidden="true"><use href="#i-trending"></use></svg><span data-i18n="n.tab.prog"></span></button><button class="tab" data-page="more" role="tab" aria-selected="false" aria-controls="page-more"><svg class="ic" aria-hidden="true"><use href="#i-sliders"></use></svg><span data-i18n="n.tab.more"></span></button></nav>

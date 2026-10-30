@@ -72,6 +72,11 @@ LANGS = [('he', 'עברית', 'עב'), ('en', 'English', 'EN'), ('fr', 'Françai
          ('ru', 'Русский', 'RU'), ('ar', 'العربية', 'ع')]
 
 
+# The name, with its y drawn as the arrow and the figure - the landing page
+# and the app's own header both carry it.
+WORDMARK = ('''<span class="wordmark" dir="ltr" aria-hidden="true">Proact<svg viewBox="0 0 96 150" class="wm-y"><path d="M8 50 L40 100 M14 140 L70 30" stroke="currentColor" stroke-width="19" stroke-linecap="round"/><path d="M54 30 L84 4 L88 44 Z" fill="currentColor" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/><circle cx="34" cy="40" r="11" fill="#D99A26"/></svg></span>''')
+
+
 def build_body(logo):
     L = ''.join(f'<button class="langbtn" data-lang="{c}" data-short="{sh}" lang="{c}">{n}</button>'
                 for c, n, sh in LANGS)
@@ -85,7 +90,7 @@ def build_body(logo):
        button. Everything below it is for whoever still wants convincing. -->
   <section class="hero">
    <div class="hero-brand" role="img" aria-label="Proacty"><img src="{logo}" alt="" width="40" height="40">
-    <span class="wordmark" dir="ltr" aria-hidden="true">Proact<svg viewBox="0 0 96 150" class="wm-y"><path d="M8 50 L40 100 M14 140 L70 30" stroke="currentColor" stroke-width="19" stroke-linecap="round"/><path d="M54 30 L84 4 L88 44 Z" fill="currentColor" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/><circle cx="34" cy="40" r="11" fill="#D99A26"/></svg></span></div>
+    {WORDMARK}</div>
    <h1 class="hero-lead" data-i18n="n.hero.lead"></h1>
    <p class="hero-sub" data-i18n="n.hero.sub2"></p>
    <p class="hero-who" data-i18n="n.hero.who"></p>
@@ -310,8 +315,8 @@ def build_body(logo):
  </div>
 
  <header class="apphead">
-  <div class="who"><img src="{logo}" alt="" width="40" height="40">
-   <p class="greet" id="greetName"></p></div>
+  <div class="app-brand" role="img" aria-label="Proacty"><img src="{logo}" alt="" width="32" height="32">{WORDMARK}</div>
+  <p class="greet" id="greetName"></p>
  </header>
 
  <nav class="tabs" id="tabBar" role="tablist" data-i18n-title="n.nav.label">{tabs}</nav>

@@ -297,10 +297,12 @@ footer{text-align:center;color:var(--fg-3);font-size:var(--t-xs);padding:var(--s
 .trialbar.on{display:flex;}
 .trialbar button{background:var(--acc);color:var(--on-acc);border:0;border-radius:var(--r-pill);
   padding:5px 12px;font-family:var(--f-ui);font-weight:700;font-size:var(--t-xs);cursor:pointer;}
-.apphead{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);flex-wrap:wrap;
-  padding:var(--s5) 0 var(--s4);}
+.apphead{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s3);
+  padding:var(--s4) 0 var(--s4);}
+.app-brand{display:flex;align-items:center;gap:var(--s2);}
+.app-brand .wordmark{font-size:22px;}
 .apphead .who{display:flex;align-items:center;gap:var(--s3);min-width:0;}
-.apphead img{width:40px;height:40px;border-radius:10px;flex:none;}
+.apphead img{width:32px;height:32px;border-radius:8px;flex:none;}
 .apphead .greet{font-family:var(--f-display);font-weight:400;letter-spacing:-.02em;line-height:1.15;font-size:var(--t-h2);}
 .xp-n{font-size:var(--t-xs);color:var(--fg-3);margin-top:4px;font-variant-numeric:tabular-nums;}
 .xp{height:3px;border-radius:var(--r-pill);background:var(--ink-2);overflow:hidden;}
