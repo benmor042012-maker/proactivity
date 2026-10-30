@@ -89,8 +89,8 @@ def build_body(logo):
   <!-- The whole first screen: who you are from now on, what it takes, one
        button. Everything below it is for whoever still wants convincing. -->
   <section class="hero">
-   <div class="hero-brand" role="img" aria-label="Proacty"><img src="{logo}" alt="" width="40" height="40">
-    {WORDMARK}</div>
+   <div class="hero-brand"><img src="{logo}" alt="" width="40" height="40">
+    <div><div role="img" aria-label="Proacty">{WORDMARK}</div><p class="brand-tag" data-i18n="b.tag"></p></div></div>
    <h1 class="hero-lead" data-i18n="n.hero.lead"></h1>
    <p class="hero-sub" data-i18n="n.hero.sub2"></p>
    <p class="hero-who" data-i18n="n.hero.who"></p>
@@ -315,7 +315,8 @@ def build_body(logo):
  </div>
 
  <header class="apphead">
-  <div class="app-brand" role="img" aria-label="Proacty"><img src="{logo}" alt="" width="32" height="32">{WORDMARK}</div>
+  <div class="app-brand"><img src="{logo}" alt="" width="32" height="32">
+   <div><div role="img" aria-label="Proacty">{WORDMARK}</div><p class="brand-tag" data-i18n="b.tag"></p></div></div>
   <p class="greet" id="greetName"></p>
  </header>
 

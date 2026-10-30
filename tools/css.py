@@ -301,6 +301,7 @@ footer{text-align:center;color:var(--fg-3);font-size:var(--t-xs);padding:var(--s
   padding:var(--s4) 0 var(--s4);}
 .app-brand{display:flex;align-items:center;gap:var(--s2);}
 .app-brand .wordmark{font-size:22px;}
+.brand-tag{font-size:var(--t-xs);color:var(--fg-3);font-weight:500;margin-top:6px;letter-spacing:.01em;}
 .apphead .who{display:flex;align-items:center;gap:var(--s3);min-width:0;}
 .apphead img{width:32px;height:32px;border-radius:8px;flex:none;}
 .apphead .greet{font-family:var(--f-display);font-weight:400;letter-spacing:-.02em;line-height:1.15;font-size:var(--t-h2);}
