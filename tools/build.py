@@ -125,7 +125,7 @@ def check_gender(table):
 
 
 QUIZ_BANDS = ('a13', 'a18', 'a30', 'a50')
-QUIZ_N = 10
+QUIZ_N = 12
 QUIZ_PARTS = ('q', 'a', 'b', 'c', 'd')
 
 

@@ -256,6 +256,8 @@ function renderGoals(){
       '<h3>'+ic('target')+'<span>'+esc(g.title)+'</span>'+
       '<button class="icon-btn" data-ge-open="'+g.id+'" aria-label="'+esc(t('ge.btn'))+'">'+ic('edit')+'</button>'+
       '<button class="icon-btn" data-dg="'+g.id+'" aria-label="'+esc(t('c.delete'))+'">'+ic('trash')+'</button></h3>'+
+      (g.why ? '<p class="gwhy">'+ic('compass')+'<span><b>'+esc(t('why.lab'))+'</b> '+esc(g.why)+'</span></p>'
+             : '<button type="button" class="btn btn-quiet btn-sm gwhy-add" data-ge-open="'+g.id+'">'+ic('compass')+'<span>'+esc(t('why.q'))+'</span></button>')+
       state+
 
       '<div class="ladder">'+
@@ -686,7 +688,8 @@ function logDay(){
     items: td.items.filter(function(x){ return x.t.trim(); })
              .map(function(x){ return {t:x.t.trim(), done:!!x.done, gid:x.gid||null}; }),
     steps: (S.goals||[]).filter(function(g){ return g.doneDay===td.day; }).map(function(g){ return g.id; }),
-    st: {}   // the text of each step that was done, so My week can show it
+    st: {},   // the text of each step that was done, so My week can show it
+    rest: (S.goals||[]).filter(function(g){ return g.restDay===td.day; }).map(function(g){ return g.id; })
   };
   (S.goals||[]).forEach(function(g){ if(g.doneDay===td.day && dayStep(g)) S.log[td.day].st[g.id]=dayStep(g); });
   var days=Object.keys(S.log).sort();
@@ -695,16 +698,23 @@ function logDay(){
 function renderToday3(){
   var box=document.getElementById('todayBox'); if(!box) return;
   var td=today3(), goals=liveGoals(), today=dayKey(), running=!!fiveTimer;
-  var nDone=td.items.filter(function(x){ return x.done; }).length + goals.filter(function(g){ return g.doneDay===today; }).length;
+  var nDone=td.items.filter(function(x){ return x.done; }).length + goals.filter(function(g){ return g.doneDay===today || g.restDay===today; }).length;
   /* one row per live goal: choose today's step in the row, then tick it */
   var gRows=goals.map(function(g){
     var step=dayStep(g), done=g.doneDay===today, vid=firstVideo(g);
+    /* resting today is a choice too: it closes the row, without points */
+    if(g.restDay===today) return '<div class="t3row t3g rested">'+
+      '<button type="button" class="t3chk" data-gstep-unrest="'+g.id+'" aria-pressed="true" aria-label="'+esc(t('rest.undo'))+'" title="'+esc(t('rest.undo'))+'">'+ic('seedling')+'</button>'+
+      '<div class="t3g-body"><div class="t3g-goal">'+ic('target')+'<span>'+esc(g.title)+'</span></div>'+
+        '<div class="t3g-step">'+esc(t('rest.done'))+'</div></div></div>';
     if(!step) return '<div class="t3g ask"><div class="t3g-name">'+ic('target')+'<b>'+esc(g.title)+'</b></div>'+
+      (g.why ? '<p class="t3g-why">'+ic('compass')+'<span>'+esc(t('why.lab'))+' '+esc(g.why)+'</span></p>' : '')+
       '<div class="addrow"><input type="text" data-mg-step-in="'+g.id+'" maxlength="100" placeholder="'+esc(t('mg.ask'))+'" aria-label="'+esc(t('mg.ask'))+'">'+
         '<button class="btn btn-primary" data-mg-step-set="'+g.id+'">'+esc(t('c.save'))+'</button></div>'+
       (stepChoices(g).length ? '<div class="mg-picks">'+stepChoices(g).map(function(x){
           return '<button type="button" class="t3idea" data-mg-step-pick="'+g.id+'" data-text="'+esc(x)+'">'+ic('plus')+'<span>'+esc(x)+'</span></button>';
-        }).join('')+'</div>' : '')+'</div>';
+        }).join('')+'</div>' : '')+
+      '<button type="button" class="btn btn-quiet btn-sm t3rest" data-gstep-rest="'+g.id+'">🌿 <span>'+esc(t('rest.btn'))+'</span></button></div>';
     return '<div class="t3row t3g'+(done?' done':'')+'">'+
       '<button type="button" class="t3chk" data-gstep-done="'+g.id+'" aria-pressed="'+done+'" aria-label="'+esc(t('t3.mark'))+'">'+ic('check')+'</button>'+
       '<div class="t3g-body"><div class="t3g-goal">'+ic('target')+'<span>'+esc(g.title)+'</span></div><div class="t3g-step">'+esc(step)+'</div>'+
@@ -712,7 +722,8 @@ function renderToday3(){
       (done ? '' :
         (vid ? '<button type="button" class="t3act" data-mg-vid="'+g.id+'" aria-label="'+esc(t('res.video'))+'" title="'+esc(t('res.video'))+'">'+ic('play')+'</button>'
              : '<button type="button" class="t3act" data-mg-five="'+g.id+'"'+(running?' disabled':'')+' aria-label="'+esc(t('d.start5'))+'" title="'+esc(t('d.start5'))+'">'+ic('clock')+'</button>')+
-        '<button type="button" class="t3act" data-mg-step-clear="'+g.id+'" aria-label="'+esc(t('mg.change'))+'" title="'+esc(t('mg.change'))+'">'+ic('refresh')+'</button>')+
+        '<button type="button" class="t3act" data-mg-step-clear="'+g.id+'" aria-label="'+esc(t('mg.change'))+'" title="'+esc(t('mg.change'))+'">'+ic('refresh')+'</button>'+
+        '<button type="button" class="t3act" data-gstep-rest="'+g.id+'" aria-label="'+esc(t('rest.btn'))+'" title="'+esc(t('rest.btn'))+'">🌿</button>')+
       '</div>';
   }).join('');
   box.innerHTML='<div class="boxh-row"><h2 class="boxh">'+ic('sun')+'<span>'+esc(t('t3.t'))+'</span></h2>'+
@@ -756,13 +767,28 @@ function renderToday3(){
       var g=goalById(Number(b.dataset.gstepDone));
       if(g.doneDay===dayKey()){ g.doneDay=null; logDay(); save(); renderToday3(); return; }
       if(fiveGid===g.id) clearFive();
-      g.doneDay=dayKey(); markActiveToday();
+      g.doneDay=dayKey(); g.restDay=null; markActiveToday();
       if(g.paidDay!==dayKey()){
         g.paidDay=dayKey(); addPts(25);
         S.stats.challenges=(S.stats.challenges||0)+1;
       }
-      cheerIfAll(t('t.pts',{n:25}), true);
+      cheerIfAll(t('t3.chose',{n:25}), true);
       logDay(); save(); renderToday3(); renderEvening(); renderDashStats(); renderStats(); checkAchievements();
+    });
+  });
+  box.querySelectorAll('[data-gstep-rest]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.gstepRest));
+      if(fiveGid===g.id) clearFive();
+      g.restDay=dayKey(); g.doneDay=null; markActiveToday();
+      toast(t('rest.toast'));
+      logDay(); save(); renderToday3(); renderEvening();
+    });
+  });
+  box.querySelectorAll('[data-gstep-unrest]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=goalById(Number(b.dataset.gstepUnrest)); g.restDay=null;
+      logDay(); save(); renderToday3();
     });
   });
   box.querySelectorAll('[data-mg-step-set]').forEach(function(b){
@@ -798,7 +824,7 @@ function renderToday3(){
 function cheerIfAll(msg, isGoal){
   var td=today3(), today=dayKey();
   var lines=td.items.filter(function(x){ return x.t.trim(); });
-  var all=lines.every(function(x){ return x.done; }) && liveGoals().every(function(g){ return g.doneDay===today; });
+  var all=lines.every(function(x){ return x.done; }) && liveGoals().every(function(g){ return g.doneDay===today || g.restDay===today; });
   toast(all ? t('t3.all') : msg);
   if(all || isGoal) celebrate();
 }
@@ -892,7 +918,7 @@ function normLine(s){ return String(s||'').trim().toLowerCase().replace(/\s+/g,'
 function renderMyWeek(){
   var box=document.getElementById('weekBox'); if(!box) return;
   var log=S.log||{}, days=weekOf(wkOff), today=dayKey();
-  function has(d){ var L=log[d]; return !!(L && (L.items.some(function(x){ return x.done; }) || L.steps.length || L.note || L.feel)); }
+  function has(d){ var L=log[d]; return !!(L && (L.items.some(function(x){ return x.done; }) || L.steps.length || (L.rest||[]).length || L.note || L.feel)); }
   var used=days.filter(has);
   if(!wkSel || days.indexOf(wkSel)<0) wkSel = days.indexOf(today)>=0 ? today : (used[used.length-1]||days[0]);
   var older=Object.keys(log).some(function(d){ return d<days[0]; });
@@ -935,7 +961,8 @@ function renderMyWeek(){
   var rows=goals.map(function(g){
     var n=0, c=cells(function(d){
       var ok=!!(log[d] && log[d].steps.indexOf(g.id)>=0); if(ok) n++;
-      return '<span class="wk-dot'+(ok?' on':'')+cls(d)+'">'+(ok?ic('check'):'')+'</span>';
+      var rest=!ok && !!(log[d] && (log[d].rest||[]).indexOf(g.id)>=0);
+      return '<span class="wk-dot'+(ok?' on':'')+(rest?' rested':'')+cls(d)+'"'+(rest?' title="'+esc(t('rest.done'))+'"':'')+'>'+(ok?ic('check'):rest?'🌿':'')+'</span>';
     });
     return '<div class="wk-row"><div class="wk-name">'+ic('target')+'<span>'+esc(g.title)+'</span>'+
       (n?'<b class="wk-n numf">'+ic('check')+n+'</b>':'')+'</div>'+c+'</div>';
@@ -956,13 +983,15 @@ function renderMyWeek(){
   var ds=goals.filter(function(g){ return L.steps.indexOf(g.id)>=0; }).map(function(g){
     var st=L.st&&L.st[g.id];
     return '<li>'+ic('check')+'<span><b>'+esc(g.title)+'</b>'+(st?' · '+esc(st):'')+'</span></li>'; }).join('');
+  var dr=goals.filter(function(g){ return (L.rest||[]).indexOf(g.id)>=0; }).map(function(g){
+    return '<li><span class="wk-li-e">🌿</span><span><b>'+esc(g.title)+'</b> · '+esc(t('rest.short'))+'</span></li>'; }).join('');
   var dt=L.items.filter(function(x){ return x.done; }).map(function(x){ return '<li>'+ic('check')+'<span>'+esc(x.t)+'</span></li>'; }).join('');
   var f=FEELS.filter(function(x){ return x.k===L.feel; })[0];
   var panel='<div class="wk-panel"><h4>'+esc(lang(wkSel,{weekday:'long',day:'numeric',month:'numeric'}))+'</h4>'+
-    (ds?'<div class="mg-lab">'+esc(t('t3.forgoals'))+'</div><ul class="wk-list">'+ds+'</ul>':'')+
+    ((ds||dr)?'<div class="mg-lab">'+esc(t('t3.forgoals'))+'</div><ul class="wk-list">'+ds+dr+'</ul>':'')+
     (dt?'<div class="mg-lab">'+esc(t('t3.more'))+'</div><ul class="wk-list">'+dt+'</ul>':'')+
     ((f||L.note)?'<p class="wk-feel">'+(f?'<span class="eve-e">'+f.e+'</span>'+esc(t('ev.f.'+f.k)):'')+(L.note?(f?' · ':'')+'<q>'+esc(L.note)+'</q>':'')+'</p>':'')+
-    ((ds||dt||f||L.note)?'':'<p class="hint">'+esc(t(wkSel===today?'wk.d.today':'wk.d.rest'))+'</p>')+
+    ((ds||dr||dt||f||L.note)?'':'<p class="hint">'+esc(t(wkSel===today?'wk.d.today':'wk.d.rest'))+'</p>')+
     '</div>';
   /* a line that keeps coming back is often the real goal */
   var idea='';
@@ -1093,7 +1122,7 @@ function goalEditForm(g){
       (ph?' placeholder="'+esc(t(ph))+'"':'')+'></div>';
   }
   return '<div class="gedit">'+
-    row('title','gl.goal')+row('week','gl.week','gl.wk.ph')+
+    row('title','gl.goal')+whyField('ge-why', g.why)+row('week','gl.week','gl.wk.ph')+
     row('today','gl.today','gl.td.ph')+row('now','gl.now','ge.now.ph')+
     '<div class="row-btns">'+
       '<button class="btn btn-primary btn-sm" data-ge-save>'+ic('check')+'<span>'+esc(t('c.save'))+'</span></button>'+
@@ -1142,6 +1171,8 @@ function mergeGoals(keepId,dropId){
     L.items.forEach(function(x){ if(x.gid===b.id) x.gid=a.id; });
     L.steps=L.steps.map(function(id){ return id===b.id ? a.id : id; })
                .filter(function(id,i,arr){ return arr.indexOf(id)===i; });
+    if(L.rest) L.rest=L.rest.map(function(id){ return id===b.id ? a.id : id; })
+               .filter(function(id,i,arr){ return arr.indexOf(id)===i && L.steps.indexOf(id)<0; });
   });
   S.goals=S.goals.filter(function(g){ return g.id!==b.id; });
   goalEditId=null;
@@ -1149,11 +1180,13 @@ function mergeGoals(keepId,dropId){
   toast(t('ge.merged',{a:a.title}));
 }
 function bindGoalEdit(host,g){
+  bindWhy(host,'ge-why',function(){});
   host.querySelector('[data-ge-save]').addEventListener('click',function(){
     var v={};
     host.querySelectorAll('[data-ge]').forEach(function(i){ v[i.dataset.ge]=i.value.trim(); });
     if(!v.title){ toast(t('t.writegoal')); host.querySelector('[data-ge="title"]').focus(); return; }
     g.title=v.title; g.week=v.week; g.today=v.today; g.now=v.now;
+    g.why=host.querySelector('#ge-why').value.trim();
     (S.missions||[]).forEach(function(m){ if(m.goalId===g.id) m.title=g.title; });
     goalEditId=null;
     save(); renderGoals(); renderWeek(); renderDash(); toast(t('gl.saved'));
@@ -1462,13 +1495,13 @@ function renderTrend(){
   bindTrendHover(box, p);
   bindRetake(box);
 }
-/* The five dimensions as text rather than a second series: five lines on one
+/* The dimensions as text rather than a second series: five lines on one
    chart would be unreadable, and a second y-axis would be a lie. */
 function dimDeltas(){
   var h=S.hist||[]; if(h.length<2) return '';
   var a=h[0].s, b=h[h.length-1].s;
-  return ['init','goal','time','solve','plan'].map(function(k){
-    var d=(b[k]|0)-(a[k]|0);
+  return DIMS.map(function(x){ return x.id; }).filter(function(k){ return typeof a[k]==='number' && typeof b[k]==='number'; }).map(function(k){
+    var d=b[k]-a[k];
     return '<div class="dd"><span class="dd-k">'+esc(t('dim.'+k))+'</span>'+
       '<span class="dd-v '+(d>0?'up':d<0?'down':'')+'">'+(d>0?'+':'')+d+'</span></div>';
   }).join('');

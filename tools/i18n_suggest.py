@@ -49,6 +49,9 @@ SUGGEST = {
 'sq.plan.1': ('לתכנן את מחר בערב', 'Plan tomorrow in the evening', 'Planifier demain le soir', 'Вечером спланировать завтра', 'التخطيط للغد في المساء'),
 'sq.plan.2': ('להכין את מה שצריך למחר', 'Get tomorrow\'s things ready', 'Préparer ce qu\'il faut pour demain', 'Подготовить всё на завтра', 'تجهيز ما يلزم للغد'),
 'sq.plan.3': ('לכתוב את המשימות לשבוע', 'Write the week\'s tasks', 'Écrire les tâches de la semaine', 'Записать задачи на неделю', 'كتابة مهام الأسبوع'),
+'sq.choice.1': ('לעצור ולנשום לפני תגובה', 'Stop and breathe before reacting', 'S\'arrêter et respirer avant de réagir', 'Остановиться и вдохнуть перед реакцией', 'التوقّف والتنفّس قبل الردّ'),
+'sq.choice.2': ('דבר אחד שבידיים שלי, ולעשות אותו', 'One thing in my hands, and do it', 'Une chose qui dépend de moi, et la faire', 'Одно дело в моих руках — и сделать его', 'شيء واحد بيدي، وأفعله'),
+'sq.choice.3': ('לכתוב רגע שבו בחרתי איך להגיב', 'Write a moment I chose how to respond', 'Noter un moment où j\'ai choisi comment réagir', 'Записать момент, когда я выбрал{|а}, как реагировать', 'كتابة لحظة اخترت فيها كيف أتصرّف'),
 'sq.t':     ('רעיונות להיום', 'Ideas for today', 'Idées pour aujourd\'hui', 'Идеи на сегодня', 'أفكار لليوم'),
 'sq.quiz':  ('רוצה הצעות שמותאמות בדיוק לך? שאלון של דקה', 'Want ideas that fit you exactly? A one-minute check-in',
              'Des idées vraiment pour toi ? Un bilan d\'une minute', 'Хочешь идеи точно под тебя? Чек-ин на минуту',
@@ -116,9 +119,26 @@ SUGGEST = {
 'yt.q.social': ('טיפים', 'tips', 'conseils', 'советы', 'نصائح'),
 'yt.q.learn':  ('למתחילים', 'for beginners', 'pour débutants', 'для начинающих', 'للمبتدئين'),
 
-'mg.ask':     ('מה הצעד להיום?', 'What is today\'s step?', 'Quel est le pas du jour ?', 'Какой шаг сегодня?', 'ما خطوة اليوم؟'),
+'mg.ask':     ('מה {אני בוחר|אני בוחרת} לעשות היום?', 'What do I choose to do today?', 'Qu\'est-ce que je choisis de faire aujourd\'hui ?', 'Что я выбираю сделать сегодня?', 'ماذا أختار أن أفعل اليوم؟'),
 'mg.ask.ph':  ('צעד קטן אחד למטרה הזו', 'One small step for this goal', 'Un petit pas pour cet objectif', 'Один маленький шаг к этой цели', 'خطوة صغيرة لهذا الهدف'),
 'mg.change':  ('צעד אחר להיום', 'Another step today', 'Un autre pas aujourd\'hui', 'Другой шаг сегодня', 'خطوة أخرى اليوم'),
+
+# ---------- choice: why this goal, and resting by choice ----------
+'why.q':      ('למה {אני בוחר|אני בוחרת} במטרה הזאת?', 'Why do I choose this goal?', 'Pourquoi je choisis cet objectif ?', 'Почему я выбираю эту цель?', 'لماذا أختار هذا الهدف؟'),
+'why.ph':     ('במילים שלך', 'In your own words', 'Avec tes mots', 'Своими словами', 'بكلماتك'),
+'why.lab':    ('בחרתי כי', 'I chose it because', 'Je l\'ai choisi parce que', 'Я выбрал{|а} её, потому что', 'اخترته لأن'),
+'why.c1':     ('זה חשוב לי', 'it matters to me', 'ça compte pour moi', 'это важно для меня', 'هذا مهم لي'),
+'why.c2':     ('אני רוצה להרגיש טוב עם עצמי', 'I want to feel good about myself', 'je veux me sentir bien avec moi-même', 'хочу чувствовать себя хорошо с собой', 'أريد أن أشعر بالرضا عن نفسي'),
+'why.c3':     ('זה מקרב אותי למי שאני רוצה להיות', 'it brings me closer to who I want to be', 'ça me rapproche de qui je veux être', 'это приближает меня к тому, кем я хочу быть', 'هذا يقرّبني ممّن أريد أن أكون'),
+'why.c4':     ('אני רוצה להוכיח לעצמי שאני {יכול|יכולה}', 'I want to prove to myself I can', 'je veux me prouver que j\'en suis capable', 'хочу доказать себе, что могу', 'أريد أن أثبت لنفسي أنني أستطيع'),
+'rest.btn':   ('היום {אני בוחר|אני בוחרת} לנוח', 'Today I choose to rest', 'Aujourd\'hui, je choisis de me reposer', 'Сегодня я выбираю отдых', 'اليوم أختار أن أرتاح'),
+'rest.done':  ('בחרת לנוח היום. גם זו בחירה.', 'You chose to rest today. That is a choice too.', 'Tu as choisi de te reposer aujourd\'hui. C\'est aussi un choix.',
+               'Сегодня ты выбрал{|а} отдых. Это тоже выбор.', '{اخترت|اخترتِ} أن {ترتاح|ترتاحي} اليوم. هذا أيضاً اختيار.'),
+'rest.short': ('בחרת לנוח', 'chose to rest', 'repos choisi', 'выбран отдых', 'راحة مختارة'),
+'rest.toast': ('מנוחה שבוחרים בה היא חלק מהדרך 🌿', 'Rest you choose is part of the way 🌿', 'Un repos choisi fait partie du chemin 🌿',
+               'Выбранный отдых — тоже часть пути 🌿', 'الراحة التي تختارها جزء من الطريق 🌿'),
+'rest.undo':  ('לבטל את המנוחה', 'Undo the rest', 'Annuler le repos', 'Отменить отдых', 'إلغاء الراحة'),
+'t3.chose':   ('בחרת ועשית! +{n} XP', 'You chose it and did it! +{n} XP', 'Choisi et fait ! +{n} XP', 'Выбрал{|а} и сделал{|а}! +{n} XP', '{اخترت|اخترتِ} و{فعلت|فعلتِ}! +{n} XP'),
 
 # ---------- ready goals ----------
 'rg.t':     ('מטרות מוכנות', 'Ready-made goals', 'Objectifs tout prêts', 'Готовые цели', 'أهداف جاهزة'),
