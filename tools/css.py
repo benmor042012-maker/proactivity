@@ -707,6 +707,13 @@ body.no-scroll{overflow:hidden;}
 .eve-choice svg,.wk-feel svg{width:15px;height:15px;color:var(--acc);flex:none;margin-top:3px;}
 #eveBox .field label{display:flex;align-items:center;gap:6px;}
 #eveBox .field label svg{width:16px;height:16px;color:var(--acc);flex:none;}
+.rg-cats{display:flex;gap:6px;overflow-x:auto;margin:0 -4px var(--s3);padding:2px 4px 6px;scrollbar-width:none;}
+.rg-cats::-webkit-scrollbar{display:none;}
+.rg-cat{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--r-pill);border:1px solid var(--ink-3);
+  background:transparent;color:var(--fg-2);font:inherit;font-size:var(--t-sm);cursor:pointer;white-space:nowrap;}
+.rg-cat svg{width:15px;height:15px;}
+.rg-cat.on{background:var(--acc);border-color:var(--acc);color:var(--on-acc,#fff);font-weight:700;}
+.rg-why{font-size:var(--t-xs);color:var(--fg-3);margin:-4px 0 var(--s3);}
 .t3goals .t3gpick.on{border-style:solid;border-color:var(--acc);background:var(--acc);color:var(--on-acc,#fff);font-weight:700;}
 .t3goals .t3gpick.on svg{color:inherit;}
 .t3goals .t3gpick:disabled{opacity:1;cursor:default;}
