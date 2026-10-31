@@ -131,13 +131,9 @@ SUGGEST = {
 'why.c2':     ('אני רוצה להרגיש טוב עם עצמי', 'I want to feel good about myself', 'je veux me sentir bien avec moi-même', 'хочу чувствовать себя хорошо с собой', 'أريد أن أشعر بالرضا عن نفسي'),
 'why.c3':     ('זה מקרב אותי למי שאני רוצה להיות', 'it brings me closer to who I want to be', 'ça me rapproche de qui je veux être', 'это приближает меня к тому, кем я хочу быть', 'هذا يقرّبني ممّن أريد أن أكون'),
 'why.c4':     ('אני רוצה להוכיח לעצמי שאני {יכול|יכולה}', 'I want to prove to myself I can', 'je veux me prouver que j\'en suis capable', 'хочу доказать себе, что могу', 'أريد أن أثبت لنفسي أنني أستطيع'),
-'rest.btn':   ('היום {אני בוחר|אני בוחרת} לנוח', 'Today I choose to rest', 'Aujourd\'hui, je choisis de me reposer', 'Сегодня я выбираю отдых', 'اليوم أختار أن أرتاح'),
 'rest.done':  ('בחרת לנוח היום. גם זו בחירה.', 'You chose to rest today. That is a choice too.', 'Tu as choisi de te reposer aujourd\'hui. C\'est aussi un choix.',
                'Сегодня ты выбрал{|а} отдых. Это тоже выбор.', '{اخترت|اخترتِ} أن {ترتاح|ترتاحي} اليوم. هذا أيضاً اختيار.'),
 'rest.short': ('בחרת לנוח', 'chose to rest', 'repos choisi', 'выбран отдых', 'راحة مختارة'),
-'rest.toast': ('מנוחה שבוחרים בה היא חלק מהדרך 🌿', 'Rest you choose is part of the way 🌿', 'Un repos choisi fait partie du chemin 🌿',
-               'Выбранный отдых — тоже часть пути 🌿', 'الراحة التي تختارها جزء من الطريق 🌿'),
-'rest.undo':  ('לבטל את המנוחה', 'Undo the rest', 'Annuler le repos', 'Отменить отдых', 'إلغاء الراحة'),
 't3.chose':   ('בחרת ועשית! +{n} XP', 'You chose it and did it! +{n} XP', 'Choisi et fait ! +{n} XP', 'Выбрал{|а} и сделал{|а}! +{n} XP', '{اخترت|اخترتِ} و{فعلت|فعلتِ}! +{n} XP'),
 
 # ---------- goals to choose from, under the free-text goal ----------

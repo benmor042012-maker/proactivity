@@ -644,11 +644,31 @@ function renderGenderAsk(){
 /* ---- my day: the same small ritual for everyone, every morning ----
    Three things that matter today, written by the user, before the
    personal step. A new day starts with three empty lines. */
+/* The day is chosen, not handed out: picked holds the goals chosen for
+   today, items the one-off things (an idea or the user's own words). A goal
+   that already has today's step or was done today counts as chosen, which
+   also carries over a day started before this existed. Empty lines from the
+   old three fixed slots are dropped. */
+var T3_MAX=5;
 function today3(){
   var d=dayKey();
-  if(!S.today3 || S.today3.day!==d)
-    S.today3={day:d, items:[0,1,2].map(function(){ return {t:'', done:false, paid:false, gid:null}; })};
-  return S.today3;
+  if(!S.today3 || S.today3.day!==d) S.today3={day:d, items:[], picked:[]};
+  var td=S.today3;
+  td.items=td.items.filter(function(x){ return x.t && x.t.trim(); });
+  if(!td.picked) td.picked=[];
+  (S.goals||[]).forEach(function(g){
+    if(!g.archived && td.picked.indexOf(g.id)<0 && ((g.day && g.day.d===d) || g.doneDay===d)) td.picked.push(g.id);
+  });
+  return td;
+}
+function pickedGoals(){
+  var td=today3(); return liveGoals().filter(function(g){ return td.picked.indexOf(g.id)>=0; });
+}
+function addDayItem(text){
+  var td=today3(); text=String(text||'').trim(); if(!text) return false;
+  if(td.items.length>=T3_MAX){ toast(t('t3.full')); return false; }
+  if(td.items.some(function(x){ return normLine(x.t)===normLine(text); })) return true;
+  td.items.push({t:text, done:false, paid:false, gid:null}); logDay(); save(); return true;
 }
 /* In the order they were made, so a new goal joins the list under the
    others instead of pushing the first one down. */
@@ -657,20 +677,13 @@ function today3(){
    weakest, then everyday things for the user's age. Lines already written
    are left out, and without a check-in a one-minute one is offered. */
 function t3Ideas(td){
-  var used={}; td.items.forEach(function(x){ if(x.t.trim()) used[normLine(x.t)]=1; });
+  var used={}; td.items.forEach(function(x){ used[normLine(x.t)]=1; });
   var out=[];
-  function add(text,gid){ if(!text || used[normLine(text)] || out.length>=5) return; used[normLine(text)]=1; out.push({t:text,gid:gid}); }
+  function add(text){ if(!text || used[normLine(text)] || out.length>=5) return; used[normLine(text)]=1; out.push(text); }
   if(hasProfile()) [1,2,3].forEach(function(n){ add(t('sq.'+weakDim()+'.'+n)); });
   var band=P.age ? ageBand(P.age) : 'a13';
   [1,2,3,4,5,6].forEach(function(n){ add(t('sq.'+band+'.'+n)); });
-  if(td.items.every(function(x){ return x.t.trim(); }) || !out.length) return '';
-  return '<div class="t3ideas"><div class="mg-lab">'+esc(t('sq.t'))+'</div>'+
-    out.map(function(x){
-      return '<button type="button" class="t3idea'+(x.gid?' goal':'')+'" data-idea="'+esc(x.t)+'"'+(x.gid?' data-gid="'+x.gid+'"':'')+'>'+
-        (x.gid?ic('target'):ic('plus'))+'<span>'+esc(x.t)+'</span></button>';
-    }).join('')+
-    (hasProfile() ? '' : '<button type="button" class="btn btn-quiet btn-sm t3quiz" data-goquiz>'+ic('sparkles')+'<span>'+esc(t('sq.quiz'))+'</span></button>')+
-    '</div>';
+  return out;
 }
 function liveGoals(){
   return (S.goals||[]).filter(function(g){ return !g.archived; }).sort(function(a,b){ return a.id-b.id; });
@@ -695,26 +708,36 @@ function logDay(){
   var days=Object.keys(S.log).sort();
   while(days.length>LOG_DAYS) delete S.log[days.shift()];
 }
+var t3PickOpen=false;
 function renderToday3(){
   var box=document.getElementById('todayBox'); if(!box) return;
-  var td=today3(), goals=liveGoals(), today=dayKey(), running=!!fiveTimer;
-  var nDone=td.items.filter(function(x){ return x.done; }).length + goals.filter(function(g){ return g.doneDay===today || g.restDay===today; }).length;
-  /* one row per live goal: choose today's step in the row, then tick it */
+  var td=today3(), all=liveGoals(), goals=pickedGoals(), today=dayKey(), running=!!fiveTimer;
+  var total=goals.length+td.items.length;
+  var nDone=td.items.filter(function(x){ return x.done; }).length + goals.filter(function(g){ return g.doneDay===today; }).length;
+  /* the picker: my goals to choose, ideas, and my own words */
+  var ideas=t3Ideas(td);
+  var picker=
+    '<div class="mg-lab">'+esc(t('t3.pick.goals'))+'</div>'+
+    (all.length ? '<div class="mg-picks t3goals">'+all.map(function(g){
+        var on=td.picked.indexOf(g.id)>=0, locked=g.doneDay===today;
+        return '<button type="button" class="t3idea t3gpick'+(on?' on':'')+'" data-t3pick="'+g.id+'" aria-pressed="'+on+'"'+(locked?' disabled':'')+'>'+
+          ic(on?'check':'target')+'<span>'+esc(g.title)+'</span></button>'; }).join('')+'</div>'
+      : '<button type="button" class="btn btn-ghost btn-sm t3nogoal" data-goto-goals>'+ic('target')+'<span>'+esc(t('t3.nogoal'))+'</span></button>')+
+    (ideas.length && td.items.length<T3_MAX ? '<div class="mg-lab">'+esc(t('sq.t'))+'</div><div class="mg-picks">'+ideas.map(function(x){
+        return '<button type="button" class="t3idea" data-idea="'+esc(x)+'">'+ic('plus')+'<span>'+esc(x)+'</span></button>'; }).join('')+'</div>' : '')+
+    (td.items.length<T3_MAX ? '<div class="addrow t3own"><input type="text" id="t3Own" maxlength="80" placeholder="'+esc(t('t3.other.ph'))+'" aria-label="'+esc(t('t3.other.ph'))+'">'+
+        '<button class="btn btn-ghost" id="t3OwnAdd" aria-label="'+esc(t('c.add'))+'">'+ic('plus')+'</button></div>' : '')+
+    (hasProfile() ? '' : '<button type="button" class="btn btn-quiet btn-sm t3quiz" data-goquiz>'+ic('sparkles')+'<span>'+esc(t('sq.quiz'))+'</span></button>');
+  /* what was chosen: a row per goal (its step chosen in place, then ticked), then the one-off things */
   var gRows=goals.map(function(g){
     var step=dayStep(g), done=g.doneDay===today, vid=firstVideo(g);
-    /* resting today is a choice too: it closes the row, without points */
-    if(g.restDay===today) return '<div class="t3row t3g rested">'+
-      '<button type="button" class="t3chk" data-gstep-unrest="'+g.id+'" aria-pressed="true" aria-label="'+esc(t('rest.undo'))+'" title="'+esc(t('rest.undo'))+'">'+ic('seedling')+'</button>'+
-      '<div class="t3g-body"><div class="t3g-goal">'+ic('target')+'<span>'+esc(g.title)+'</span></div>'+
-        '<div class="t3g-step">'+esc(t('rest.done'))+'</div></div></div>';
     if(!step) return '<div class="t3g ask"><div class="t3g-name">'+ic('target')+'<b>'+esc(g.title)+'</b></div>'+
       (g.why ? '<p class="t3g-why">'+ic('compass')+'<span>'+esc(t('why.lab'))+' '+esc(g.why)+'</span></p>' : '')+
       '<div class="addrow"><input type="text" data-mg-step-in="'+g.id+'" maxlength="100" placeholder="'+esc(t('mg.ask'))+'" aria-label="'+esc(t('mg.ask'))+'">'+
         '<button class="btn btn-primary" data-mg-step-set="'+g.id+'">'+esc(t('c.save'))+'</button></div>'+
       (stepChoices(g).length ? '<div class="mg-picks">'+stepChoices(g).map(function(x){
           return '<button type="button" class="t3idea" data-mg-step-pick="'+g.id+'" data-text="'+esc(x)+'">'+ic('plus')+'<span>'+esc(x)+'</span></button>';
-        }).join('')+'</div>' : '')+
-      '<button type="button" class="btn btn-quiet btn-sm t3rest" data-gstep-rest="'+g.id+'">🌿 <span>'+esc(t('rest.btn'))+'</span></button></div>';
+        }).join('')+'</div>' : '')+'</div>';
     return '<div class="t3row t3g'+(done?' done':'')+'">'+
       '<button type="button" class="t3chk" data-gstep-done="'+g.id+'" aria-pressed="'+done+'" aria-label="'+esc(t('t3.mark'))+'">'+ic('check')+'</button>'+
       '<div class="t3g-body"><div class="t3g-goal">'+ic('target')+'<span>'+esc(g.title)+'</span></div><div class="t3g-step">'+esc(step)+'</div>'+
@@ -722,31 +745,53 @@ function renderToday3(){
       (done ? '' :
         (vid ? '<button type="button" class="t3act" data-mg-vid="'+g.id+'" aria-label="'+esc(t('res.video'))+'" title="'+esc(t('res.video'))+'">'+ic('play')+'</button>'
              : '<button type="button" class="t3act" data-mg-five="'+g.id+'"'+(running?' disabled':'')+' aria-label="'+esc(t('d.start5'))+'" title="'+esc(t('d.start5'))+'">'+ic('clock')+'</button>')+
-        '<button type="button" class="t3act" data-mg-step-clear="'+g.id+'" aria-label="'+esc(t('mg.change'))+'" title="'+esc(t('mg.change'))+'">'+ic('refresh')+'</button>'+
-        '<button type="button" class="t3act" data-gstep-rest="'+g.id+'" aria-label="'+esc(t('rest.btn'))+'" title="'+esc(t('rest.btn'))+'">🌿</button>')+
+        '<button type="button" class="t3act" data-mg-step-clear="'+g.id+'" aria-label="'+esc(t('mg.change'))+'" title="'+esc(t('mg.change'))+'">'+ic('refresh')+'</button>')+
       '</div>';
   }).join('');
+  var iRows=td.items.map(function(it,i){
+    return '<div class="t3row'+(it.done?' done':'')+'">'+
+      '<button type="button" class="t3chk" data-t3="'+i+'" aria-pressed="'+(it.done?'true':'false')+'" aria-label="'+esc(t('t3.mark'))+'">'+ic('check')+'</button>'+
+      '<input type="text" maxlength="80" data-t3in="'+i+'" value="'+esc(it.t)+'" aria-label="'+esc(it.t)+'">'+
+      (it.done ? '' : '<button type="button" class="t3act" data-t3del="'+i+'" aria-label="'+esc(t('c.delete'))+'" title="'+esc(t('c.delete'))+'">'+ic('x')+'</button>')+
+      '</div>';
+  }).join('');
+  /* once something is chosen the picker folds away, so the list leads */
+  var chosen=total>0;
   box.innerHTML='<div class="boxh-row"><h2 class="boxh">'+ic('sun')+'<span>'+esc(t('t3.t'))+'</span></h2>'+
-      '<span class="boxh-n numf">'+nDone+'/'+(goals.length+3)+'</span></div>'+
-    '<p class="psub">'+esc(t('t3.s'))+'</p>'+
-    '<div class="mg-lab">'+esc(t('t3.forgoals'))+'</div>'+
-    (gRows || '<button type="button" class="btn btn-ghost btn-sm t3nogoal" data-goto-goals>'+ic('target')+'<span>'+esc(t('t3.nogoal'))+'</span></button>')+
-    '<div class="mg-lab t3more">'+esc(t('t3.more'))+'</div>'+
-    td.items.map(function(it,i){
-      var ph=t('t3.ph',{n:i+1});
-      return '<div class="t3row'+(it.done?' done':'')+'">'+
-        '<button type="button" class="t3chk" data-t3="'+i+'" aria-pressed="'+(it.done?'true':'false')+'"'+
-          ' aria-label="'+esc(t('t3.mark'))+'"'+(it.t.trim()?'':' disabled')+'>'+ic('check')+'</button>'+
-        '<input type="text" maxlength="80" data-t3in="'+i+'" value="'+esc(it.t)+'"'+
-          ' placeholder="'+esc(ph)+'" aria-label="'+esc(ph)+'"></div>';
-    }).join('')+
-    t3Ideas(td);
-  box.querySelectorAll('[data-t3in]').forEach(function(inp){
-    inp.addEventListener('input',function(){
-      var i=Number(inp.dataset.t3in), it=today3().items[i];
-      it.t=inp.value; logDay(); save();
-      box.querySelector('[data-t3="'+i+'"]').disabled=!inp.value.trim();
+      (chosen ? '<span class="boxh-n numf">'+nDone+'/'+total+'</span>' : '')+'</div>'+
+    (chosen
+      ? '<div class="mg-lab">'+esc(t('t3.chosen'))+'</div>'+gRows+iRows+
+        '<details class="t3pick"'+(t3PickOpen?' open':'')+'><summary>'+ic('plus')+'<span>'+esc(t('t3.pickmore'))+'</span></summary>'+picker+'</details>'
+      : '<p class="psub">'+esc(t('t3.s'))+'</p>'+picker);
+  var det=box.querySelector('.t3pick');
+  if(det) det.addEventListener('toggle',function(){ t3PickOpen=det.open; });
+  box.querySelectorAll('[data-t3pick]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var id=Number(b.dataset.t3pick), td=today3(), i=td.picked.indexOf(id), g=goalById(id);
+      if(i>=0){ td.picked.splice(i,1); if(g && g.day && g.day.d===dayKey()) g.day=null; if(fiveGid===id) clearFive(); }
+      else { td.picked.push(id); markActiveToday(); }
+      logDay(); save(); renderToday3();
+      if(i<0){ var s=box.querySelector('[data-mg-step-in="'+id+'"]'); if(s && !t3PickOpen) s.focus(); }
     });
+  });
+  box.querySelectorAll('[data-idea]').forEach(function(b){
+    b.addEventListener('click',function(){ if(addDayItem(b.dataset.idea)){ markActiveToday(); renderToday3(); } });
+  });
+  var own=box.querySelector('#t3Own');
+  if(own){
+    var addOwn=function(){ if(!own.value.trim()){ own.focus(); return; } if(addDayItem(own.value)){ markActiveToday(); renderToday3(); } };
+    box.querySelector('#t3OwnAdd').addEventListener('click',addOwn);
+    own.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); addOwn(); } });
+  }
+  box.querySelectorAll('[data-t3in]').forEach(function(inp){
+    inp.addEventListener('change',function(){
+      var it=today3().items[Number(inp.dataset.t3in)];
+      if(!inp.value.trim()){ inp.value=it.t; return; }
+      it.t=inp.value.trim(); logDay(); save();
+    });
+  });
+  box.querySelectorAll('[data-t3del]').forEach(function(b){
+    b.addEventListener('click',function(){ today3().items.splice(Number(b.dataset.t3del),1); logDay(); save(); renderToday3(); });
   });
   box.querySelectorAll('[data-t3]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -767,28 +812,13 @@ function renderToday3(){
       var g=goalById(Number(b.dataset.gstepDone));
       if(g.doneDay===dayKey()){ g.doneDay=null; logDay(); save(); renderToday3(); return; }
       if(fiveGid===g.id) clearFive();
-      g.doneDay=dayKey(); g.restDay=null; markActiveToday();
+      g.doneDay=dayKey(); markActiveToday();
       if(g.paidDay!==dayKey()){
         g.paidDay=dayKey(); addPts(25);
         S.stats.challenges=(S.stats.challenges||0)+1;
       }
       cheerIfAll(t('t3.chose',{n:25}), true);
       logDay(); save(); renderToday3(); renderEvening(); renderDashStats(); renderStats(); checkAchievements();
-    });
-  });
-  box.querySelectorAll('[data-gstep-rest]').forEach(function(b){
-    b.addEventListener('click',function(){
-      var g=goalById(Number(b.dataset.gstepRest));
-      if(fiveGid===g.id) clearFive();
-      g.restDay=dayKey(); g.doneDay=null; markActiveToday();
-      toast(t('rest.toast'));
-      logDay(); save(); renderToday3(); renderEvening();
-    });
-  });
-  box.querySelectorAll('[data-gstep-unrest]').forEach(function(b){
-    b.addEventListener('click',function(){
-      var g=goalById(Number(b.dataset.gstepUnrest)); g.restDay=null;
-      logDay(); save(); renderToday3();
     });
   });
   box.querySelectorAll('[data-mg-step-set]').forEach(function(b){
@@ -810,21 +840,13 @@ function renderToday3(){
     b.addEventListener('click',function(){ openRes(firstVideo(goalById(Number(b.dataset.mgVid)))); });
   });
   var ng=box.querySelector('[data-goto-goals]'); if(ng) ng.addEventListener('click',function(){ goPage('goals'); });
-  box.querySelectorAll('[data-idea]').forEach(function(b){
-    b.addEventListener('click',function(){
-      var td=today3(), slot=td.items.filter(function(x){ return !x.t.trim(); })[0];
-      if(!slot){ toast(t('sq.full')); return; }
-      slot.t=b.dataset.idea; logDay(); save(); renderToday3();
-    });
-  });
   if(box.querySelector('[data-goquiz]')) bindGoQuiz(box);
 }
 /* Everything on the day's list done - goal steps and the lines written -
    is the moment for confetti; a goal's step gets it too. */
 function cheerIfAll(msg, isGoal){
   var td=today3(), today=dayKey();
-  var lines=td.items.filter(function(x){ return x.t.trim(); });
-  var all=lines.every(function(x){ return x.done; }) && liveGoals().every(function(g){ return g.doneDay===today || g.restDay===today; });
+  var all=td.items.every(function(x){ return x.done; }) && pickedGoals().every(function(g){ return g.doneDay===today; });
   toast(all ? t('t3.all') : msg);
   if(all || isGoal) celebrate();
 }
