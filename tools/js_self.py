@@ -157,10 +157,9 @@ function renderCircle(){
   });
   box.querySelectorAll('[data-cir-day]').forEach(function(b){
     b.addEventListener('click',function(){
-      var x=cirById(Number(b.dataset.cirDay)), td=today3();
-      var free=td.items.filter(function(it){ return !it.t.trim(); })[0];
-      if(!free){ toast(t('cir.full')); return; }
-      free.t=x.step; x.day=dayKey(); logDay(); save(); toast(t('cir.added')); renderCircle();
+      var x=cirById(Number(b.dataset.cirDay));
+      if(!addDayItem(x.step)) return;
+      x.day=dayKey(); save(); toast(t('cir.added')); renderCircle();
     });
   });
   box.querySelectorAll('[data-cir-del]').forEach(function(b){
