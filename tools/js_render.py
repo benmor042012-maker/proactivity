@@ -705,7 +705,7 @@ function logDay(){
   S.log[td.day]={
     note: prev.note||'', feel: prev.feel||'', choice: prev.choice||'',
     items: td.items.filter(function(x){ return x.t.trim(); })
-             .map(function(x){ return {t:x.t.trim(), done:!!x.done, gid:x.gid||null}; }),
+             .map(function(x){ return {t:x.t.trim(), done:!!x.done, gid:x.gid||null, url:x.url||null}; }),
     steps: (S.goals||[]).filter(function(g){ return g.doneDay===td.day; }).map(function(g){ return g.id; }),
     st: {},   // the text of each step that was done, so My week can show it
     rest: (S.goals||[]).filter(function(g){ return g.restDay===td.day; }).map(function(g){ return g.id; })
@@ -753,14 +753,17 @@ function renderToday3(){
       (done ? '' :
         (vid ? '<button type="button" class="t3act" data-mg-vid="'+g.id+'" aria-label="'+esc(t('res.video'))+'" title="'+esc(t('res.video'))+'">'+ic('play')+'</button>'
              : '<button type="button" class="t3act" data-mg-five="'+g.id+'"'+(running?' disabled':'')+' aria-label="'+esc(t('d.start5'))+'" title="'+esc(t('d.start5'))+'">'+ic('clock')+'</button>')+
-        '<button type="button" class="t3act" data-mg-step-clear="'+g.id+'" aria-label="'+esc(t('mg.change'))+'" title="'+esc(t('mg.change'))+'">'+ic('refresh')+'</button>')+
+        '<button type="button" class="t3act" data-mg-step-clear="'+g.id+'" aria-label="'+esc(t('mg.change'))+'" title="'+esc(t('mg.change'))+'">'+ic('refresh')+'</button>'+
+        '<button type="button" class="t3act" data-srch-g="'+g.id+'" aria-label="'+esc(t('srch.t'))+'" title="'+esc(t('srch.t'))+'">'+ic('globe')+'</button>')+
       '</div>';
   }).join('');
   var iRows=td.items.map(function(it,i){
     return '<div class="t3row'+(it.done?' done':'')+'">'+
       '<button type="button" class="t3chk" data-t3="'+i+'" aria-pressed="'+(it.done?'true':'false')+'" aria-label="'+esc(t('t3.mark'))+'">'+ic('check')+'</button>'+
       '<input type="text" maxlength="80" data-t3in="'+i+'" value="'+esc(it.t)+'" aria-label="'+esc(it.t)+'">'+
-      (it.done ? '' : '<button type="button" class="t3act" data-t3del="'+i+'" aria-label="'+esc(t('c.delete'))+'" title="'+esc(t('c.delete'))+'">'+ic('x')+'</button>')+
+      (it.url ? '<a class="t3act" href="'+esc(it.url)+'" target="_blank" rel="noopener" aria-label="'+esc(t('srch.open'))+'" title="'+esc(t('srch.open'))+'">'+ic('link')+'</a>' : '')+
+      (it.done ? '' : '<button type="button" class="t3act" data-srch-i="'+i+'" aria-label="'+esc(t('srch.t'))+'" title="'+esc(t('srch.t'))+'">'+ic('globe')+'</button>'+
+        '<button type="button" class="t3act" data-t3del="'+i+'" aria-label="'+esc(t('c.delete'))+'" title="'+esc(t('c.delete'))+'">'+ic('x')+'</button>')+
       '</div>';
   }).join('');
   /* once something is chosen the picker folds away, so the list leads */
@@ -856,6 +859,12 @@ function renderToday3(){
     b.addEventListener('click',function(){ openRes(firstVideo(goalById(Number(b.dataset.mgVid)))); });
   });
   var ng=box.querySelector('[data-goto-goals]'); if(ng) ng.addEventListener('click',function(){ goPage('goals'); });
+  box.querySelectorAll('[data-srch-g]').forEach(function(b){
+    b.addEventListener('click',function(){ srchOpen({gid:Number(b.dataset.srchG)}); });
+  });
+  box.querySelectorAll('[data-srch-i]').forEach(function(b){
+    b.addEventListener('click',function(){ srchOpen({item:Number(b.dataset.srchI)}); });
+  });
   if(box.querySelector('[data-goquiz]')) bindGoQuiz(box);
 }
 /* Everything on the day's list done - goal steps and the lines written -
@@ -1301,7 +1310,7 @@ function resHtml(g){
     '<div class="res-add"><input type="url" inputmode="url" data-res-url="'+g.id+'" placeholder="'+esc(t('res.url.ph'))+'" aria-label="'+esc(t('res.url.ph'))+'">'+
       '<input type="text" maxlength="60" data-res-title="'+g.id+'" placeholder="'+esc(t('res.title.ph'))+'" aria-label="'+esc(t('res.title.ph'))+'">'+
       '<button class="btn btn-primary btn-sm" data-res-add="'+g.id+'">'+ic('plus')+'<span>'+esc(t('c.add'))+'</span></button></div>'+
-    '<button class="btn btn-ghost btn-sm res-yt" data-res-yt="'+g.id+'">'+ic('play')+'<span>'+esc(t('res.yt'))+'</span></button>'+
+    '<button class="btn btn-ghost btn-sm res-yt" data-res-yt="'+g.id+'">'+ic('globe')+'<span>'+esc(t('srch.t'))+'</span></button>'+
     '<p class="hint">'+esc(t('res.yt.h'))+'</p>'+
   '</details>';
 }
@@ -1339,8 +1348,7 @@ function bindRes(host, rerender){
   });
   host.querySelectorAll('[data-res-yt]').forEach(function(b){
     b.addEventListener('click',function(){
-      var g=goalById(Number(b.dataset.resYt)), extra=g.area ? t('yt.q.'+g.area) : '';
-      window.open('https://www.youtube.com/results?search_query='+encodeURIComponent((g.title+' '+(extra.indexOf('yt.q.')===0?'':extra)).trim()),'_blank','noopener');
+      srchOpen({gid:Number(b.dataset.resYt)});
     });
   });
 }

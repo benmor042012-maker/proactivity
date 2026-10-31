@@ -686,6 +686,12 @@ def build_body(logo):
   <button class="btn btn-primary" id="vidClose" data-i18n="res.close"></button></div>
 </div></div>
 
+<div class="modal-bg" id="srchModal"><div class="modal srch-modal" role="dialog" aria-modal="true" aria-labelledby="srchTitle">
+ <h3 id="srchTitle" data-i18n="srch.t"></h3>
+ <div id="srchBody"></div>
+ <div class="modal-btns"><button class="btn btn-primary" id="srchClose" data-i18n="res.close"></button></div>
+</div></div>
+
 <div class="modal-bg" id="camModal"><div class="modal" role="dialog" aria-modal="true">
  <h3 data-i18n="cam.t"></h3><p id="camTN"></p>
  <video class="cam-v" id="camV" autoplay playsinline muted></video>

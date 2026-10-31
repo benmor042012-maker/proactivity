@@ -707,6 +707,14 @@ body.no-scroll{overflow:hidden;}
 .eve-choice svg,.wk-feel svg{width:15px;height:15px;color:var(--acc);flex:none;margin-top:3px;}
 #eveBox .field label{display:flex;align-items:center;gap:6px;}
 #eveBox .field label svg{width:16px;height:16px;color:var(--acc);flex:none;}
+.srch-modal #srchQ{width:100%;margin:var(--s2) 0 var(--s3);}
+.srch-ways{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);}
+.srch-way{display:flex;align-items:center;gap:8px;padding:12px;border-radius:var(--r-ctl);border:1px solid var(--ink-3);background:var(--ink-0);
+  color:var(--fg);font:inherit;font-weight:700;cursor:pointer;text-align:start;}
+.srch-way svg{width:18px;height:18px;color:var(--acc);flex:none;}
+.srch-save{margin-top:var(--s4);}
+.srch-modal .hint{word-break:break-all;}
+a.t3act{display:inline-grid;place-items:center;color:var(--acc);}
 .rg-cats{display:flex;gap:6px;overflow-x:auto;margin:0 -4px var(--s3);padding:2px 4px 6px;scrollbar-width:none;}
 .rg-cats::-webkit-scrollbar{display:none;}
 .rg-cat{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--r-pill);border:1px solid var(--ink-3);

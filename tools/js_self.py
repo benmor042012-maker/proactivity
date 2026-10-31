@@ -201,4 +201,62 @@ function renderBackupAsk(){
     var d=new Date(); d.setDate(d.getDate()+7); var s=bkState(); s.later=dayKey(d); bkSet(s); box.hidden=true;
   });
 }
+
+/* ================= finding materials on the internet =================
+   From any row in My day, or a goal's materials: one query, editable, and
+   four ways to look - videos, guides and articles, podcasts, or the whole
+   web. A link found there can be pasted back: into the goal's materials,
+   or kept beside a one-off thing. The app itself never fetches anything;
+   the search opens in the browser. */
+var srchFor=null;   // {gid} or {item: index in today's things}
+function srchOpen(target){
+  srchFor=target;
+  var g=target.gid ? goalById(target.gid) : null;
+  var it=(target.item!==undefined) ? today3().items[target.item] : null;
+  var base=g ? g.title : (it ? it.t : '');
+  var extra=g && g.area ? t('yt.q.'+g.area) : '';
+  if(extra.indexOf('yt.q.')===0) extra='';
+  var ways=[['vid','play',extra],['guide','book',t('srch.guide.q')],['pod','activity',t('srch.pod.q')],['web','globe','']];
+  document.getElementById('srchBody').innerHTML=
+    '<p class="psub">'+esc(t('srch.s'))+'</p>'+
+    '<input type="text" id="srchQ" maxlength="100" value="'+esc(base)+'" aria-label="'+esc(t('srch.s'))+'">'+
+    '<div class="srch-ways">'+ways.map(function(w){
+      return '<button type="button" class="srch-way" data-srch="'+w[0]+'" data-extra="'+esc(w[2])+'">'+ic(w[1])+'<span>'+esc(t('srch.'+w[0]))+'</span></button>'; }).join('')+'</div>'+
+    '<div class="field srch-save"><label for="srchUrl">'+esc(t('srch.save'))+'</label>'+
+      '<div class="addrow"><input type="url" inputmode="url" id="srchUrl" placeholder="'+esc(t('res.url.ph'))+'">'+
+      '<button class="btn btn-ghost" id="srchKeep">'+esc(t('c.save'))+'</button></div></div>'+
+    (it && it.url ? '<p class="hint">'+ic('link')+'<span>'+esc(it.url)+'</span></p>' : '');
+  var m=document.getElementById('srchModal'); m.classList.add('on');
+  m.querySelectorAll('[data-srch]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var q=document.getElementById('srchQ').value.trim(); if(!q) return;
+      var full=(q+' '+(b.dataset.extra||'')).trim(), url;
+      if(b.dataset.srch==='vid') url='https://www.youtube.com/results?search_query='+encodeURIComponent(full);
+      else url='https://www.google.com/search?hl='+encodeURIComponent(cur||'he')+'&q='+encodeURIComponent(full);
+      if(g) prefLearn(goalCat(g),0.5);
+      window.open(url,'_blank','noopener');
+    });
+  });
+  document.getElementById('srchKeep').addEventListener('click',srchKeep);
+}
+function srchKeep(){
+  var inp=document.getElementById('srchUrl'), url=inp.value.trim();
+  if(url && !/^https?:\/\//i.test(url) && /^[\w-]+(\.[\w-]+)+/.test(url)) url='https://'+url;
+  if(!/^https?:\/\/\S+\.\S+/i.test(url)){ toast(t('res.bad')); inp.focus(); return; }
+  var yt=ytId(url), name;
+  try{ name = yt ? t('res.ytname') : new URL(url).hostname.replace(/^www\./,''); }catch(e){ name=url; }
+  if(srchFor && srchFor.gid){
+    var g=goalById(srchFor.gid); if(!g) return;
+    if(!g.res) g.res=[];
+    g.res.push({id:uid++, url:url, title:name, yt:yt});
+    toast(t('srch.saved'));
+  } else if(srchFor && srchFor.item!==undefined){
+    var it=today3().items[srchFor.item]; if(!it) return;
+    it.url=url; toast(t('srch.saved.i'));
+  }
+  save(); srchClose(); renderToday3(); if(typeof renderGoals==='function') renderGoals();
+}
+function srchClose(){ document.getElementById('srchModal').classList.remove('on'); srchFor=null; }
+document.getElementById('srchClose').addEventListener('click',srchClose);
+document.getElementById('srchModal').addEventListener('click',function(e){ if(e.target.id==='srchModal') srchClose(); });
 """
