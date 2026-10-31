@@ -229,6 +229,7 @@ function commitChain(start){
     return;
   }
   S.goals.unshift(g);
+  if(typeof prefLearn==='function') prefLearn(goalCat(g),2);
   if(start) startGoal(g); else { save(); tip('goal.new'); }
   resetChain();
   var host=document.getElementById('goalChain'); if(host){ host.innerHTML=''; host.hidden=true; }

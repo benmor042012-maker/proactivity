@@ -679,8 +679,14 @@ function addDayItem(text){
 function t3Ideas(td){
   var used={}; td.items.forEach(function(x){ used[normLine(x.t)]=1; });
   var out=[];
-  function add(text){ if(!text || used[normLine(text)] || out.length>=5) return; used[normLine(text)]=1; out.push(text); }
-  if(hasProfile()) [1,2,3].forEach(function(n){ add(t('sq.'+weakDim()+'.'+n)); });
+  function add(text,cat){ if(!text || used[normLine(text)] || out.length>=6) return; used[normLine(text)]=1; out.push({t:text,cat:cat||null}); }
+  /* first, a day's step from the categories this user keeps choosing */
+  var have={}; (S.goals||[]).forEach(function(g){ if(g.rg) have[g.rg]=1; });
+  topCats().slice(0,2).forEach(function(c){
+    var rs=READY_GOALS.filter(function(r){ return r[3]===c && readyFits(r) && !have[r[0]]; });
+    if(rs.length){ var r=rs[(new Date().getDate())%rs.length]; add(t('rg.'+r[0]+'.d'),c); }
+  });
+  if(hasProfile()) [1,2].forEach(function(n){ add(t('sq.'+weakDim()+'.'+n)); });
   var band=P.age ? ageBand(P.age) : 'a13';
   [1,2,3,4,5,6].forEach(function(n){ add(t('sq.'+band+'.'+n)); });
   return out;
@@ -717,14 +723,16 @@ function renderToday3(){
   /* the picker: my goals to choose, ideas, and my own words */
   var ideas=t3Ideas(td);
   var picker=
-    '<div class="mg-lab">'+esc(t('t3.pick.goals'))+'</div>'+
+    '<div class="mg-lab">'+esc(t(all.length?'t3.pick.goals':'t3.pick.sug'))+'</div>'+
     (all.length ? '<div class="mg-picks t3goals">'+all.map(function(g){
         var on=td.picked.indexOf(g.id)>=0, locked=g.doneDay===today;
         return '<button type="button" class="t3idea t3gpick'+(on?' on':'')+'" data-t3pick="'+g.id+'" aria-pressed="'+on+'"'+(locked?' disabled':'')+'>'+
           ic(on?'check':'target')+'<span>'+esc(g.title)+'</span></button>'; }).join('')+'</div>'
-      : '<button type="button" class="btn btn-ghost btn-sm t3nogoal" data-goto-goals>'+ic('target')+'<span>'+esc(t('t3.nogoal'))+'</span></button>')+
+      : '<div class="mg-picks">'+readyGoals('for').slice(0,3).map(function(r){
+          return '<button type="button" class="t3idea" data-t3ready="'+r[0]+'">'+ic('target')+'<span>'+esc(t('rg.'+r[0]+'.t'))+'</span></button>'; }).join('')+'</div>'+
+        '<button type="button" class="btn btn-quiet btn-sm t3nogoal" data-goto-goals>'+ic('plus')+'<span>'+esc(t('t3.nogoal'))+'</span></button>')+
     (ideas.length && td.items.length<T3_MAX ? '<div class="mg-lab">'+esc(t('sq.t'))+'</div><div class="mg-picks">'+ideas.map(function(x){
-        return '<button type="button" class="t3idea" data-idea="'+esc(x)+'">'+ic('plus')+'<span>'+esc(x)+'</span></button>'; }).join('')+'</div>' : '')+
+        return '<button type="button" class="t3idea" data-idea="'+esc(x.t)+'"'+(x.cat?' data-cat="'+x.cat+'"':'')+'>'+ic('plus')+'<span>'+esc(x.t)+'</span></button>'; }).join('')+'</div>' : '')+
     (td.items.length<T3_MAX ? '<div class="addrow t3own"><input type="text" id="t3Own" maxlength="80" placeholder="'+esc(t('t3.other.ph'))+'" aria-label="'+esc(t('t3.other.ph'))+'">'+
         '<button class="btn btn-ghost" id="t3OwnAdd" aria-label="'+esc(t('c.add'))+'">'+ic('plus')+'</button></div>' : '')+
     (hasProfile() ? '' : '<button type="button" class="btn btn-quiet btn-sm t3quiz" data-goquiz>'+ic('sparkles')+'<span>'+esc(t('sq.quiz'))+'</span></button>');
@@ -769,13 +777,21 @@ function renderToday3(){
     b.addEventListener('click',function(){
       var id=Number(b.dataset.t3pick), td=today3(), i=td.picked.indexOf(id), g=goalById(id);
       if(i>=0){ td.picked.splice(i,1); if(g && g.day && g.day.d===dayKey()) g.day=null; if(fiveGid===id) clearFive(); }
-      else { td.picked.push(id); markActiveToday(); }
+      else { td.picked.push(id); markActiveToday(); prefLearn(goalCat(g),1); }
       logDay(); save(); renderToday3();
       if(i<0){ var s=box.querySelector('[data-mg-step-in="'+id+'"]'); if(s && !t3PickOpen) s.focus(); }
     });
   });
   box.querySelectorAll('[data-idea]').forEach(function(b){
-    b.addEventListener('click',function(){ if(addDayItem(b.dataset.idea)){ markActiveToday(); renderToday3(); } });
+    b.addEventListener('click',function(){
+      if(addDayItem(b.dataset.idea)){ if(b.dataset.cat) prefLearn(b.dataset.cat,1); markActiveToday(); save(); renderToday3(); }
+    });
+  });
+  box.querySelectorAll('[data-t3ready]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var g=addReadyGoal(rgById(Number(b.dataset.t3ready))); if(!g) return;
+      today3().picked.push(g.id); logDay(); save(); renderToday3();
+    });
   });
   var own=box.querySelector('#t3Own');
   if(own){
@@ -812,7 +828,7 @@ function renderToday3(){
       var g=goalById(Number(b.dataset.gstepDone));
       if(g.doneDay===dayKey()){ g.doneDay=null; logDay(); save(); renderToday3(); return; }
       if(fiveGid===g.id) clearFive();
-      g.doneDay=dayKey(); markActiveToday();
+      g.doneDay=dayKey(); markActiveToday(); prefLearn(goalCat(g),1);
       if(g.paidDay!==dayKey()){
         g.paidDay=dayKey(); addPts(25);
         S.stats.challenges=(S.stats.challenges||0)+1;
@@ -1177,6 +1193,7 @@ function goalEditForm(g){
 /* Deleting a goal takes its weekly mission with it and unlinks the day
    lines that pointed at it; the days it was part of stay in the log. */
 function deleteGoal(id){
+  prefLearn(goalCat(goalById(id)),-1);
   S.goals=(S.goals||[]).filter(function(g){ return g.id!==id; });
   S.missions=(S.missions||[]).filter(function(m){ return m.goalId!==id; });
   today3().items.forEach(function(x){ if(x.gid===id) x.gid=null; });
@@ -1403,17 +1420,71 @@ document.addEventListener('toggle',function(e){
   var box=d.querySelector('.fg-picks'); if(box) renderFreePicks(box);
 },true);
 
-var READY={teen:[[1,'study',4],[2,'sleep',5],[3,'habits',5],[4,'sport',3],[5,'learn',4],[6,'social',2]],
-           adult:[[7,'sport',3],[8,'sleep',5],[3,'habits',5],[10,'learn',3],[11,'time',5],[12,'social',2]]};
-function readyGoals(){
-  var set=(!P.age || ageBand(P.age)==='a13') ? READY.teen : READY.adult;
+/* Ready goals: [id, area, freq, category, age, check-in area].
+   age is t (up to 17), a (18 and up) or '' for everyone. */
+var RG_CATS=[{id:'body',icon:'activity'},{id:'study',icon:'book'},{id:'people',icon:'users'},
+             {id:'money',icon:'wallet'},{id:'calm',icon:'seedling'},{id:'create',icon:'palette'}];
+var READY_GOALS=[
+ [1,'study',4,'study','t','plan'],[2,'sleep',5,'body','t','plan'],[3,'habits',5,'calm','','choice'],[4,'sport',3,'body','t','init'],
+ [5,'learn',4,'create','','goal'],[6,'social',2,'people','t','init'],[7,'sport',3,'body','a','init'],[8,'sleep',5,'body','a','plan'],
+ [10,'learn',3,'study','a','goal'],[11,'time',5,'study','a','time'],[12,'social',2,'people','a','init'],
+ [13,'sport',3,'body','t','init'],[14,'habits',5,'body','','plan'],[15,'sport',5,'body','a','init'],[16,'habits',5,'body','','plan'],
+ [17,'sport',5,'body','a','time'],[18,'habits',5,'body','t','plan'],
+ [19,'study',5,'study','t','time'],[20,'study',3,'study','t','solve'],[21,'learn',3,'study','a','goal'],[22,'goals',5,'study','a','goal'],
+ [23,'learn',4,'study','','goal'],[24,'goals',2,'study','a','init'],
+ [25,'social',2,'people','t','init'],[26,'social',3,'people','','init'],[27,'social',3,'people','','init'],[28,'social',4,'people','t','choice'],
+ [29,'social',1,'people','a','plan'],[30,'social',5,'people','','choice'],
+ [31,'habits',1,'money','t','goal'],[32,'habits',1,'money','t','plan'],[33,'habits',5,'money','a','plan'],[34,'time',1,'money','a','time'],
+ [35,'habits',5,'money','','plan'],[36,'time',1,'money','','plan'],
+ [37,'habits',5,'calm','','choice'],[38,'habits',4,'calm','','solve'],[39,'habits',5,'calm','','choice'],[40,'habits',5,'calm','','choice'],
+ [41,'study',3,'calm','t','plan'],[42,'habits',3,'calm','a','time'],
+ [43,'learn',4,'create','','init'],[44,'learn',3,'create','','init'],[45,'learn',1,'create','','init'],[46,'learn',3,'create','t','goal'],
+ [47,'learn',2,'create','','init'],[48,'learn',1,'create','a','init']
+];
+function rgById(id){ return READY_GOALS.filter(function(r){ return r[0]===id; })[0]; }
+/* a goal's category: its own if it came ready, else read from its area */
+var AREA_CAT={sport:'body',sleep:'body',study:'study',time:'study',goals:'study',social:'people',init:'people',habits:'calm',learn:'create'};
+function goalCat(g){ return g && (g.cat || AREA_CAT[g.area]) || null; }
+
+/* ---- learning the user ----
+   Every choice nudges S.pref, one number per category: a ready goal added
+   (3), a goal built or picked for today (2 / 1), a step done (1), an idea
+   taken (1), a category opened (0.5), a goal deleted (-1). A new day lets
+   old weight fade a little, so what someone chooses now counts most. */
+function prefLearn(cat, w){
+  if(!cat) return;
+  if(!S.pref) S.pref={};
+  var d=dayKey();
+  if(S.prefDay!==d){ Object.keys(S.pref).forEach(function(k){ S.pref[k]=Math.round(S.pref[k]*95)/100; }); S.prefDay=d; }
+  S.pref[cat]=Math.max(0, Math.min(30, (S.pref[cat]||0)+w));
+}
+function topCats(){
+  var p=S.pref||{};
+  return Object.keys(p).filter(function(k){ return p[k]>=1; }).sort(function(a,b){ return p[b]-p[a]; });
+}
+function ageKey(){ return (!P.age || ageBand(P.age)==='a13') ? 't' : 'a'; }
+function readyFits(r){ return !r[4] || r[4]===ageKey(); }
+function readyGoals(cat){
   var have={}; (S.goals||[]).forEach(function(g){ have[normLine(g.title)]=1; });
-  return set.filter(function(r){ return !have[normLine(t('rg.'+r[0]+'.t'))]; });
+  var list=READY_GOALS.filter(function(r){ return readyFits(r) && !have[normLine(t('rg.'+r[0]+'.t'))]; });
+  if(cat && cat!=='for') return list.filter(function(r){ return r[3]===cat; });
+  /* for you: the check-in's weakest area, the areas it said matter, and what
+     the user keeps choosing; a daily turn breaks ties, and no category takes
+     more than two of the six places */
+  var weak=hasProfile()?weakDim():null, areas=(S.quiz&&S.quiz.areas)||[], p=S.pref||{}, day=dayKey();
+  function rot(id){ var h=0, s=day+':'+id; for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))%997; return h/997; }
+  var scored=list.map(function(r){
+    return {r:r, s:(r[5]===weak?2:0)+(areas.indexOf(r[1])>=0?1.5:0)+Math.min(6,p[r[3]]||0)+rot(r[0])*0.9};
+  }).sort(function(a,b){ return b.s-a.s; });
+  var per={}, out=[];
+  scored.forEach(function(x){ if(out.length<6 && (per[x.r[3]]||0)<2){ per[x.r[3]]=(per[x.r[3]]||0)+1; out.push(x.r); } });
+  return out;
 }
 function addReadyGoal(r){
   if(goalLimitReached()){ toast(t('pro.goalmax',{n:GOAL_FREE_MAX})); openPlans(); return; }
   var title=t('rg.'+r[0]+'.t'), g=newGoal(title);
-  g.area=r[1]; g.freq=r[2];
+  g.area=r[1]; g.freq=r[2]; g.cat=r[3]; g.rg=r[0];
+  prefLearn(r[3],3);
   g.week=t('gw.line',{freq:t('gf.'+r[2]), kind:title});
   g.today=t('rg.'+r[0]+'.d'); g.now=t('rg.'+r[0]+'.n');
   g.actions=[{id:uid++,key:null,text:g.now,done:false},{id:uid++,key:null,text:g.today,done:false},{id:uid++,key:null,text:g.week,done:false}];
@@ -1421,6 +1492,7 @@ function addReadyGoal(r){
   startGoal(g);
   toast(t('rg.added'));
   renderGoals();
+  return g;
 }
 /* Above the goals: the offer to merge two that look alike, and the ready
    goals - both used to live in a goal card on Home. */
@@ -1442,20 +1514,30 @@ function renderGoalExtras(){
   }
   if(rb){ var h=readyHtml(); rb.hidden=!h; rb.innerHTML=h; bindReady(rb); }
 }
+var rgCat='for';
 function readyHtml(){
-  var list=readyGoals(); if(!list.length) return '';
-  return '<div class="mg-lab">'+esc(t('rg.t'))+'</div><div class="rg-list">'+list.map(function(r){
-    var a=areaById(r[1]);
-    return '<button type="button" class="rg" data-ready="'+r[0]+'">'+ic(a?a.icon:'target')+
-      '<span><b>'+esc(t('rg.'+r[0]+'.t'))+'</b><small>'+esc(t('gf.'+r[2]))+'</small></span></button>';
-  }).join('')+'</div>';
+  var list=readyGoals(rgCat);
+  var tabs='<div class="rg-cats" role="tablist">'+[{id:'for',icon:'sparkles'}].concat(RG_CATS).map(function(c){
+    return '<button type="button" class="rg-cat'+(rgCat===c.id?' on':'')+'" data-rgcat="'+c.id+'" role="tab" aria-selected="'+(rgCat===c.id)+'">'+
+      ic(c.icon)+'<span>'+esc(t('rgc.'+c.id))+'</span></button>'; }).join('')+'</div>';
+  return '<div class="mg-lab">'+esc(t('rg.t'))+'</div>'+tabs+
+    (rgCat==='for' ? '<p class="rg-why">'+esc(t('rgc.why'))+'</p>' : '')+
+    '<div class="rg-list">'+list.map(rgCard).join('')+'</div>';
+}
+function rgCard(r){
+  var c=RG_CATS.filter(function(x){ return x.id===r[3]; })[0];
+  return '<button type="button" class="rg" data-ready="'+r[0]+'">'+ic(c?c.icon:'target')+
+    '<span><b>'+esc(t('rg.'+r[0]+'.t'))+'</b><small>'+esc(t('gf.'+r[2]))+'</small></span></button>';
 }
 function bindReady(box){
-  box.querySelectorAll('[data-ready]').forEach(function(b){
+  box.querySelectorAll('[data-rgcat]').forEach(function(b){
     b.addEventListener('click',function(){
-      var id=Number(b.dataset.ready), r=READY.teen.concat(READY.adult).filter(function(x){ return x[0]===id; })[0];
-      if(r) addReadyGoal(r);
+      rgCat=b.dataset.rgcat; if(rgCat!=='for') prefLearn(rgCat,0.5);
+      save(); box.innerHTML=readyHtml(); bindReady(box);
     });
+  });
+  box.querySelectorAll('[data-ready]').forEach(function(b){
+    b.addEventListener('click',function(){ var r=rgById(Number(b.dataset.ready)); if(r) addReadyGoal(r); });
   });
 }
 

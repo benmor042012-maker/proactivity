@@ -213,6 +213,7 @@ HOME = {
                   'Что ты выбираешь на сегодня? Цель, идею или что-то своими словами. Для начала хватит одного.',
                   'ماذا {تختار|تختارين} لليوم؟ هدفاً، فكرة، أو شيئاً بكلماتك. واحد يكفي للبدء.'),
 't3.pick.goals': ('המטרות שלי', 'My goals', 'Mes objectifs', 'Мои цели', 'أهدافي'),
+'t3.pick.sug':   ('מטרות שאולי יתאימו לך', 'Goals that may suit you', 'Des objectifs qui pourraient te convenir', 'Цели, которые могут тебе подойти', 'أهداف قد تناسبك'),
 't3.other.ph':   ('משהו אחר, במילים שלך', 'Something else, in your own words', 'Autre chose, avec tes mots', 'Что-то другое, своими словами', 'شيء آخر، بكلماتك'),
 't3.chosen':     ('בחרתי להיום', 'Chosen for today', 'Choisi pour aujourd\'hui', 'Выбрано на сегодня', 'اخترته لليوم'),
 't3.pickmore':   ('לבחור עוד להיום', 'Choose more for today', 'Choisir autre chose pour aujourd\'hui', 'Выбрать ещё на сегодня', 'اختيار المزيد لليوم'),
