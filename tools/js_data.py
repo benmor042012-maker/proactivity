@@ -191,9 +191,47 @@ function bindInstall(){
     document.getElementById('installBar').classList.remove('on');
   });
 }
+/* Updating by itself: an installed app can sit open in the background for
+   days, and the page only picks up a new version when it reloads. So it
+   asks for a new version whenever it comes back to the screen and every
+   half hour; when one has taken over, the page reloads - but never while
+   someone is typing, then it waits for the next time the app is put away
+   or brought back. After the reload a short message says it was updated. */
+var swHadController=false, swReloadDue=false;
+function swTyping(){
+  var a=document.activeElement;
+  return !!(a && (a.tagName==='INPUT' || a.tagName==='TEXTAREA') && a.value);
+}
+function swReloadNow(){
+  if(!swReloadDue || swTyping()) return;
+  swReloadDue=false;
+  try{ sessionStorage.setItem('proactive_updated','1'); }catch(e){}
+  location.reload();
+}
 function registerSW(){
   if(!('serviceWorker' in navigator)) return;
   if(location.protocol==='file:') return;          /* local test runs, not a bug */
-  try{ navigator.serviceWorker.register('sw.js'); }catch(e){}
+  swHadController=!!navigator.serviceWorker.controller;
+  var reg=null;
+  try{
+    navigator.serviceWorker.register('sw.js').then(function(r){ reg=r; }).catch(function(){});
+  }catch(e){}
+  function check(){ if(reg) reg.update().catch(function(){}); }
+  navigator.serviceWorker.addEventListener('controllerchange',function(){
+    if(!swHadController){ swHadController=true; return; }    /* the very first install, nothing to refresh */
+    swReloadDue=true; swReloadNow();
+  });
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible') check();
+    swReloadNow();
+  });
+  document.addEventListener('focusout',function(){ setTimeout(swReloadNow,300); });
+  setInterval(check, 30*60*1000);
+  try{
+    if(sessionStorage.getItem('proactive_updated')){
+      sessionStorage.removeItem('proactive_updated');
+      setTimeout(function(){ if(typeof toast==='function') toast(t('upd.done')); },800);
+    }
+  }catch(e){}
 }
 """

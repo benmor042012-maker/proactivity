@@ -109,6 +109,7 @@ SUGGEST = {
 'res.video':   ('לסרטון', 'Video', 'Vidéo', 'Видео', 'الفيديو'),
 'res.close':   ('סגירה', 'Close', 'Fermer', 'Закрыть', 'إغلاق'),
 'res.out':     ('לפתוח ביוטיוב', 'Open on YouTube', 'Ouvrir sur YouTube', 'Открыть на YouTube', 'فتح في يوتيوب'),
+'upd.done':  ('האפליקציה עודכנה לגרסה החדשה ✨', 'The app was updated to the new version ✨', 'L\'appli a été mise à jour ✨', 'Приложение обновлено до новой версии ✨', 'تم تحديث التطبيق إلى الإصدار الجديد ✨'),
 'srch.t':    ('חיפוש חומרים באינטרנט', 'Find materials online', 'Trouver des ressources en ligne', 'Найти материалы в интернете', 'البحث عن مواد على الإنترنت'),
 'srch.s':    ('מה לחפש? אפשר לשנות את המילים.', 'What to look for? You can change the words.', 'Que chercher ? Tu peux changer les mots.', 'Что искать? Слова можно изменить.', 'عمّ نبحث؟ يمكن تغيير الكلمات.'),
 'srch.vid':  ('סרטונים', 'Videos', 'Vidéos', 'Видео', 'فيديوهات'),
